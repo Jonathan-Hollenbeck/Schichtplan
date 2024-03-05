@@ -20,7 +20,7 @@ namespace Schichtplan
         /// <summary>
         /// manager object
         /// </summary>
-        private Manager manager;
+        private ModelControl modelControl;
 
         /// <summary>
         /// sets a few colors to use
@@ -57,7 +57,7 @@ namespace Schichtplan
             //set current Month to next month. Because planing the shifts for the current month is kinda over
             currentDate = currentDate.AddMonths(1);
 
-            manager = new Manager();
+            modelControl = new ModelControl();
 
             InitializeComponent();
 
@@ -66,13 +66,13 @@ namespace Schichtplan
             yearTextBox.Text = currentDate.Year.ToString();
             monthTextBox.Text = currentDate.Month.ToString();
 
-            string filePath = Manager.SAVE_FOLDER + "" + currentDate.Year + "_" + currentDate.Month + "-" + manager.getMonthNameFromMonthNumber(currentDate.Month) + ".save";
+            string filePath = ModelControl.SAVE_FOLDER + "" + currentDate.Year + "_" + currentDate.Month + "-" + modelControl.getMonthNameFromMonthNumber(currentDate.Month) + ".save";
 
             //check if there is a file for the current month and year
             if (Serializer.Instance().fileExists(filePath))
             {
                 //if yes load that file
-                manager.open(filePath);
+                modelControl.open(filePath);
                 resetEverything();
             }
             else
@@ -91,7 +91,7 @@ namespace Schichtplan
                     control.MouseLeave += new EventHandler(this.weekTemplateTabelLabel_MouseLeave);
                     control.Click += new EventHandler(this.weekTemplateTableLabel_Click);
 
-                    weekTemplateControlColors.Add(control, getColorForWeekDay(manager.currentWorkmonth.weekTemplate[row].weekday));
+                    weekTemplateControlColors.Add(control, getColorForWeekDay(modelControl.currentWorkmonth.weekTemplate[row].weekday));
                 }
             }
 
@@ -99,10 +99,10 @@ namespace Schichtplan
             shiftPlanAlgorithmComboBox.SelectedIndex = 0;
 
 
-            manager.currentWorkmonth.turnoverWeeks = new Dictionary<int, float>();
-            manager.currentWorkmonth.turnoverWorkdays = new Dictionary<Workday, float>();
-            manager.currentWorkmonth.fixCosts = new List<model.Cost>();
-            manager.currentWorkmonth.variableCosts = new List<model.Cost>();
+            modelControl.currentWorkmonth.turnoverWeeks = new Dictionary<int, float>();
+            modelControl.currentWorkmonth.turnoverWorkdays = new Dictionary<Workday, float>();
+            modelControl.currentWorkmonth.fixCosts = new List<model.Cost>();
+            modelControl.currentWorkmonth.variableCosts = new List<model.Cost>();
         }
 
         //-----------------------------------my Functions--------------------------------------
@@ -115,7 +115,7 @@ namespace Schichtplan
             int year = Util.parseInt(yearString, "Bitte nur Zahlen in dem Jahres Textfeld benutzen");
             int month = Util.parseInt(monthString, "Bitte nur Zahlen in dem Monats Textfeld benutzen.\n" +
                 "Also Januar = 1, Februar = 2 usw.");
-            manager.createYearMonth(year, month);
+            modelControl.createYearMonth(year, month);
             resetEverything();
         }
 
@@ -219,7 +219,7 @@ namespace Schichtplan
             DialogResult dialogResult = MessageBox.Show("Willst du noch vor dem Schließen speichern?", "", MessageBoxButtons.YesNo);
             if (dialogResult == DialogResult.Yes)
             {
-                manager.save();
+                modelControl.save();
             }
         }
 
@@ -361,7 +361,7 @@ namespace Schichtplan
         /// <param name="e">event details</param>
         private void saveToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            manager.save();
+            modelControl.save();
         }
 
         /// <summary>
@@ -375,11 +375,11 @@ namespace Schichtplan
 
             if (openFileDialog.ShowDialog() == DialogResult.OK)
             {
-                manager.open(openFileDialog.FileName);
+                modelControl.open(openFileDialog.FileName);
                 resetEverything();
 
-                yearTextBox.Text = manager.currentWorkmonth.year + "";
-                monthTextBox.Text = manager.currentWorkmonth.month + "";
+                yearTextBox.Text = modelControl.currentWorkmonth.year + "";
+                monthTextBox.Text = modelControl.currentWorkmonth.month + "";
             }
         }
 
@@ -407,7 +407,7 @@ namespace Schichtplan
         /// <param name="e">event details</param>
         private void exportAsCSVToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            manager.exportCSVFiles();
+            modelControl.exportCSVFiles();
         }
 
         /// <summary>
@@ -417,7 +417,7 @@ namespace Schichtplan
         /// <param name="e">event details</param>
         private void kalenderDateienExportierenToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            manager.exportCalenderFiles();
+            modelControl.exportCalenderFiles();
         }
 
         /// <summary>
@@ -427,7 +427,7 @@ namespace Schichtplan
         /// <param name="e">event details</param>
         private void hTMLDateienExportierenToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            manager.exportHTMLFiles();
+            modelControl.exportHTMLFiles();
         }
     }
 }

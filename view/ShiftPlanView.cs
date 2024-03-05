@@ -43,7 +43,7 @@ namespace Schichtplan
             shiftPlanTable.SuspendLayout();
             shiftPlanTable.Controls.Clear();
 
-            List<List<Workday>> weeks = manager.getWeeksInWorkdays(manager.currentWorkmonth.workdays);
+            List<List<Workday>> weeks = modelControl.getWeeksInWorkdays(modelControl.currentWorkmonth.workdays);
 
             int row = 0;
 
@@ -52,20 +52,20 @@ namespace Schichtplan
                 List<Workday> week = weeks[weekCounter];
 
                 //create Week Information
-                Label weekLabel = createShiftPlanLabel("Woche " + weekCounter + ", " + manager.getFirstAndLastDayInWorkdaysAsString(week), weekColor);
+                Label weekLabel = createShiftPlanLabel("Woche " + weekCounter + ", " + modelControl.getFirstAndLastDayInWorkdaysAsString(week), weekColor);
                 weekLabel.ForeColor = weekFontColor;
                 weekLabel.Font = new Font(weekLabel.Font.FontFamily, weekFontSize, FontStyle.Bold);
                 weekLabel.Height = weekLabelHeight;
 
                 string worktimesByShiftTypeString = "";
 
-                Dictionary<string, float> worktimesByShifttype = manager.getWorktimesForShiftTypesInWorkdays(week);
+                Dictionary<string, float> worktimesByShifttype = modelControl.getWorktimesForShiftTypesInWorkdays(week);
 
                 foreach (KeyValuePair<string, float> worktime in worktimesByShifttype)
                 {
                     worktimesByShiftTypeString += worktime.Key + ": " + Util.clampToDecimalpoints(worktime.Value, 2) + "h; ";
                 }
-                float totalWorktime = manager.getWorktimeInWorkdays(week);
+                float totalWorktime = modelControl.getWorktimeInWorkdays(week);
                 worktimesByShiftTypeString += "Gesamt: " + Util.clampToDecimalpoints(totalWorktime, 2) + "h";
 
                 Label weekInfo = createShiftPlanLabel(worktimesByShiftTypeString, weekColor);
@@ -88,13 +88,13 @@ namespace Schichtplan
                     if (workday.shifts.Count > 0)
                     {
                         //create Day Information
-                        Label day = createShiftPlanLabel(workday.weekday + ", " + workday.day + " " + manager.currentWorkmonth.monthName,
+                        Label day = createShiftPlanLabel(workday.weekday + ", " + workday.day + " " + modelControl.currentWorkmonth.monthName,
                             dayColor);
                         day.ForeColor = dayFontColor;
                         day.Font = new Font(day.Font.FontFamily, dayFontSize, FontStyle.Bold);
                         day.Height = dayLabelHeight;
 
-                        Dictionary<string, float> worktimesByShifttypeDay = manager.getWorktimesForShiftTypesInWorkday(workday);
+                        Dictionary<string, float> worktimesByShifttypeDay = modelControl.getWorktimesForShiftTypesInWorkday(workday);
 
                         string worktimesByShiftTypeDayString = "";
 
@@ -102,7 +102,7 @@ namespace Schichtplan
                         {
                             worktimesByShiftTypeDayString += worktime.Key + ": " + Util.clampToDecimalpoints(worktime.Value, 2) + "h; ";
                         }
-                        float totalWorktimeDay = manager.getWorktimeInWorkday(workday);
+                        float totalWorktimeDay = modelControl.getWorktimeInWorkday(workday);
                         worktimesByShiftTypeDayString += "Gesamt: " + Util.clampToDecimalpoints(totalWorktimeDay, 2) + "h";
 
                         Label dayInfo = createShiftPlanLabel(worktimesByShiftTypeDayString, dayColor);
@@ -123,30 +123,30 @@ namespace Schichtplan
                         //create Shift Information
                         foreach (Workshift workshift in workday.shifts)
                         {
-                            if (manager.currentWorkmonth.shiftplan.ContainsKey(workshift))
+                            if (modelControl.currentWorkmonth.shiftplan.ContainsKey(workshift))
                             {
-                                Person person = manager.currentWorkmonth.shiftplan[workshift];
+                                Person person = modelControl.currentWorkmonth.shiftplan[workshift];
 
                                 Color workshiftColor = transparent;
-                                if (manager.currentWorkmonth.settings.shiftTypeColors.ContainsKey(workshift.shiftType)){
-                                    workshiftColor = manager.currentWorkmonth.settings.shiftTypeColors[workshift.shiftType];
+                                if (modelControl.currentWorkmonth.settings.shiftTypeColors.ContainsKey(workshift.shiftType)){
+                                    workshiftColor = modelControl.currentWorkmonth.settings.shiftTypeColors[workshift.shiftType];
                                 }
 
                                 Color personColor = transparent;
-                                if (manager.currentWorkmonth.settings.personColors.ContainsKey(person)){
-                                    personColor = manager.currentWorkmonth.settings.personColors[person];
+                                if (modelControl.currentWorkmonth.settings.personColors.ContainsKey(person)){
+                                    personColor = modelControl.currentWorkmonth.settings.personColors[person];
                                 }
 
-                                float carryOver = manager.currentWorkmonth.hourCarryOverLastMonth.ContainsKey(person) ? manager.currentWorkmonth.hourCarryOverLastMonth[person] : 0;
+                                float carryOver = modelControl.currentWorkmonth.hourCarryOverLastMonth.ContainsKey(person) ? modelControl.currentWorkmonth.hourCarryOverLastMonth[person] : 0;
 
                                 string personString = person.name;
-                                personString += " (" + Util.clampToDecimalpoints(manager.getWorktimeForPersonInWorkdays(person, week, manager.currentWorkmonth.shiftplan), 2) + ", "
-                                    + manager.getDaysNotWorkingForPersonInWorkdaysCount(person, week, manager.currentWorkmonth.shiftplan) + ")";
-                                personString += " [" + Util.clampToDecimalpoints(manager.getWorktimeForPersonInWorkdays(person, manager.currentWorkmonth.workdays, manager.currentWorkmonth.shiftplan), 2) + "+" + carryOver + ", "
-                                    + manager.getDaysNotWorkingForPersonInWorkdaysCount(person, manager.currentWorkmonth.workdays, manager.currentWorkmonth.shiftplan) + "]";
+                                personString += " (" + Util.clampToDecimalpoints(modelControl.getWorktimeForPersonInWorkdays(person, week, modelControl.currentWorkmonth.shiftplan), 2) + ", "
+                                    + modelControl.getDaysNotWorkingForPersonInWorkdaysCount(person, week, modelControl.currentWorkmonth.shiftplan) + ")";
+                                personString += " [" + Util.clampToDecimalpoints(modelControl.getWorktimeForPersonInWorkdays(person, modelControl.currentWorkmonth.workdays, modelControl.currentWorkmonth.shiftplan), 2) + "+" + carryOver + ", "
+                                    + modelControl.getDaysNotWorkingForPersonInWorkdaysCount(person, modelControl.currentWorkmonth.workdays, modelControl.currentWorkmonth.shiftplan) + "]";
 
                                 Label name = createShiftPlanLabel(personString, personColor);
-                                Label shift = createShiftPlanLabel(workshift.ToString() + " (" + Util.clampToDecimalpoints(manager.getWorktimeInWorkshift(workshift), 2) + ")", workshiftColor);
+                                Label shift = createShiftPlanLabel(workshift.ToString() + " (" + Util.clampToDecimalpoints(modelControl.getWorktimeInWorkshift(workshift), 2) + ")", workshiftColor);
                                 Label description = createShiftPlanLabel(workshift.description, transparent);
 
                                 shiftPlanTable.Controls.Add(name, 0, row);
@@ -157,13 +157,13 @@ namespace Schichtplan
                             {
                                 Color backColor = Color.Purple;
                                 Color workshiftColor = transparent;
-                                if (manager.currentWorkmonth.settings.shiftTypeColors.ContainsKey(workshift.shiftType))
+                                if (modelControl.currentWorkmonth.settings.shiftTypeColors.ContainsKey(workshift.shiftType))
                                 {
-                                    workshiftColor = manager.currentWorkmonth.settings.shiftTypeColors[workshift.shiftType];
+                                    workshiftColor = modelControl.currentWorkmonth.settings.shiftTypeColors[workshift.shiftType];
                                 }
 
                                 Label name = createShiftPlanLabel("KEINE PERSON GEFUNDEN", backColor);
-                                Label shift = createShiftPlanLabel(workshift.ToString() + " (" + Util.clampToDecimalpoints(manager.getWorktimeInWorkshift(workshift), 2) + ")", workshiftColor);
+                                Label shift = createShiftPlanLabel(workshift.ToString() + " (" + Util.clampToDecimalpoints(modelControl.getWorktimeInWorkshift(workshift), 2) + ")", workshiftColor);
                                 Label description = createShiftPlanLabel(workshift.description, transparent);
 
                                 shiftPlanTable.Controls.Add(name, 0, row);
@@ -230,20 +230,20 @@ namespace Schichtplan
                 shiftPlanPersonComboBox.Items.Clear();
                 shiftPlanPersonComboBox.Text = "";
 
-                List<Person> availablePersons = manager.getAvailablePersonsInWorkshift(workshift, manager.currentWorkmonth.persons);
+                List<Person> availablePersons = modelControl.getAvailablePersonsInWorkshift(workshift, modelControl.currentWorkmonth.persons);
 
                 //Fill content
                 int counter = 0;
-                foreach (Person person in manager.currentWorkmonth.persons)
+                foreach (Person person in modelControl.currentWorkmonth.persons)
                 {
-                    float carryOver = manager.currentWorkmonth.hourCarryOverLastMonth.ContainsKey(person) ? manager.currentWorkmonth.hourCarryOverLastMonth[person] : 0;
+                    float carryOver = modelControl.currentWorkmonth.hourCarryOverLastMonth.ContainsKey(person) ? modelControl.currentWorkmonth.hourCarryOverLastMonth[person] : 0;
 
                     string content = availablePersons.Contains(person) ? "" : "*";
-                    content += person.name + "; " + manager.getWorktimeForPersonInWorkdays(person, manager.currentWorkmonth.workdays, manager.currentWorkmonth.shiftplan) + "h (+" + carryOver + "h)";
+                    content += person.name + "; " + modelControl.getWorktimeForPersonInWorkdays(person, modelControl.currentWorkmonth.workdays, modelControl.currentWorkmonth.shiftplan) + "h (+" + carryOver + "h)";
                     shiftPlanPersonComboBox.Items.Add(content);
 
-                    if (manager.currentWorkmonth.shiftplan.ContainsKey(workshift)
-                        && manager.currentWorkmonth.shiftplan[workshift] == person)
+                    if (modelControl.currentWorkmonth.shiftplan.ContainsKey(workshift)
+                        && modelControl.currentWorkmonth.shiftplan[workshift] == person)
                     {
                         shiftPlanPersonComboBox.SelectedIndex = counter;
                     }
@@ -262,8 +262,8 @@ namespace Schichtplan
         /// </summary>
         private void checkPersonsWithUnsatisfiedWorktimes()
         {
-            List<Person> minPersons = manager.getPersonsWithLessThanMinWorkhours(manager.currentWorkmonth.persons, manager.currentWorkmonth.workdays, manager.currentWorkmonth.shiftplan, manager.currentWorkmonth.hourCarryOverLastMonth);
-            List<Person> maxPersons = manager.getPersonsWithMoreThanMaxWorkhours(manager.currentWorkmonth.persons, manager.currentWorkmonth.workdays, manager.currentWorkmonth.shiftplan, manager.currentWorkmonth.hourCarryOverLastMonth);
+            List<Person> minPersons = modelControl.getPersonsWithLessThanMinWorkhours(modelControl.currentWorkmonth.persons, modelControl.currentWorkmonth.workdays, modelControl.currentWorkmonth.shiftplan, modelControl.currentWorkmonth.hourCarryOverLastMonth);
+            List<Person> maxPersons = modelControl.getPersonsWithMoreThanMaxWorkhours(modelControl.currentWorkmonth.persons, modelControl.currentWorkmonth.workdays, modelControl.currentWorkmonth.shiftplan, modelControl.currentWorkmonth.hourCarryOverLastMonth);
 
             if(minPersons.Count > 0 || maxPersons.Count > 0)
             {
@@ -323,7 +323,7 @@ namespace Schichtplan
         private void setShiftPlanShiftTypeColorComboBoxItems()
         {
             shiftPlanShiftTypeColorComboBox.Items.Clear();
-            foreach(string shiftType in manager.getShiftTypesInWorkdays(manager.currentWorkmonth.workdays))
+            foreach(string shiftType in modelControl.getShiftTypesInWorkdays(modelControl.currentWorkmonth.workdays))
             {
                 shiftPlanShiftTypeColorComboBox.Items.Add(shiftType);
             }
@@ -347,13 +347,13 @@ namespace Schichtplan
         /// </summary>
         private void showShiftsNotSet()
         {
-            List<Workshift> emtpyWorkshifts = manager.getEmtpyWorkshiftsInWorkdays(manager.currentWorkmonth.workdays, manager.currentWorkmonth.shiftplan);
+            List<Workshift> emtpyWorkshifts = modelControl.getEmtpyWorkshiftsInWorkdays(modelControl.currentWorkmonth.workdays, modelControl.currentWorkmonth.shiftplan);
             if (emtpyWorkshifts.Count > 0)
             {
                 string errorMessage = "";
                 foreach (Workshift workshift in emtpyWorkshifts)
                 {
-                    errorMessage += manager.getWorkdayFromWorkshiftInWorkdays(workshift, manager.currentWorkmonth.workdays).day + ": " + workshift.ToString() + "\n";
+                    errorMessage += modelControl.getWorkdayFromWorkshiftInWorkdays(workshift, modelControl.currentWorkmonth.workdays).day + ": " + workshift.ToString() + "\n";
                 }
                 MessageBox.Show("Keine Person für Schicht(en): \n\n" + errorMessage + "\n gefunden");
             }
@@ -364,8 +364,8 @@ namespace Schichtplan
         /// </summary>
         private void setShiftsNotSetLabel()
         {
-            List<Workshift> emtpyWorkshifts = manager.getEmtpyWorkshiftsInWorkdays(manager.currentWorkmonth.workdays, manager.currentWorkmonth.shiftplan);
-            int workshiftsCount = manager.getWorkShiftsCountInWorkdays(manager.currentWorkmonth.workdays);
+            List<Workshift> emtpyWorkshifts = modelControl.getEmtpyWorkshiftsInWorkdays(modelControl.currentWorkmonth.workdays, modelControl.currentWorkmonth.shiftplan);
+            int workshiftsCount = modelControl.getWorkShiftsCountInWorkdays(modelControl.currentWorkmonth.workdays);
 
             shiftPlanShiftsNotSetLabel.Text = "Nicht gesetzte Schichten: " + emtpyWorkshifts.Count + "/" + workshiftsCount;
             shiftPlanShiftsNotSetLabel.BackColor = emtpyWorkshifts.Count == 0 ? Color.Green : Color.Red;
@@ -405,9 +405,9 @@ namespace Schichtplan
         /// <param name="e">event details</param>
         private void shiftPlanShiftTypeColorComboBox_SelectedIndexChanged(object sender, EventArgs e)
         {
-            if (manager.currentWorkmonth.settings.shiftTypeColors.ContainsKey(shiftPlanShiftTypeColorComboBox.Text))
+            if (modelControl.currentWorkmonth.settings.shiftTypeColors.ContainsKey(shiftPlanShiftTypeColorComboBox.Text))
             {
-                shiftPlanShiftTypeColorButton.BackColor = manager.currentWorkmonth.settings.shiftTypeColors[shiftPlanShiftTypeColorComboBox.Text];
+                shiftPlanShiftTypeColorButton.BackColor = modelControl.currentWorkmonth.settings.shiftTypeColors[shiftPlanShiftTypeColorComboBox.Text];
             }
             else{
                 MessageBox.Show("Schicht nicht im Verzeichnis gefunden.");
@@ -422,7 +422,7 @@ namespace Schichtplan
         /// <param name="e">event details</param>
         private void shiftPlanShiftTypeColorButton_Click(object sender, EventArgs e)
         {
-            if(!Util.stringArrayContains(manager.getShiftTypesInWorkdays(manager.currentWorkmonth.workdays), shiftPlanShiftTypeColorComboBox.Text))
+            if(!Util.stringArrayContains(modelControl.getShiftTypesInWorkdays(modelControl.currentWorkmonth.workdays), shiftPlanShiftTypeColorComboBox.Text))
             {
                 MessageBox.Show("Bitte erst Schicht Typ zum Farbe setzten auswählen.");
             }
@@ -432,7 +432,7 @@ namespace Schichtplan
                 if (colorDialog.ShowDialog() == DialogResult.OK)
                 {
                     shiftPlanShiftTypeColorButton.BackColor = colorDialog.Color;
-                    manager.currentWorkmonth.settings.shiftTypeColors[shiftPlanShiftTypeColorComboBox.Text] = colorDialog.Color;
+                    modelControl.currentWorkmonth.settings.shiftTypeColors[shiftPlanShiftTypeColorComboBox.Text] = colorDialog.Color;
                     resetShiftPlanTab();
                 }
             }
@@ -450,7 +450,7 @@ namespace Schichtplan
                 "Willst du fortfahren?", "", MessageBoxButtons.YesNo);
             if (dialogResult == DialogResult.Yes)
             {
-                manager.createShiftPlan(shiftPlanAlgorithmComboBox.SelectedIndex);
+                modelControl.createShiftPlan(shiftPlanAlgorithmComboBox.SelectedIndex);
                 resetShiftPlanTab();
                 showShiftsNotSet();
                 setShiftsNotSetLabel();
@@ -498,15 +498,15 @@ namespace Schichtplan
             //set current workshift in edit
             if (shiftPlanRowToWorkshift.ContainsKey(row))
             {
-                manager.setCurrentWorkshiftInShiftPlanEdit(shiftPlanRowToWorkshift[row]);
+                modelControl.setCurrentWorkshiftInShiftPlanEdit(shiftPlanRowToWorkshift[row]);
 
-                setWorkshiftInShiftEdit(manager.currentWorkshiftInShiftPlanEdit);
+                setWorkshiftInShiftEdit(modelControl.currentWorkshiftInShiftPlanEdit);
 
-                Workday workday = manager.getWorkdayFromWorkshiftInWorkdays(shiftPlanRowToWorkshift[row], manager.currentWorkmonth.workdays);
+                Workday workday = modelControl.getWorkdayFromWorkshiftInWorkdays(shiftPlanRowToWorkshift[row], modelControl.currentWorkmonth.workdays);
 
                 if(workday != null)
                 {
-                    shiftPlanDayContent.Text = workday.weekday + ", " + workday.day + " " + manager.currentWorkmonth.monthName;
+                    shiftPlanDayContent.Text = workday.weekday + ", " + workday.day + " " + modelControl.currentWorkmonth.monthName;
                 }
 
                 if (currentClickedRowShiftPlan != -1)
@@ -587,11 +587,11 @@ namespace Schichtplan
                         Workshift workshift1 = shiftPlanRowToWorkshift[row];
                         Workshift workshift2 = shiftPlanRowToWorkshift[draggedRow];
 
-                        manager.swapPersonsInWorkshifts(workshift1, workshift2);
+                        modelControl.swapPersonsInWorkshifts(workshift1, workshift2);
 
-                        manager.setCurrentWorkshiftInShiftPlanEdit(null);
+                        modelControl.setCurrentWorkshiftInShiftPlanEdit(null);
 
-                        setWorkshiftInShiftEdit(manager.currentWorkshiftInShiftPlanEdit);
+                        setWorkshiftInShiftEdit(modelControl.currentWorkshiftInShiftPlanEdit);
                         resetShiftPlanTab();
                     }
                 }
@@ -606,7 +606,7 @@ namespace Schichtplan
         /// <param name="e">event details</param>
         private void shiftplanSaveChangesButton_Click(object sender, EventArgs e)
         {
-            if(manager.currentWorkshiftInShiftPlanEdit == null)
+            if(modelControl.currentWorkshiftInShiftPlanEdit == null)
             {
                 MessageBox.Show("Bitte erst Arbeitsschicht in die Bearbeitung laden.");
             }
@@ -615,11 +615,11 @@ namespace Schichtplan
                 if(shiftPlanPersonComboBox.SelectedIndex != -1)
                 {
                     string[] workshiftInfo = getWorkshiftInfoFromTextBoxes();
-                    manager.editWorkshiftInWorkshiftEdit(manager.currentWorkmonth.persons[shiftPlanPersonComboBox.SelectedIndex], workshiftInfo);
+                    modelControl.editWorkshiftInWorkshiftEdit(modelControl.currentWorkmonth.persons[shiftPlanPersonComboBox.SelectedIndex], workshiftInfo);
 
                     resetShiftPlanTab();
                     setTableControlColor(shiftPlanTable, currentClickedRowShiftPlan, hoverColor);
-                    setShiftEditPersonsComboBoxItems(manager.currentWorkshiftInShiftPlanEdit);
+                    setShiftEditPersonsComboBoxItems(modelControl.currentWorkshiftInShiftPlanEdit);
                 }
                 else
                 {
@@ -636,7 +636,7 @@ namespace Schichtplan
         /// <param name="e">event details</param>
         private void shiftPlanDeleteShiftButton_Click(object sender, EventArgs e)
         {
-            if (manager.currentWorkshiftInShiftPlanEdit == null)
+            if (modelControl.currentWorkshiftInShiftPlanEdit == null)
             {
                 MessageBox.Show("Bitte erst Arbeitsschicht in die Bearbeitung laden.");
             }
@@ -645,7 +645,7 @@ namespace Schichtplan
                 resetTableControlColor(shiftPlanTable, shiftplanControlColors, currentClickedRowShiftPlan);
                 currentClickedRowShiftPlan = -1;
 
-                manager.deleteCurrentWorkshiftInShiftEdit();
+                modelControl.deleteCurrentWorkshiftInShiftEdit();
                 shiftPlanPersonComboBox.Items.Clear();
                 shiftPlanPersonComboBox.Text = "";
 
@@ -668,7 +668,7 @@ namespace Schichtplan
         /// <param name="e">event details</param>
         private void shiftPlanAddShiftButton_Click(object sender, EventArgs e)
         {
-            if (manager.currentWorkshiftInShiftPlanEdit == null)
+            if (modelControl.currentWorkshiftInShiftPlanEdit == null)
             {
                 MessageBox.Show("Bitte erst Arbeitsschicht in die Bearbeitung laden.");
             }
@@ -678,12 +678,12 @@ namespace Schichtplan
                 currentClickedRowShiftPlan = -1;
 
                 string[] workshiftInfo = getWorkshiftInfoFromTextBoxes();
-                manager.addWorkshift(manager.currentWorkmonth.persons[shiftPlanPersonComboBox.SelectedIndex], workshiftInfo);
+                modelControl.addWorkshift(modelControl.currentWorkmonth.persons[shiftPlanPersonComboBox.SelectedIndex], workshiftInfo);
 
-                manager.setCurrentWorkshiftInShiftPlanEdit(null);
+                modelControl.setCurrentWorkshiftInShiftPlanEdit(null);
 
                 resetEverything();
-                setWorkshiftInShiftEdit(manager.currentWorkshiftInShiftPlanEdit);
+                setWorkshiftInShiftEdit(modelControl.currentWorkshiftInShiftPlanEdit);
             }
         }
 

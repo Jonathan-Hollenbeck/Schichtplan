@@ -21,7 +21,7 @@ namespace Schichtplan
         {
             string[,] data = getDataFromDataGridViewAsStringArray(fixCostsDataGridView);
 
-            manager.setFixCostsFromStringArray(data);
+            modelControl.setFixCostsFromStringArray(data);
 
             setFixCostsData();
         }
@@ -33,7 +33,7 @@ namespace Schichtplan
         {
             string[,] data = getDataFromDataGridViewAsStringArray(variableCostsDataGridView);
 
-            manager.setVariableCostsFromStringArray(data);
+            modelControl.setVariableCostsFromStringArray(data);
 
             setVariableCostsData();
         }
@@ -47,7 +47,7 @@ namespace Schichtplan
             fixCostsDataGridView.Rows.Clear();
 
             //load shifts from the currend Workday
-            foreach (Cost cost in manager.currentWorkmonth.fixCosts)
+            foreach (Cost cost in modelControl.currentWorkmonth.fixCosts)
             {
                 fixCostsDataGridView.Rows.Add(cost.ToStringArray());
             }
@@ -62,7 +62,7 @@ namespace Schichtplan
             variableCostsDataGridView.Rows.Clear();
 
             //load shifts from the currend Workday
-            foreach (Cost cost in manager.currentWorkmonth.fixCosts)
+            foreach (Cost cost in modelControl.currentWorkmonth.fixCosts)
             {
                 variableCostsDataGridView.Rows.Add(cost.ToStringArray());
             }

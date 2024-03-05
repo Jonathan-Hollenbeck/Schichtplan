@@ -33,7 +33,7 @@ namespace Schichtplan
         /// </summary>
         private void setWeekTemplate()
         {
-            Dictionary<int, Workday> weekTemplate = manager.currentWorkmonth.weekTemplate;
+            Dictionary<int, Workday> weekTemplate = modelControl.currentWorkmonth.weekTemplate;
 
             weekTemplateMondayContentLabel.Text = weekTemplate[0].ToString();
             weekTemplateTuesdayContentLabel.Text = weekTemplate[1].ToString();
@@ -73,7 +73,7 @@ namespace Schichtplan
             monthViewTable.Controls.Clear();
 
             int row = 0;
-            foreach (Workday workday in manager.currentWorkmonth.workdays)
+            foreach (Workday workday in modelControl.currentWorkmonth.workdays)
             {
                 Color workdayColor = getColorForWeekDay(workday.weekday);
                 Color infoColor = workday.shifts.Count == 0 ? transparent : dayColor;
@@ -100,7 +100,7 @@ namespace Schichtplan
             shiftEditDataGridView.Rows.Clear();
 
             //load shifts from the currend Workday
-            foreach (Workshift workshift in manager.currentWorkdayInShiftEdit.shifts)
+            foreach (Workshift workshift in modelControl.currentWorkdayInShiftEdit.shifts)
             {
                 shiftEditDataGridView.Rows.Add(workshift.ToStringArray());
             }
@@ -213,8 +213,8 @@ namespace Schichtplan
         private void weekTemplateTableLabel_Click(object sender, EventArgs e)
         {
             int row = weekTemplateTable.GetRow((Control)sender);
-            manager.setCurrentDayInShiftEditFromWeekTemplate(row);
-            shiftEditLabel.Text = "Schichtbearbeitung: Wochenvorlage(" + manager.currentWorkdayInShiftEdit.weekday + ")";
+            modelControl.setCurrentDayInShiftEditFromWeekTemplate(row);
+            shiftEditLabel.Text = "Schichtbearbeitung: Wochenvorlage(" + modelControl.currentWorkdayInShiftEdit.weekday + ")";
 
             //clear shiftedit view
             shiftEditDataGridView.Rows.Clear();
@@ -242,10 +242,10 @@ namespace Schichtplan
         private void monthViewTableLabel_Click(object sender, EventArgs e)
         {
             int row = monthViewTable.GetRow((Control)sender);
-            manager.setCurrentDayInShiftEditFromWorkdays(row);
+            modelControl.setCurrentDayInShiftEditFromWorkdays(row);
             shiftEditLabel.Text = "Schichtbearbeitung: "
-                + manager.currentWorkdayInShiftEdit.day + " ("
-                + manager.currentWorkdayInShiftEdit.weekday + ")";
+                + modelControl.currentWorkdayInShiftEdit.day + " ("
+                + modelControl.currentWorkdayInShiftEdit.weekday + ")";
 
             setShiftEdit();
 
@@ -270,7 +270,7 @@ namespace Schichtplan
         private void saveCurrentShift_Click(object sender, EventArgs e)
         {
             //check if current day to edit is not empty
-            if (manager.currentWorkdayInShiftEdit == null)
+            if (modelControl.currentWorkdayInShiftEdit == null)
             {
                 MessageBox.Show("Bitte erst Tag zum bearbeiten auswaehlen.");
                 return;
@@ -294,7 +294,7 @@ namespace Schichtplan
                 }
             }
 
-            manager.saveWorkshiftsIntoCurrentDayInShiftEdit(rows);
+            modelControl.saveWorkshiftsIntoCurrentDayInShiftEdit(rows);
 
             resetShiftEditTab();
         }
@@ -312,7 +312,7 @@ namespace Schichtplan
                 "Willst du fortfahren?", "", MessageBoxButtons.YesNo);
             if (dialogResult == DialogResult.Yes)
             {
-                manager.setWeekTemplateOnMonth();
+                modelControl.setWeekTemplateOnMonth();
                 resetShiftEditTab();
             }
         }
@@ -330,7 +330,7 @@ namespace Schichtplan
             if (openFileDialog.ShowDialog() == DialogResult.OK)
             {
                 Workmonth workmonth = (Workmonth)Serializer.Instance().loadObject(openFileDialog.FileName);
-                manager.currentWorkmonth.weekTemplate = workmonth.weekTemplate;
+                modelControl.currentWorkmonth.weekTemplate = workmonth.weekTemplate;
                 resetShiftEditTab();
             }
         }

@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 
 namespace Schichtplan
 {
-    internal class Manager
+    internal class ModelControl
     {
         /// <summary>
         /// variable to declare the save folder for the save files
@@ -53,7 +53,7 @@ namespace Schichtplan
         /// <summary>
         /// constructor, which creates folders for the savefiles
         /// </summary>
-        public Manager()
+        public ModelControl()
         {
             Serializer.Instance().createDir(SAVE_FOLDER);
             Serializer.Instance().createDir(CSV_FOLDER);

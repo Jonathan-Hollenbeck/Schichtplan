@@ -54,29 +54,29 @@ namespace Schichtplan
 
             row++;
 
-            foreach(Person person in manager.currentWorkmonth.persons)
+            foreach(Person person in modelControl.currentWorkmonth.persons)
             {
 
                 Color backColor = transparent;
-                if (manager.currentWorkmonth.settings.personColors.ContainsKey(person)){
-                    backColor = manager.currentWorkmonth.settings.personColors[person];
+                if (modelControl.currentWorkmonth.settings.personColors.ContainsKey(person)){
+                    backColor = modelControl.currentWorkmonth.settings.personColors[person];
                 }
 
                 infoPersonTable.Controls.Add(createInfoPersonLabel(person.name, dayColor), 0, row);
 
                 //set infos
-                float worktimeInMonth = manager.getWorktimeForPersonInWorkdays(person, manager.currentWorkmonth.workdays, manager.currentWorkmonth.shiftplan);
-                float carryOver = manager.getPersonCarryOver(person, manager.currentWorkmonth.hourCarryOverLastMonth);
+                float worktimeInMonth = modelControl.getWorktimeForPersonInWorkdays(person, modelControl.currentWorkmonth.workdays, modelControl.currentWorkmonth.shiftplan);
+                float carryOver = modelControl.getPersonCarryOver(person, modelControl.currentWorkmonth.hourCarryOverLastMonth);
 
                 infoPersonTable.Controls.Add(createInfoPersonLabel(person.saleryPerHour + "€", backColor), 1, row);
                 infoPersonTable.Controls.Add(createInfoPersonLabel(worktimeInMonth + "h (+" + carryOver + "h) [" + person.minWorkHours + "h, " + person.maxWorkHours + "h]", backColor), 2, row);
                 infoPersonTable.Controls.Add(createInfoPersonLabel((carryOver + worktimeInMonth) * person.saleryPerHour + "€ (" + (carryOver * person.saleryPerHour + "€)"), backColor), 3, row);
                 infoPersonTable.Controls.Add(createInfoPersonLabel(
-                    manager.getDaysNotWorkingForPersonInWorkdaysCount(person, manager.currentWorkmonth.workdays, manager.currentWorkmonth.shiftplan)
-                    + "/" + manager.getWorkingDaysCounter(manager.currentWorkmonth.workdays)
+                    modelControl.getDaysNotWorkingForPersonInWorkdaysCount(person, modelControl.currentWorkmonth.workdays, modelControl.currentWorkmonth.shiftplan)
+                    + "/" + modelControl.getWorkingDaysCounter(modelControl.currentWorkmonth.workdays)
                     , backColor), 4, row);
 
-                Dictionary<string, int> workshiftAmounts = manager.getWorkedShiftsForPersonInWorkdaysByShiftTypeCount(person, manager.currentWorkmonth.workdays, manager.currentWorkmonth.shiftplan);
+                Dictionary<string, int> workshiftAmounts = modelControl.getWorkedShiftsForPersonInWorkdaysByShiftTypeCount(person, modelControl.currentWorkmonth.workdays, modelControl.currentWorkmonth.shiftplan);
 
                 string workshiftAmountsString = "";
 
@@ -123,7 +123,7 @@ namespace Schichtplan
         {
             infoDayComboBox.Items.Clear();
             daysInDayComboBox.Clear();
-            foreach (Workday workday in manager.currentWorkmonth.workdays)
+            foreach (Workday workday in modelControl.currentWorkmonth.workdays)
             {
                 if(workday.shifts.Count > 0)
                 {
@@ -143,11 +143,11 @@ namespace Schichtplan
             infoWeekComboBox.Items.Clear();
             weeksInWeekComboBox.Clear();
 
-            List<List<Workday>> weeks = manager.getWeeksInWorkdays(manager.currentWorkmonth.workdays);
+            List<List<Workday>> weeks = modelControl.getWeeksInWorkdays(modelControl.currentWorkmonth.workdays);
 
             for(int weekCounter = 0; weekCounter < weeks.Count; weekCounter++)
             {
-                string comboBoxEntry = "Woche " + weekCounter + ", " + manager.getFirstAndLastDayInWorkdaysAsString(weeks[weekCounter]);
+                string comboBoxEntry = "Woche " + weekCounter + ", " + modelControl.getFirstAndLastDayInWorkdaysAsString(weeks[weekCounter]);
                 weeksInWeekComboBox.Add(weeks[weekCounter]);
                 infoWeekComboBox.Items.Add(comboBoxEntry);
             }
@@ -161,15 +161,15 @@ namespace Schichtplan
         {
             float carryOverSalerySum = 0.0f;
             float salarySum = 0.0f;
-            foreach (Person person in manager.currentWorkmonth.persons)
+            foreach (Person person in modelControl.currentWorkmonth.persons)
             {
-                carryOverSalerySum += manager.getPersonCarryOver(person, manager.currentWorkmonth.hourCarryOverLastMonth) * person.saleryPerHour;
-                salarySum += manager.getWorktimeForPersonInWorkdays(person, manager.currentWorkmonth.workdays, manager.currentWorkmonth.shiftplan) * person.saleryPerHour;
+                carryOverSalerySum += modelControl.getPersonCarryOver(person, modelControl.currentWorkmonth.hourCarryOverLastMonth) * person.saleryPerHour;
+                salarySum += modelControl.getWorktimeForPersonInWorkdays(person, modelControl.currentWorkmonth.workdays, modelControl.currentWorkmonth.shiftplan) * person.saleryPerHour;
                 salarySum += carryOverSalerySum;
             }
             infoMonthSalerySumContent.Text = Util.clampToDecimalpoints(salarySum, 2) + "€ (" + carryOverSalerySum + "€)";
 
-            Dictionary<string, int> workshiftsByShiftType = manager.getShiftCountInWorkdaysByShiftType(manager.currentWorkmonth.workdays);
+            Dictionary<string, int> workshiftsByShiftType = modelControl.getShiftCountInWorkdaysByShiftType(modelControl.currentWorkmonth.workdays);
             int workshiftSum = 0;
             string workshiftsByShiftTypeString = "";
             foreach(KeyValuePair<string, int> kvp in workshiftsByShiftType)
@@ -182,11 +182,11 @@ namespace Schichtplan
                 workshiftSum + " (" + workshiftsByShiftTypeString.Substring(0, workshiftsByShiftTypeString.Length - 2) + ")"
                 : "";
 
-            infoMonthHoursSumContent.Text = manager.getWorktimeInWorkdays(manager.currentWorkmonth.workdays) + "h";
+            infoMonthHoursSumContent.Text = modelControl.getWorktimeInWorkdays(modelControl.currentWorkmonth.workdays) + "h";
 
-            if(manager.currentWorkmonth.turnoverMonth != 0.0f)
+            if(modelControl.currentWorkmonth.turnoverMonth != 0.0f)
             {
-                infoMonthTurnoverTextBox.Text = "" + manager.currentWorkmonth.turnoverMonth;
+                infoMonthTurnoverTextBox.Text = "" + modelControl.currentWorkmonth.turnoverMonth;
                 setGeneralTurnoverInfoMonth();
             }
             else
@@ -209,20 +209,20 @@ namespace Schichtplan
                 float turnover = Util.parseFloat(infoMonthTurnoverTextBox.Text, "Bitte nur Zahlen in das Textfeld eingeben.");
                 if (turnover != -1)
                 {
-                    manager.currentWorkmonth.turnoverMonth = turnover;
+                    modelControl.currentWorkmonth.turnoverMonth = turnover;
 
                     float carryOverSalerySum = 0.0f;
                     float salarySum = 0.0f;
-                    foreach (Person person in manager.currentWorkmonth.persons)
+                    foreach (Person person in modelControl.currentWorkmonth.persons)
                     {
-                        carryOverSalerySum += manager.getPersonCarryOver(person, manager.currentWorkmonth.hourCarryOverLastMonth) * person.saleryPerHour;
-                        salarySum += manager.getWorktimeForPersonInWorkdays(person, manager.currentWorkmonth.workdays, manager.currentWorkmonth.shiftplan) * person.saleryPerHour;
+                        carryOverSalerySum += modelControl.getPersonCarryOver(person, modelControl.currentWorkmonth.hourCarryOverLastMonth) * person.saleryPerHour;
+                        salarySum += modelControl.getWorktimeForPersonInWorkdays(person, modelControl.currentWorkmonth.workdays, modelControl.currentWorkmonth.shiftplan) * person.saleryPerHour;
                         salarySum += carryOverSalerySum;
                     }
 
                     infoMonthTurnoverAfterSaleriesContent.Text = Util.clampToDecimalpoints(turnover - salarySum, 2) + "€ (" + carryOverSalerySum + "€)";
-                    infoMonthAverageTurnoverHourContent.Text = Util.clampToDecimalpoints(turnover / manager.getWorktimeInWorkdays(manager.currentWorkmonth.workdays), 2) + "€";
-                    infoMonthAverageTurnoverDayContent.Text = Util.clampToDecimalpoints(turnover / manager.getWorkingDaysCounter(manager.currentWorkmonth.workdays), 2) + "€";
+                    infoMonthAverageTurnoverHourContent.Text = Util.clampToDecimalpoints(turnover / modelControl.getWorktimeInWorkdays(modelControl.currentWorkmonth.workdays), 2) + "€";
+                    infoMonthAverageTurnoverDayContent.Text = Util.clampToDecimalpoints(turnover / modelControl.getWorkingDaysCounter(modelControl.currentWorkmonth.workdays), 2) + "€";
                 }
             }
         }
@@ -237,13 +237,13 @@ namespace Schichtplan
                 List<Workday> currentWeek = weeksInWeekComboBox[currentInfoWeekIndex];
 
                 float salarySum = 0.0f;
-                foreach (Person person in manager.currentWorkmonth.persons)
+                foreach (Person person in modelControl.currentWorkmonth.persons)
                 {
-                    salarySum += manager.getWorktimeForPersonInWorkdays(person, currentWeek, manager.currentWorkmonth.shiftplan) * person.saleryPerHour;
+                    salarySum += modelControl.getWorktimeForPersonInWorkdays(person, currentWeek, modelControl.currentWorkmonth.shiftplan) * person.saleryPerHour;
                 }
                 infoWeekSalerySumContent.Text = Util.clampToDecimalpoints(salarySum, 2) + "€";
 
-                Dictionary<string, int> workshiftsByShiftType = manager.getShiftCountInWorkdaysByShiftType(currentWeek);
+                Dictionary<string, int> workshiftsByShiftType = modelControl.getShiftCountInWorkdaysByShiftType(currentWeek);
                 int workshiftSum = 0;
                 string workshiftsByShiftTypeString = "";
                 foreach (KeyValuePair<string, int> kvp in workshiftsByShiftType)
@@ -256,11 +256,11 @@ namespace Schichtplan
                     workshiftSum + " (" + workshiftsByShiftTypeString.Substring(0, workshiftsByShiftTypeString.Length - 2) + ")"
                     : "";
 
-                infoWeekHoursSumContent.Text = manager.getWorktimeInWorkdays(currentWeek) + "h";
+                infoWeekHoursSumContent.Text = modelControl.getWorktimeInWorkdays(currentWeek) + "h";
 
-                if (manager.currentWorkmonth.turnoverWeeks.ContainsKey(currentInfoWeekIndex))
+                if (modelControl.currentWorkmonth.turnoverWeeks.ContainsKey(currentInfoWeekIndex))
                 {
-                    infoWeekTurnoverTextBox.Text = "" + manager.currentWorkmonth.turnoverWeeks[currentInfoWeekIndex];
+                    infoWeekTurnoverTextBox.Text = "" + modelControl.currentWorkmonth.turnoverWeeks[currentInfoWeekIndex];
                     setGeneralTurnoverInfoWeek();
                 }
                 else
@@ -286,20 +286,20 @@ namespace Schichtplan
                 float turnover = Util.parseFloat(infoWeekTurnoverTextBox.Text, "Bitte nur Zahlen in das Textfeld eingeben.");
                 if (turnover != -1)
                 {
-                    if (!manager.currentWorkmonth.turnoverWeeks.ContainsKey(currentInfoWeekIndex)){
-                        manager.currentWorkmonth.turnoverWeeks.Add(currentInfoWeekIndex, 0.0f);
+                    if (!modelControl.currentWorkmonth.turnoverWeeks.ContainsKey(currentInfoWeekIndex)){
+                        modelControl.currentWorkmonth.turnoverWeeks.Add(currentInfoWeekIndex, 0.0f);
                     }
-                    manager.currentWorkmonth.turnoverWeeks[currentInfoWeekIndex] = turnover;
+                    modelControl.currentWorkmonth.turnoverWeeks[currentInfoWeekIndex] = turnover;
 
                     float salarySum = 0.0f;
-                    foreach (Person person in manager.currentWorkmonth.persons)
+                    foreach (Person person in modelControl.currentWorkmonth.persons)
                     {
-                        salarySum += manager.getWorktimeForPersonInWorkdays(person, currentWeek, manager.currentWorkmonth.shiftplan) * person.saleryPerHour;
+                        salarySum += modelControl.getWorktimeForPersonInWorkdays(person, currentWeek, modelControl.currentWorkmonth.shiftplan) * person.saleryPerHour;
                     }
 
                     infoWeekTurnoverAfterSaleriesContent.Text = Util.clampToDecimalpoints(turnover - salarySum, 2) + "€";
-                    infoWeekAverageTurnoverHourContent.Text = Util.clampToDecimalpoints(turnover / manager.getWorktimeInWorkdays(currentWeek), 2) + "€";
-                    infoWeekAverageTurnoverDayContent.Text = Util.clampToDecimalpoints(turnover / manager.getWorkingDaysCounter(currentWeek), 2) + "€";
+                    infoWeekAverageTurnoverHourContent.Text = Util.clampToDecimalpoints(turnover / modelControl.getWorktimeInWorkdays(currentWeek), 2) + "€";
+                    infoWeekAverageTurnoverDayContent.Text = Util.clampToDecimalpoints(turnover / modelControl.getWorkingDaysCounter(currentWeek), 2) + "€";
                 }
             }
         }
@@ -314,13 +314,13 @@ namespace Schichtplan
                 Workday currentWorkday = daysInDayComboBox[currentInfoWorkdayIndex];
 
                 float salarySum = 0.0f;
-                foreach (Person person in manager.currentWorkmonth.persons)
+                foreach (Person person in modelControl.currentWorkmonth.persons)
                 {
-                    salarySum += manager.getWorktimeForPersonInWorkday(person, currentWorkday, manager.currentWorkmonth.shiftplan) * person.saleryPerHour;
+                    salarySum += modelControl.getWorktimeForPersonInWorkday(person, currentWorkday, modelControl.currentWorkmonth.shiftplan) * person.saleryPerHour;
                 }
                 infoDaySalerySumContent.Text = Util.clampToDecimalpoints(salarySum, 2) + "€";
 
-                Dictionary<string, int> workshiftsByShiftType = manager.getShiftCountInWorkdayByShiftType(currentWorkday);
+                Dictionary<string, int> workshiftsByShiftType = modelControl.getShiftCountInWorkdayByShiftType(currentWorkday);
                 int workshiftSum = 0;
                 string workshiftsByShiftTypeString = "";
                 foreach (KeyValuePair<string, int> kvp in workshiftsByShiftType)
@@ -333,11 +333,11 @@ namespace Schichtplan
                     workshiftSum + " (" + workshiftsByShiftTypeString.Substring(0, workshiftsByShiftTypeString.Length - 2) + ")"
                     : "";
 
-                infoDayHoursSumContent.Text = manager.getWorktimeInWorkday(currentWorkday) + "h";
+                infoDayHoursSumContent.Text = modelControl.getWorktimeInWorkday(currentWorkday) + "h";
 
-                if (manager.currentWorkmonth.turnoverWorkdays.ContainsKey(currentWorkday))
+                if (modelControl.currentWorkmonth.turnoverWorkdays.ContainsKey(currentWorkday))
                 {
-                    infoDayTurnoverTextBox.Text = "" + manager.currentWorkmonth.turnoverWorkdays[currentWorkday];
+                    infoDayTurnoverTextBox.Text = "" + modelControl.currentWorkmonth.turnoverWorkdays[currentWorkday];
                     setGeneralTurnoverInfoDay();
                 }
                 else
@@ -363,19 +363,19 @@ namespace Schichtplan
                 float turnover = Util.parseFloat(infoDayTurnoverTextBox.Text, "Bitte nur Zahlen in das Textfeld eingeben.");
                 if (turnover != -1)
                 {
-                    if (!manager.currentWorkmonth.turnoverWorkdays.ContainsKey(currentWorkday)){
-                        manager.currentWorkmonth.turnoverWorkdays.Add(currentWorkday, 0.0f);
+                    if (!modelControl.currentWorkmonth.turnoverWorkdays.ContainsKey(currentWorkday)){
+                        modelControl.currentWorkmonth.turnoverWorkdays.Add(currentWorkday, 0.0f);
                     }
-                    manager.currentWorkmonth.turnoverWorkdays[currentWorkday] = turnover;
+                    modelControl.currentWorkmonth.turnoverWorkdays[currentWorkday] = turnover;
 
                     float salarySum = 0.0f;
-                    foreach (Person person in manager.currentWorkmonth.persons)
+                    foreach (Person person in modelControl.currentWorkmonth.persons)
                     {
-                        salarySum += manager.getWorktimeForPersonInWorkday(person, currentWorkday, manager.currentWorkmonth.shiftplan) * person.saleryPerHour;
+                        salarySum += modelControl.getWorktimeForPersonInWorkday(person, currentWorkday, modelControl.currentWorkmonth.shiftplan) * person.saleryPerHour;
                     }
 
                     infoDayTurnoverAfterSaleriesContent.Text = Util.clampToDecimalpoints(turnover - salarySum, 2) + "€";
-                    infoDayAverageTurnoverHourContent.Text = Util.clampToDecimalpoints(turnover / manager.getWorktimeInWorkday(currentWorkday), 2) + "€";
+                    infoDayAverageTurnoverHourContent.Text = Util.clampToDecimalpoints(turnover / modelControl.getWorktimeInWorkday(currentWorkday), 2) + "€";
                 }
             }
         }
