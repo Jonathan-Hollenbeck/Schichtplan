@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 namespace Schichtplan.model
 {
     [Serializable]
-    internal class Cost
+    public class Cost
     {
         public int payday { set; get; }
 

@@ -100,7 +100,7 @@ namespace Schichtplan
             shiftEditDataGridView.Rows.Clear();
 
             //load shifts from the currend Workday
-            foreach (Workshift workshift in modelControl.currentWorkdayInShiftEdit.shifts)
+            foreach (Workshift workshift in shiftEditControl.currentWorkdayInShiftEdit.shifts)
             {
                 shiftEditDataGridView.Rows.Add(workshift.ToStringArray());
             }
@@ -213,8 +213,8 @@ namespace Schichtplan
         private void weekTemplateTableLabel_Click(object sender, EventArgs e)
         {
             int row = weekTemplateTable.GetRow((Control)sender);
-            modelControl.setCurrentDayInShiftEditFromWeekTemplate(row);
-            shiftEditLabel.Text = "Schichtbearbeitung: Wochenvorlage(" + modelControl.currentWorkdayInShiftEdit.weekday + ")";
+            shiftEditControl.setCurrentDayInShiftEditFromWeekTemplate(row);
+            shiftEditLabel.Text = "Schichtbearbeitung: Wochenvorlage(" + shiftEditControl.currentWorkdayInShiftEdit.weekday + ")";
 
             //clear shiftedit view
             shiftEditDataGridView.Rows.Clear();
@@ -242,10 +242,10 @@ namespace Schichtplan
         private void monthViewTableLabel_Click(object sender, EventArgs e)
         {
             int row = monthViewTable.GetRow((Control)sender);
-            modelControl.setCurrentDayInShiftEditFromWorkdays(row);
+            shiftEditControl.setCurrentDayInShiftEditFromWorkdays(row);
             shiftEditLabel.Text = "Schichtbearbeitung: "
-                + modelControl.currentWorkdayInShiftEdit.day + " ("
-                + modelControl.currentWorkdayInShiftEdit.weekday + ")";
+                + shiftEditControl.currentWorkdayInShiftEdit.day + " ("
+                + shiftEditControl.currentWorkdayInShiftEdit.weekday + ")";
 
             setShiftEdit();
 
@@ -270,7 +270,7 @@ namespace Schichtplan
         private void saveCurrentShift_Click(object sender, EventArgs e)
         {
             //check if current day to edit is not empty
-            if (modelControl.currentWorkdayInShiftEdit == null)
+            if (shiftEditControl.currentWorkdayInShiftEdit == null)
             {
                 MessageBox.Show("Bitte erst Tag zum bearbeiten auswaehlen.");
                 return;
@@ -294,7 +294,7 @@ namespace Schichtplan
                 }
             }
 
-            modelControl.saveWorkshiftsIntoCurrentDayInShiftEdit(rows);
+            shiftEditControl.saveWorkshiftsIntoCurrentDayInShiftEdit(rows);
 
             resetShiftEditTab();
         }
@@ -312,7 +312,7 @@ namespace Schichtplan
                 "Willst du fortfahren?", "", MessageBoxButtons.YesNo);
             if (dialogResult == DialogResult.Yes)
             {
-                modelControl.setWeekTemplateOnMonth();
+                shiftEditControl.setWeekTemplateOnMonth();
                 resetShiftEditTab();
             }
         }

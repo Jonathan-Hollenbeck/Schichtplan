@@ -43,14 +43,14 @@
     </dependentAssembly>
   </dependency>
   <dependency>
-    <dependentAssembly dependencyType="install" allowDelayedBinding="true" codebase="Schichtplan.exe" size="152560">
+    <dependentAssembly dependencyType="install" allowDelayedBinding="true" codebase="Schichtplan.exe" size="153584">
       <assemblyIdentity name="Schichtplan" version="1.0.0.0" language="neutral" processorArchitecture="msil" />
       <hash>
         <dsig:Transforms>
           <dsig:Transform Algorithm="urn:schemas-microsoft-com:HashTransforms.Identity" />
         </dsig:Transforms>
         <dsig:DigestMethod Algorithm="http://www.w3.org/2000/09/xmldsig#sha256" />
-        <dsig:DigestValue>2iI3W0ZaZ+qYJLNAGT+ODs+RJgnmpHPyD0UJZRJyDXY=</dsig:DigestValue>
+        <dsig:DigestValue>OWaXu36/+zvCXsvkpkVTPu9zmrvm9Rr5kVf2B/ZkzzA=</dsig:DigestValue>
       </hash>
     </dependentAssembly>
   </dependency>

@@ -96,9 +96,9 @@ namespace Schichtplan
             personUnavailableshiftSelectDataGridView.Rows.Clear();
 
             //add shifts in shiftselector
-            if (modelControl.currentPersonInEdit != null)
+            if (personsControl.currentPersonInEdit != null)
             {
-                List<Workshift> posibleWorkshifts = modelControl.getPossibleWorkshiftsForPersonInWorkdays(modelControl.currentPersonInEdit, modelControl.currentWorkmonth.workdays);
+                List<Workshift> posibleWorkshifts = modelControl.getPossibleWorkshiftsForPersonInWorkdays(personsControl.currentPersonInEdit, modelControl.currentWorkmonth.workdays);
                 //load shifts from the currend Workday
                 foreach (Workday workday in modelControl.currentWorkmonth.workdays)
                 {
@@ -108,8 +108,8 @@ namespace Schichtplan
                         if (posibleWorkshifts.Contains(workshift))
                         {
                             string shiftInfo = workday.weekday + ", " + workday.day + " " + modelControl.currentWorkmonth.monthName + ": " + workshift.ToString();
-                            bool unavailable = modelControl.currentPersonInEdit.unavailability.Contains(workshift);
-                            bool onlyOneAvailable = modelControl.isPersonOnlyOneAvailableForWorkshift(modelControl.currentPersonInEdit,
+                            bool unavailable = personsControl.currentPersonInEdit.unavailability.Contains(workshift);
+                            bool onlyOneAvailable = modelControl.isPersonOnlyOneAvailableForWorkshift(personsControl.currentPersonInEdit,
                                 modelControl.currentWorkmonth.persons, workshift, modelControl.currentWorkmonth.workdays);
                             int row = personUnavailableshiftSelectDataGridView.Rows.Add();
                             personUnavailableshiftSelectDataGridView.Rows[row].Cells[0].Value = shiftInfo;
@@ -201,7 +201,7 @@ namespace Schichtplan
                     {
                         int day = Util.parseInt(expression,
                             "Bitte nur positive Zahlen verwenden, die auch in dem Monat vorkommen.");
-                        expressionList.AddRange(modelControl.getWorkshiftIndexesForWorkdayIndexForPersonInWorkdays(day, modelControl.currentPersonInEdit, modelControl.currentWorkmonth.workdays));
+                        expressionList.AddRange(modelControl.getWorkshiftIndexesForWorkdayIndexForPersonInWorkdays(day, personsControl.currentPersonInEdit, modelControl.currentWorkmonth.workdays));
                     }
                     else if (numberRangeRegex.IsMatch(expression))
                     {
@@ -210,7 +210,7 @@ namespace Schichtplan
                         int to = Util.parseInt(split[1], "Bitte nur positive Zahlen verwenden, die auch in dem Monat vorkommen.");
                         for (int day = from; day <= to; day++)
                         {
-                            expressionList.AddRange(modelControl.getWorkshiftIndexesForWorkdayIndexForPersonInWorkdays(day, modelControl.currentPersonInEdit, modelControl.currentWorkmonth.workdays));
+                            expressionList.AddRange(modelControl.getWorkshiftIndexesForWorkdayIndexForPersonInWorkdays(day, personsControl.currentPersonInEdit, modelControl.currentWorkmonth.workdays));
                         }
                     }
                     else if (lessThanRegex.IsMatch(expression))
@@ -223,7 +223,7 @@ namespace Schichtplan
                             {
                                 if (workshift.startHour < hour && workshift.endHour >= hour || workshift.endHour < hour)
                                 {
-                                    expressionList.Add(modelControl.getWorkshiftIndexForWorkshiftForPersonInWorkdays(workshift, modelControl.currentPersonInEdit, modelControl.currentWorkmonth.workdays));
+                                    expressionList.Add(modelControl.getWorkshiftIndexForWorkshiftForPersonInWorkdays(workshift, personsControl.currentPersonInEdit, modelControl.currentWorkmonth.workdays));
                                 }
                             }
                         }
@@ -238,20 +238,20 @@ namespace Schichtplan
                             {
                                 if (workshift.startHour < hour && workshift.endHour > hour || workshift.startHour >= hour)
                                 {
-                                    expressionList.Add(modelControl.getWorkshiftIndexForWorkshiftForPersonInWorkdays(workshift, modelControl.currentPersonInEdit, modelControl.currentWorkmonth.workdays));
+                                    expressionList.Add(modelControl.getWorkshiftIndexForWorkshiftForPersonInWorkdays(workshift, personsControl.currentPersonInEdit, modelControl.currentWorkmonth.workdays));
                                 }
                             }
                         }
                     }
                     else if (stringRegex.IsMatch(expression))
                     {
-                        List<Workshift> posibleWorkshifts = modelControl.getPossibleWorkshiftsForPersonInWorkdays(modelControl.currentPersonInEdit, modelControl.currentWorkmonth.workdays);
+                        List<Workshift> posibleWorkshifts = modelControl.getPossibleWorkshiftsForPersonInWorkdays(personsControl.currentPersonInEdit, modelControl.currentWorkmonth.workdays);
 
                         foreach (Workday workday in modelControl.currentWorkmonth.workdays)
                         {
                             if (workday.weekday == expression)
                             {
-                                expressionList.AddRange(modelControl.getWorkshiftIndexesForWorkdayIndexForPersonInWorkdays(workday.day, modelControl.currentPersonInEdit, modelControl.currentWorkmonth.workdays));
+                                expressionList.AddRange(modelControl.getWorkshiftIndexesForWorkdayIndexForPersonInWorkdays(workday.day, personsControl.currentPersonInEdit, modelControl.currentWorkmonth.workdays));
                             }
                         }
                     }
@@ -384,7 +384,7 @@ namespace Schichtplan
         /// </returns>
         private bool[] getPersonUnavailabilityCheckBoxValue(int checkBoxColumn)
         {
-            bool[] result = new bool[modelControl.getPossibleWorkshiftsForPersonInWorkdays(modelControl.currentPersonInEdit, modelControl.currentWorkmonth.workdays).Count];
+            bool[] result = new bool[modelControl.getPossibleWorkshiftsForPersonInWorkdays(personsControl.currentPersonInEdit, modelControl.currentWorkmonth.workdays).Count];
 
             for (int i = 0; i < personUnavailableshiftSelectDataGridView.RowCount; i++)
             {
@@ -473,7 +473,7 @@ namespace Schichtplan
                 "Willst du fortfahren?", "", MessageBoxButtons.YesNo);
             if (dialogResult == DialogResult.Yes)
             {
-                modelControl.resetUnavailabilities(modelControl.currentWorkmonth.persons);
+                personsControl.resetUnavailabilities(modelControl.currentWorkmonth.persons);
                 resetPersonTab();
             }
         }
@@ -489,7 +489,7 @@ namespace Schichtplan
             string[] data = getPersonInfoFromTextBoxes();
             if (data.Length > 0)
             {
-                modelControl.addPerson(getPersonInfoFromTextBoxes(), personColorButton.BackColor);
+                personsControl.addPerson(getPersonInfoFromTextBoxes(), personColorButton.BackColor);
                 resetTableControlColor(personTable, personsControlColors, currentClickedRowPerson);
                 resetPersonTab();
                 currentClickedRowPerson = modelControl.currentWorkmonth.persons.Count - 1;
@@ -505,9 +505,9 @@ namespace Schichtplan
         /// <param name="e">event details</param>
         private void personDeleteButton_Click(object sender, EventArgs e)
         {
-            if(modelControl.currentPersonInEdit != null)
+            if(personsControl.currentPersonInEdit != null)
             {
-                modelControl.deleteCurrentPerson();
+                personsControl.deleteCurrentPerson();
                 resetTableControlColor(personTable, personsControlColors, currentClickedRowPerson);
                 currentClickedRowPerson = -1;
                 resetPersonTab();
@@ -522,7 +522,7 @@ namespace Schichtplan
         /// <param name="e">event details</param>
         private void personSaveEditButton_Click(object sender, EventArgs e)
         {
-            if(modelControl.currentPersonInEdit == null)
+            if(personsControl.currentPersonInEdit == null)
             {
                 MessageBox.Show("Bitte erst Person zum editieren auswählen.");
                 return;
@@ -530,7 +530,7 @@ namespace Schichtplan
             string[] personData = getPersonInfoFromTextBoxes();
             if (personData.Length > 0)
             {
-                modelControl.editCurrentPerson(personData, getPersonUnavailabilityCheckBoxValue(1), getPersonUnavailabilityCheckBoxValue(2), personColorButton.BackColor);
+                personsControl.editCurrentPerson(personData, getPersonUnavailabilityCheckBoxValue(1), getPersonUnavailabilityCheckBoxValue(2), personColorButton.BackColor);
                 resetPersonTab();
                 setTableControlColor(personTable, currentClickedRowPerson, hoverColor);
                 setShiftPlan();
@@ -597,21 +597,21 @@ namespace Schichtplan
         private void personTableLabel_Click(object sender, EventArgs e)
         {
             int row = personTable.GetRow((Control)sender);
-            modelControl.setCurrentPersonInEdit(row);
+            personsControl.setCurrentPersonInEdit(row);
 
             //set person TextBoxes to info
-            personNameTextBox.Text = modelControl.currentPersonInEdit.name;
-            personSaleryTextBox.Text = "" + modelControl.currentPersonInEdit.saleryPerHour;
-            personMinWorkHoursTextBox.Text = "" + modelControl.currentPersonInEdit.minWorkHours;
-            personMaxWorkHoursTextBox.Text = "" + modelControl.currentPersonInEdit.maxWorkHours;
-            personShifttypesTextBox.Text = modelControl.currentPersonInEdit.shiftTypesToString();
-            personDescriptionTextBox.Text = modelControl.currentPersonInEdit.description;
-            personCarryOverTextBox.Text = modelControl.getPersonCarryOver(modelControl.currentPersonInEdit, modelControl.currentWorkmonth.hourCarryOverLastMonth) + "";
+            personNameTextBox.Text = personsControl.currentPersonInEdit.name;
+            personSaleryTextBox.Text = "" + personsControl.currentPersonInEdit.saleryPerHour;
+            personMinWorkHoursTextBox.Text = "" + personsControl.currentPersonInEdit.minWorkHours;
+            personMaxWorkHoursTextBox.Text = "" + personsControl.currentPersonInEdit.maxWorkHours;
+            personShifttypesTextBox.Text = personsControl.currentPersonInEdit.shiftTypesToString();
+            personDescriptionTextBox.Text = personsControl.currentPersonInEdit.description;
+            personCarryOverTextBox.Text = modelControl.getPersonCarryOver(personsControl.currentPersonInEdit, modelControl.currentWorkmonth.hourCarryOverLastMonth) + "";
 
             personColorButton.BackColor = transparent;
-            if (modelControl.currentWorkmonth.settings.personColors.ContainsKey(modelControl.currentPersonInEdit))
+            if (modelControl.currentWorkmonth.settings.personColors.ContainsKey(personsControl.currentPersonInEdit))
             {
-                personColorButton.BackColor = modelControl.currentWorkmonth.settings.personColors[modelControl.currentPersonInEdit];
+                personColorButton.BackColor = modelControl.currentWorkmonth.settings.personColors[personsControl.currentPersonInEdit];
             }
 
             //load shiftUnavaialbeSelector
@@ -644,7 +644,7 @@ namespace Schichtplan
                     modelControl.currentWorkmonth.persons = loadedMonth.persons;
                     modelControl.currentWorkmonth.settings.personColors = loadedMonth.settings.personColors;
 
-                    modelControl.resetUnavailabilities(modelControl.currentWorkmonth.persons);
+                    personsControl.resetUnavailabilities(modelControl.currentWorkmonth.persons);
 
                     modelControl.currentWorkmonth.hourCarryOverLastMonth = loadedMonth.hourCarryOverThisMonth;
                     resetPersonTab();

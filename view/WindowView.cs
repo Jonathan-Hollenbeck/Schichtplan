@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Schichtplan.controller;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Data;
@@ -18,9 +19,34 @@ namespace Schichtplan
         private DateTime currentDate = new DateTime();
 
         /// <summary>
-        /// manager object
+        /// modelControl object
         /// </summary>
         private ModelControl modelControl;
+
+        /// <summary>
+        /// shiftEdit object
+        /// </summary>
+        private ShiftEditControl shiftEditControl;
+
+        /// <summary>
+        /// personsControl object
+        /// </summary>
+        private PersonsControl personsControl;
+
+        /// <summary>
+        /// shiftPlanControl object
+        /// </summary>
+        private ShiftPlanControl shiftPlanControl;
+
+        /// <summary>
+        /// costsControl object
+        /// </summary>
+        private CostsControl costsControl;
+
+        /// <summary>
+        /// informationsControl object
+        /// </summary>
+        private MenuControl menuControl;
 
         /// <summary>
         /// sets a few colors to use
@@ -58,6 +84,17 @@ namespace Schichtplan
             currentDate = currentDate.AddMonths(1);
 
             modelControl = new ModelControl();
+            shiftEditControl = new ShiftEditControl(modelControl);
+            personsControl = new PersonsControl(modelControl);
+            shiftPlanControl = new ShiftPlanControl(modelControl);
+            costsControl = new CostsControl(modelControl);
+            menuControl = new MenuControl(modelControl);
+
+            //create Folders for save files
+            Serializer.Instance().createDir(Serializer.SAVE_FOLDER);
+            Serializer.Instance().createDir(Serializer.CSV_FOLDER);
+            Serializer.Instance().createDir(Serializer.ICS_FOLDER);
+            Serializer.Instance().createDir(Serializer.HTML_FOLDER);
 
             InitializeComponent();
 
@@ -66,13 +103,13 @@ namespace Schichtplan
             yearTextBox.Text = currentDate.Year.ToString();
             monthTextBox.Text = currentDate.Month.ToString();
 
-            string filePath = ModelControl.SAVE_FOLDER + "" + currentDate.Year + "_" + currentDate.Month + "-" + modelControl.getMonthNameFromMonthNumber(currentDate.Month) + ".save";
+            string filePath = Serializer.SAVE_FOLDER + "" + currentDate.Year + "_" + currentDate.Month + "-" + modelControl.getMonthNameFromMonthNumber(currentDate.Month) + ".save";
 
             //check if there is a file for the current month and year
             if (Serializer.Instance().fileExists(filePath))
             {
                 //if yes load that file
-                modelControl.open(filePath);
+                menuControl.open(filePath);
                 resetEverything();
             }
             else
@@ -105,7 +142,7 @@ namespace Schichtplan
             modelControl.currentWorkmonth.variableCosts = new List<model.Cost>();
         }
 
-        //-----------------------------------my Functions--------------------------------------
+        #region my Functions
 
         /// <summary>
         /// creates a new currentMonth with the year and month in the textfields
@@ -207,7 +244,9 @@ namespace Schichtplan
             return data;
         }
 
-        //-----------------------------------generated Functions-------------------------------
+        #endregion
+
+        #region generated Functions
 
         /// <summary>
         /// event when the window is closing. Asks if the user wants to save the current Month
@@ -219,7 +258,7 @@ namespace Schichtplan
             DialogResult dialogResult = MessageBox.Show("Willst du noch vor dem Schließen speichern?", "", MessageBoxButtons.YesNo);
             if (dialogResult == DialogResult.Yes)
             {
-                modelControl.save();
+                menuControl.save();
             }
         }
 
@@ -259,6 +298,8 @@ namespace Schichtplan
                 yearTextBox.Text = currentDate.Year.ToString();
             }
         }
+
+        #region Control size changed
 
         /// <summary>
         /// sets up the actions to take, when the shiftPlanTabPage is resized
@@ -352,7 +393,9 @@ namespace Schichtplan
             variableCostsDataGridView.Size = new Size(fixCostsPanel.Width, fixCostsPanel.Height - 35);
         }
 
-        //------------Menu-----------------
+        #endregion
+
+        #region menu
 
         /// <summary>
         /// calls save() function in the manager
@@ -361,7 +404,7 @@ namespace Schichtplan
         /// <param name="e">event details</param>
         private void saveToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            modelControl.save();
+            menuControl.save();
         }
 
         /// <summary>
@@ -375,7 +418,7 @@ namespace Schichtplan
 
             if (openFileDialog.ShowDialog() == DialogResult.OK)
             {
-                modelControl.open(openFileDialog.FileName);
+                menuControl.open(openFileDialog.FileName);
                 resetEverything();
 
                 yearTextBox.Text = modelControl.currentWorkmonth.year + "";
@@ -407,7 +450,7 @@ namespace Schichtplan
         /// <param name="e">event details</param>
         private void exportAsCSVToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            modelControl.exportCSVFiles();
+            menuControl.exportCSVFiles();
         }
 
         /// <summary>
@@ -417,7 +460,7 @@ namespace Schichtplan
         /// <param name="e">event details</param>
         private void kalenderDateienExportierenToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            modelControl.exportCalenderFiles();
+            menuControl.exportCalenderFiles();
         }
 
         /// <summary>
@@ -427,7 +470,10 @@ namespace Schichtplan
         /// <param name="e">event details</param>
         private void hTMLDateienExportierenToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            modelControl.exportHTMLFiles();
+            menuControl.exportHTMLFiles();
         }
+        #endregion
+
+        #endregion
     }
 }

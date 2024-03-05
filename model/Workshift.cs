@@ -8,7 +8,7 @@ namespace Schichtplan
 {
 
     [Serializable]
-    internal class Workshift
+    public class Workshift
     {
 
         public int startHour { get; set; }

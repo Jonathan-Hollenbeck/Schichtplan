@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 namespace Schichtplan.model
 {
     [Serializable]
-    internal class Settings
+    public class Settings
     {
         public Dictionary<Person, Color> personColors { get; set; }
 

@@ -450,7 +450,7 @@ namespace Schichtplan
                 "Willst du fortfahren?", "", MessageBoxButtons.YesNo);
             if (dialogResult == DialogResult.Yes)
             {
-                modelControl.createShiftPlan(shiftPlanAlgorithmComboBox.SelectedIndex);
+                shiftPlanControl.createShiftPlan(shiftPlanAlgorithmComboBox.SelectedIndex);
                 resetShiftPlanTab();
                 showShiftsNotSet();
                 setShiftsNotSetLabel();
@@ -498,9 +498,9 @@ namespace Schichtplan
             //set current workshift in edit
             if (shiftPlanRowToWorkshift.ContainsKey(row))
             {
-                modelControl.setCurrentWorkshiftInShiftPlanEdit(shiftPlanRowToWorkshift[row]);
+                shiftPlanControl.setCurrentWorkshiftInShiftPlanEdit(shiftPlanRowToWorkshift[row]);
 
-                setWorkshiftInShiftEdit(modelControl.currentWorkshiftInShiftPlanEdit);
+                setWorkshiftInShiftEdit(shiftPlanControl.currentWorkshiftInShiftPlanEdit);
 
                 Workday workday = modelControl.getWorkdayFromWorkshiftInWorkdays(shiftPlanRowToWorkshift[row], modelControl.currentWorkmonth.workdays);
 
@@ -587,11 +587,11 @@ namespace Schichtplan
                         Workshift workshift1 = shiftPlanRowToWorkshift[row];
                         Workshift workshift2 = shiftPlanRowToWorkshift[draggedRow];
 
-                        modelControl.swapPersonsInWorkshifts(workshift1, workshift2);
+                        shiftPlanControl.swapPersonsInWorkshifts(workshift1, workshift2);
 
-                        modelControl.setCurrentWorkshiftInShiftPlanEdit(null);
+                        shiftPlanControl.setCurrentWorkshiftInShiftPlanEdit(null);
 
-                        setWorkshiftInShiftEdit(modelControl.currentWorkshiftInShiftPlanEdit);
+                        setWorkshiftInShiftEdit(shiftPlanControl.currentWorkshiftInShiftPlanEdit);
                         resetShiftPlanTab();
                     }
                 }
@@ -606,7 +606,7 @@ namespace Schichtplan
         /// <param name="e">event details</param>
         private void shiftplanSaveChangesButton_Click(object sender, EventArgs e)
         {
-            if(modelControl.currentWorkshiftInShiftPlanEdit == null)
+            if(shiftPlanControl.currentWorkshiftInShiftPlanEdit == null)
             {
                 MessageBox.Show("Bitte erst Arbeitsschicht in die Bearbeitung laden.");
             }
@@ -615,11 +615,11 @@ namespace Schichtplan
                 if(shiftPlanPersonComboBox.SelectedIndex != -1)
                 {
                     string[] workshiftInfo = getWorkshiftInfoFromTextBoxes();
-                    modelControl.editWorkshiftInWorkshiftEdit(modelControl.currentWorkmonth.persons[shiftPlanPersonComboBox.SelectedIndex], workshiftInfo);
+                    shiftPlanControl.editWorkshiftInWorkshiftEdit(modelControl.currentWorkmonth.persons[shiftPlanPersonComboBox.SelectedIndex], workshiftInfo);
 
                     resetShiftPlanTab();
                     setTableControlColor(shiftPlanTable, currentClickedRowShiftPlan, hoverColor);
-                    setShiftEditPersonsComboBoxItems(modelControl.currentWorkshiftInShiftPlanEdit);
+                    setShiftEditPersonsComboBoxItems(shiftPlanControl.currentWorkshiftInShiftPlanEdit);
                 }
                 else
                 {
@@ -636,7 +636,7 @@ namespace Schichtplan
         /// <param name="e">event details</param>
         private void shiftPlanDeleteShiftButton_Click(object sender, EventArgs e)
         {
-            if (modelControl.currentWorkshiftInShiftPlanEdit == null)
+            if (shiftPlanControl.currentWorkshiftInShiftPlanEdit == null)
             {
                 MessageBox.Show("Bitte erst Arbeitsschicht in die Bearbeitung laden.");
             }
@@ -645,7 +645,7 @@ namespace Schichtplan
                 resetTableControlColor(shiftPlanTable, shiftplanControlColors, currentClickedRowShiftPlan);
                 currentClickedRowShiftPlan = -1;
 
-                modelControl.deleteCurrentWorkshiftInShiftEdit();
+                shiftPlanControl.deleteCurrentWorkshiftInShiftEdit();
                 shiftPlanPersonComboBox.Items.Clear();
                 shiftPlanPersonComboBox.Text = "";
 
@@ -668,7 +668,7 @@ namespace Schichtplan
         /// <param name="e">event details</param>
         private void shiftPlanAddShiftButton_Click(object sender, EventArgs e)
         {
-            if (modelControl.currentWorkshiftInShiftPlanEdit == null)
+            if (shiftPlanControl.currentWorkshiftInShiftPlanEdit == null)
             {
                 MessageBox.Show("Bitte erst Arbeitsschicht in die Bearbeitung laden.");
             }
@@ -678,12 +678,12 @@ namespace Schichtplan
                 currentClickedRowShiftPlan = -1;
 
                 string[] workshiftInfo = getWorkshiftInfoFromTextBoxes();
-                modelControl.addWorkshift(modelControl.currentWorkmonth.persons[shiftPlanPersonComboBox.SelectedIndex], workshiftInfo);
+                shiftPlanControl.addWorkshift(modelControl.currentWorkmonth.persons[shiftPlanPersonComboBox.SelectedIndex], workshiftInfo);
 
-                modelControl.setCurrentWorkshiftInShiftPlanEdit(null);
+                shiftPlanControl.setCurrentWorkshiftInShiftPlanEdit(null);
 
                 resetEverything();
-                setWorkshiftInShiftEdit(modelControl.currentWorkshiftInShiftPlanEdit);
+                setWorkshiftInShiftEdit(shiftPlanControl.currentWorkshiftInShiftPlanEdit);
             }
         }
 

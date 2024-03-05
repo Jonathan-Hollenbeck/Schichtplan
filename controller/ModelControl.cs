@@ -8,58 +8,12 @@ using System.Threading.Tasks;
 
 namespace Schichtplan
 {
-    internal class ModelControl
+    public class ModelControl
     {
-        /// <summary>
-        /// variable to declare the save folder for the save files
-        /// </summary>
-        public const string SAVE_FOLDER = "./saves/";
-
-        /// <summary>
-        /// variable to declare the save folder for the csv files
-        /// </summary>
-        public const string CSV_FOLDER = "./csv/";
-
-        /// <summary>
-        /// variable to declare the save folder for the ics calender files
-        /// </summary>
-        public const string ICS_FOLDER = "./calender/";
-
-        /// <summary>
-        /// variable to declare the save folder for the html files
-        /// </summary>
-        public const string HTML_FOLDER = "./html/";
-
         /// <summary>
         /// the currentMonth
         /// </summary>
         public Workmonth currentWorkmonth { get; set; }
-
-        /// <summary>
-        /// the workday which is currently in the shiftEdit in the shiftTab
-        /// </summary>
-        public Workday currentWorkdayInShiftEdit { get; set; }
-
-        /// <summary>
-        /// the workshift, which is currently in the shiftedit in the shiftPlanTab
-        /// </summary>
-        public Workshift currentWorkshiftInShiftPlanEdit { get; set; }
-
-        /// <summary>
-        /// the person, which is currently in the person edit in the personTab
-        /// </summary>
-        public Person currentPersonInEdit { get; set; }
-
-        /// <summary>
-        /// constructor, which creates folders for the savefiles
-        /// </summary>
-        public ModelControl()
-        {
-            Serializer.Instance().createDir(SAVE_FOLDER);
-            Serializer.Instance().createDir(CSV_FOLDER);
-            Serializer.Instance().createDir(ICS_FOLDER);
-            Serializer.Instance().createDir(HTML_FOLDER);
-        }
 
         /// <summary>
         /// creates a new workmonth and sets it as the currentMonth
@@ -73,820 +27,12 @@ namespace Schichtplan
             currentWorkmonth.workdays = getWorkdaysFromDatetimes(getDates(year, month));
         }
 
-        //--------------menu-------------------------
+        #region Util
 
-        /// <summary>
-        /// saves the currentMonth into a saveFile in the SAVE_FOLDER
-        /// </summary>
-        public void save()
-        {
-            currentWorkmonth.hourCarryOverThisMonth = getCarryOverHoursForWorkdaysForPersonsInShiftplan(currentWorkmonth.persons, currentWorkmonth.workdays, currentWorkmonth.shiftplan, currentWorkmonth.hourCarryOverLastMonth);
-            Serializer.Instance().saveObject(SAVE_FOLDER + "" + getFileNameString() + ".save", currentWorkmonth);
-        }
 
-        /// <summary>
-        /// loads a month from the file given in the fileName parameter and sets this month as the currentMonth
-        /// </summary>
-        /// <param name="fileName">file from which to load the month</param>
-        public void open(string fileName)
-        {
-            currentWorkmonth = (Workmonth)Serializer.Instance().loadObject(fileName);
-        }
+        #region return List
 
-        /// <summary>
-        /// creates csv files for all shifts for each person in the currentMonth and a csv file for all shifts in general
-        /// </summary>
-        public void exportCSVFiles()
-        {
-            Serializer.Instance().createDir(CSV_FOLDER + "" + getFileNameString() + "/");
-
-            // Files for the persons
-            foreach(Person person in currentWorkmonth.persons)
-            {
-                string fileContentPerson = "";
-
-                //string füllen
-                foreach(Workday workday in currentWorkmonth.workdays)
-                {
-                    if (isPersonWorkingAtDay(person, workday, currentWorkmonth.shiftplan))
-                    {
-                        fileContentPerson += workday.weekday + ", " + workday.day + " " + currentWorkmonth.monthName + ";;\n\n";
-
-                        foreach (Workshift workshift in workday.shifts)
-                        {
-                            string personName = "KEINE PERSON GEFUNDEN";
-                            if (currentWorkmonth.shiftplan.ContainsKey(workshift)){
-                                personName = currentWorkmonth.shiftplan[workshift].name;
-                            }
-                            fileContentPerson += personName + ";" + workshift.ToString() + ";" + workshift.description + "\n";
-                        }
-
-                        fileContentPerson += "\n\n";
-                    }
-                }
-
-                Serializer.Instance().writeToFile(CSV_FOLDER + getFileNameString() + "/" + person.name + ".csv", fileContentPerson);
-            }
-
-            //File for all Shifts
-
-            string fileContentShifts = "";
-            foreach (Workday workday in currentWorkmonth.workdays)
-            {
-                if(workday.shifts.Count > 0)
-                {
-                    fileContentShifts += workday.weekday + ", " + workday.day + " " + currentWorkmonth.monthName + ";;\n\n";
-
-                    foreach (Workshift workshift in workday.shifts)
-                    {
-                        string personName = "KEINE PERSON GEFUNDEN";
-                        if (currentWorkmonth.shiftplan.ContainsKey(workshift))
-                        {
-                            personName = currentWorkmonth.shiftplan[workshift].name;
-                        }
-                        fileContentShifts += personName + ";" + workshift.ToString() + ";" + workshift.description + "\n";
-                    }
-
-                    fileContentShifts += "\n\n";
-                }
-            }
-
-            Serializer.Instance().writeToFile(CSV_FOLDER + getFileNameString() + "/Schichten.csv", fileContentShifts);
-
-            //File with general info
-            //Info for every Person
-            string fileContentGeneral = "Name;" +
-                "Gehalt pro Stunde;" +
-                "Stunden gearbeitet diesen Monat;" +
-                "Monatsgehalt (davon vom letzten Monat);" +
-                "Tage nicht gearbeitet;" +
-                "Anzahl Schichten" +
-                "\n";
-            int workingDays = getWorkingDaysCounter(currentWorkmonth.workdays);
-
-            foreach (Person person in getPersonsSortedBy("name", currentWorkmonth.persons))
-            {
-                float worktime = getWorktimeForPersonInWorkdays(person, currentWorkmonth.workdays, currentWorkmonth.shiftplan);
-                int daysNotWorking = getDaysNotWorkingForPersonInWorkdaysCount(person, currentWorkmonth.workdays, currentWorkmonth.shiftplan);
-                float carryOver = getPersonCarryOver(person, currentWorkmonth.hourCarryOverLastMonth);
-
-                Dictionary<string, int> workshiftAmounts = getWorkedShiftsForPersonInWorkdaysByShiftTypeCount(person, currentWorkmonth.workdays, currentWorkmonth.shiftplan);
-                string workshiftAmountsString = "";
-                foreach (KeyValuePair<string, int> kvp in workshiftAmounts)
-                {
-                    workshiftAmountsString += kvp.Key + ": " + kvp.Value + ", ";
-                }
-                if(workshiftAmountsString.Length > 1)
-                {
-                    workshiftAmountsString = workshiftAmountsString.Substring(0, workshiftAmountsString.Length - 2);
-                }
-
-                fileContentGeneral += person.name
-                    + ";" + person.saleryPerHour
-                    + ";" + worktime + "h (" + person.minWorkHours + "h, " + person.maxWorkHours + "h)"
-                    + ";" + Util.clampToDecimalpoints(((carryOver + worktime) * person.saleryPerHour) + 0.5f, 2) + " (" + (carryOver * person.saleryPerHour) + ")"
-                    + ";" + daysNotWorking + "/" + workingDays
-                    + ";" + workshiftAmountsString
-                    + "\n";
-            }
-
-            fileContentGeneral += "\n\n";
-
-            //Other info
-            float carryOverSalerySum = 0.0f;
-            float salarySum = 0.0f;
-            foreach (Person person in currentWorkmonth.persons)
-            {
-                carryOverSalerySum += getPersonCarryOver(person, currentWorkmonth.hourCarryOverLastMonth) * person.saleryPerHour;
-                salarySum += getWorktimeForPersonInWorkdays(person, currentWorkmonth.workdays, currentWorkmonth.shiftplan) * person.saleryPerHour;
-                salarySum += carryOverSalerySum;
-            }
-            fileContentGeneral += "Gehaelter Sum:;" + Util.clampToDecimalpoints(salarySum, 2) + " (" + carryOverSalerySum + ")\n";
-
-            Dictionary<string, int> workshiftsByShiftType = getShiftCountInWorkdaysByShiftType(currentWorkmonth.workdays);
-            int workshiftSum = 0;
-            string workshiftsByShiftTypeString = "";
-            foreach (KeyValuePair<string, int> kvp in workshiftsByShiftType)
-            {
-                workshiftsByShiftTypeString += kvp.Key + ": " + kvp.Value + ", ";
-                workshiftSum += kvp.Value;
-            }
-            fileContentGeneral += "Summe Schichten:;";
-            fileContentGeneral += workshiftsByShiftTypeString.Length > 1 ?
-                workshiftSum + " (" + workshiftsByShiftTypeString.Substring(0, workshiftsByShiftTypeString.Length - 2) + ")\n"
-                : "";
-
-            fileContentGeneral += "Summe Stunden:;" + getWorktimeInWorkdays(currentWorkmonth.workdays) + "h";
-
-            Serializer.Instance().writeToFile(CSV_FOLDER + getFileNameString() + "/Generelle_Infos.csv", fileContentGeneral);
-        }
-
-        /// <summary>
-        /// creates html files for all shifts for each person in the currentMonth and a html file for all shifts in general
-        /// </summary>
-        public void exportHTMLFiles()
-        {
-            List<List<Workday>> weeks = getWeeksInWorkdays(currentWorkmonth.workdays);
-
-            Serializer.Instance().createDir(HTML_FOLDER + "" + getFileNameString() + "/");
-
-            // Files for the persons
-            foreach (Person person in currentWorkmonth.persons)
-            {
-                string fileContentPerson = "<html>\n";
-                //string füllen
-                for (int weekCounter = 0; weekCounter < weeks.Count; weekCounter++)
-                {
-                    List<Workday> week = weeks[weekCounter];
-
-                    fileContentPerson += "<h1 style=\"" +
-                        "background-color:black;" +
-                        "color:" + window.getHTMLColor(window.weekFontColor) + ";" +
-                        "width:100%;" +
-                        "padding: 10px;" +
-                        "text-align: center;" +
-                        "\">Woche " + weekCounter + ", " + getFirstAndLastDayInWorkdaysAsString(week) + "</h1>";
-
-                    foreach (Workday workday in week)
-                    {
-                        if (isPersonWorkingAtDay(person, workday, currentWorkmonth.shiftplan))
-                        {
-                            fileContentPerson += "<table style=\"" +
-                                "border:1px solid;" +
-                                "text-align:left;" +
-                                "border-collapse:collapse;" +
-                                "width:100%" +
-                                "\">\n";
-
-                            fileContentPerson += "<tr style=\"background-color:" + window.getHTMLColor(window.dayColor) + ";\">" +
-                                "<th style=\"width:33%\">" + workday.weekday + ", " + workday.day + " " + currentWorkmonth.monthName + "</th>" +
-                                "<th style=\"width:33%\"></th>" +
-                                "<th style=\"width:33%\"></th>" +
-                                "</tr>\n";
-
-                            foreach (Workshift workshift in workday.shifts)
-                            {
-                                string personName = "KEINE PERSON GEFUNDEN";
-                                string backColor = window.getHTMLColor(window.transparent);
-                                if (currentWorkmonth.settings.shiftTypeColors.ContainsKey(workshift.shiftType))
-                                {
-                                    backColor = window.getHTMLColor(currentWorkmonth.settings.shiftTypeColors[workshift.shiftType]);
-                                }
-                                if (currentWorkmonth.shiftplan.ContainsKey(workshift))
-                                {
-                                    personName = currentWorkmonth.shiftplan[workshift].name;
-                                    if (person == currentWorkmonth.shiftplan[workshift])
-                                    {
-                                        backColor = window.getHTMLColor(window.saturdayColor);
-                                    }
-                                }
-
-                                fileContentPerson += "<tr style=\"background-color:" + backColor + ";\">" +
-                                    "<td style=\"width:33%\">" + personName + "</td>" +
-                                    "<td style=\"width:33%\">" + workshift.ToString() + "</td>" +
-                                    "<td style=\"width:33%\">" + workshift.description + "</td>" +
-                                    "</tr>\n";
-                            }
-
-                            fileContentPerson += "</table>\n</br>";
-                        }
-                    }
-                }
-                fileContentPerson += "</html>";
-
-                Serializer.Instance().writeToFile(HTML_FOLDER + getFileNameString() + "/" + person.name + ".html", fileContentPerson);
-            }
-
-            string fileContentShift = "<html>\n";
-
-            //File for all Shifts
-            for(int weekCounter = 0; weekCounter < weeks.Count; weekCounter++)
-            {
-                List<Workday> week = weeks[weekCounter];
-
-                fileContentShift += "<h1 style=\"" +
-                    "background-color:black;" +
-                    "color:" + window.getHTMLColor(window.weekFontColor) + ";" +
-                    "width:100%;" +
-                    "padding: 10px;" +
-                    "text-align: center;" +
-                    "\">Woche " + weekCounter + ", " + getFirstAndLastDayInWorkdaysAsString(week) + "</h1>";
-
-                foreach (Workday workday in week)
-                {
-                    if (workday.shifts.Count > 0)
-                    {
-                        fileContentShift += "<table style=\"" +
-                                "border:1px solid;" +
-                                "text-align:left;" +
-                                "border-collapse:collapse;" +
-                                "width:100%" +
-                                "\">\n";
-
-                        fileContentShift += "<tr style=\"background-color:" + window.getHTMLColor(window.dayColor) + ";\">" +
-                            "<th style=\"width:33%\">" + workday.weekday + ", " + workday.day + " " + currentWorkmonth.monthName + "</th>" +
-                            "<th style=\"width:33%\"></th>" +
-                            "<th style=\"width:33%\"></th>" +
-                            "</tr>\n";
-
-                        foreach (Workshift workshift in workday.shifts)
-                        {
-                            string backColorShift = window.getHTMLColor(window.transparent);
-                            if (currentWorkmonth.settings.shiftTypeColors.ContainsKey(workshift.shiftType))
-                            {
-                                backColorShift = window.getHTMLColor(currentWorkmonth.settings.shiftTypeColors[workshift.shiftType]);
-                            }
-                            string backColorPerson = window.getHTMLColor(window.transparent);
-
-                            string personName = "KEINE PERSON GEFUNDEN";
-                            if (currentWorkmonth.shiftplan.ContainsKey(workshift))
-                            {
-                                Person person = currentWorkmonth.shiftplan[workshift];
-                                personName = person.name;
-
-                                if (currentWorkmonth.settings.personColors.ContainsKey(person))
-                                {
-                                    backColorPerson = window.getHTMLColor(currentWorkmonth.settings.personColors[person]);
-                                }
-                            }
-                            fileContentShift += "<tr>" +
-                                "<td style=\"width:33%;background-color:" + backColorPerson + ";\">" + personName + "</td>" +
-                                "<td style=\"width:33%;background-color:" + backColorShift + ";\">" + workshift.ToString() + "</td>" +
-                                "<td style=\"width:33%;background-color:" + window.getHTMLColor(window.transparent) + ";\">" + workshift.description + "</td>" +
-                                "</tr>\n";
-                        }
-
-                        fileContentShift += "</table>\n</br>";
-                    }
-                }
-            }
-
-            fileContentShift += "</html>";
-
-            Serializer.Instance().writeToFile(HTML_FOLDER + getFileNameString() + "/Schichten.html", fileContentShift);
-        }
-
-        /// <summary>
-        /// creates ics files for all shifts for each person in the currentMonth and a ics file for all shifts in general
-        /// </summary>
-        public void exportCalenderFiles()
-        {
-            Serializer.Instance().createDir(ICS_FOLDER + "" + getFileNameString() + "/");
-
-            // Files for the persons
-            foreach (Person person in currentWorkmonth.persons)
-            {
-                string fileContentPerson = "";
-
-                fileContentPerson += "BEGIN:VCALENDAR\nVERSION: 2.0\nCALSCALE: GREGORIAN\n";
-
-                //string füllen
-                foreach (Workday workday in currentWorkmonth.workdays)
-                {
-                    foreach (Workshift workshift in workday.shifts)
-                    {
-                        if (currentWorkmonth.shiftplan.ContainsKey(workshift))
-                        {
-                            if (currentWorkmonth.shiftplan[workshift] == person)
-                            {
-                                fileContentPerson += "BEGIN:VEVENT\n";
-                                fileContentPerson += "SUMMARY:Los Amigos arbeiten\n";
-                                fileContentPerson += "DESCRIPTION:Du bist für " + workshift.shiftType + " eingeteilt.\n";
-                                fileContentPerson += "DTSTART:" + getWorkshiftStartTimeToIcsFormat(workday, workshift) + "\n";
-                                fileContentPerson += "DTEND:" + getWorkshiftEndTimeToIcsFormat(workday, workshift) + "\n";
-                                fileContentPerson += "LOCATION:Wolbecker Straße 128, 48155 Münster\n";
-                                fileContentPerson += "STATUS:CONFIRMED\n";
-                                fileContentPerson += "SEQUENCE:0\n";
-                                fileContentPerson += "END:VEVENT\n";
-                            }
-                        }
-                    }
-                }
-
-                fileContentPerson += "END:VCALENDAR";
-
-                Serializer.Instance().writeToFile(ICS_FOLDER + getFileNameString() + "/" + person.name + ".ics", fileContentPerson);
-            }
-
-            // Files for all shifts of the day
-
-            string fileContentShifts = "";
-
-            fileContentShifts += "BEGIN:VCALENDAR\nVERSION: 2.0\nCALSCALE: GREGORIAN\n";
-
-            foreach (Workday workday in currentWorkmonth.workdays)
-            {
-                if(workday.shifts.Count > 0)
-                {
-                    string description = "";
-                    foreach (Workshift workshift in workday.shifts)
-                    {
-                        if (currentWorkmonth.shiftplan.ContainsKey(workshift))
-                        {
-                            description += currentWorkmonth.shiftplan[workshift].name + ": " + workshift.ToString() + "\\n";
-                        }
-                        else
-                        {
-                            description += "KEINE PERSON GEFUNDEN: " + workshift.ToString() + "\\n";
-                        }
-                    }
-                    string month = "" + currentWorkmonth.month;
-                    month = month.Length == 1 ? "0" + month : month;
-                    string day = "" + workday.day;
-                    day = day.Length == 1 ? "0" + day : day;
-
-                    fileContentShifts += "BEGIN:VEVENT\n";
-                    fileContentShifts += "SUMMARY:Los Amigos heute: " + workday.shifts.Count + " Schichten.\n";
-                    fileContentShifts += "DESCRIPTION:" + description + "\n";
-                    fileContentShifts += "DTSTART:" + currentWorkmonth.year + "" + month + "" + day + "T070000\n";
-                    fileContentShifts += "DTEND:" + currentWorkmonth.year + "" + month + "" + day + "T071500\n";
-                    fileContentShifts += "LOCATION:Wolbecker Straße 128, 48155 Münster\n";
-                    fileContentShifts += "STATUS:CONFIRMED\n";
-                    fileContentShifts += "SEQUENCE:0\n";
-                    fileContentShifts += "END:VEVENT\n";
-                }
-            }
-
-            fileContentShifts += "END:VCALENDAR";
-
-            Serializer.Instance().writeToFile(ICS_FOLDER + getFileNameString() + "/Schichten.ics", fileContentShifts);
-        }
-
-        //-------------shift edit--------------------
-
-        /// <summary>
-        /// sets the currentDayInShiftEdit from the weektemplate with the index of the weekday given as parameter
-        /// </summary>
-        /// <param name="weekdayIndex">the index of the weekday</param>
-        public void setCurrentDayInShiftEditFromWeekTemplate(int weekdayIndex)
-        {
-            currentWorkdayInShiftEdit = currentWorkmonth.weekTemplate[weekdayIndex];
-        }
-
-        /// <summary>
-        /// sets the currentDayInShiftEdit from the currentMonth.workdays with the index of the workday given as parameter
-        /// </summary>
-        /// <param name="workdayIndex">the index of the workday</param>
-        public void setCurrentDayInShiftEditFromWorkdays(int workdayIndex)
-        {
-            currentWorkdayInShiftEdit = currentWorkmonth.workdays[workdayIndex];
-        }
-
-        /// <summary>
-        /// saves the workshifts into the currentDayInShiftEdit with a double string array
-        /// </summary>
-        /// <param name="data">data of the workshifts</param>
-        public void saveWorkshiftsIntoCurrentDayInShiftEdit(string[,] data)
-        {
-            //fill with new shifts
-            for (int r = 0; r < data.GetLength(0); r++)
-            {
-                int[] startHoursMinutes = getHourMinutesFromString(data[r, 0]);
-                if (startHoursMinutes == null)
-                {
-                    return;
-                }
-                int[] endHoursMinutes = getHourMinutesFromString(data[r, 1]);
-                if (endHoursMinutes == null)
-                {
-                    return;
-                }
-                if (r >= currentWorkdayInShiftEdit.shifts.Count)
-                {
-                    currentWorkdayInShiftEdit.shifts.Add(new Workshift(startHoursMinutes[0], startHoursMinutes[1],
-                    endHoursMinutes[0], endHoursMinutes[1], data[r, 2], data[r, 3]));
-                }
-                else
-                {
-                    currentWorkdayInShiftEdit.shifts[r].startHour = startHoursMinutes[0];
-                    currentWorkdayInShiftEdit.shifts[r].startMinute = startHoursMinutes[1];
-                    currentWorkdayInShiftEdit.shifts[r].endHour = endHoursMinutes[0];
-                    currentWorkdayInShiftEdit.shifts[r].endMinute = endHoursMinutes[1];
-                    currentWorkdayInShiftEdit.shifts[r].shiftType = data[r, 2];
-                    currentWorkdayInShiftEdit.shifts[r].description = data[r, 3];
-                }
-            }
-
-            //delete workshifts that are not in the data anymore
-            if(data.GetLength(0) < currentWorkdayInShiftEdit.shifts.Count)
-            {
-                for (int i = 0; i < currentWorkdayInShiftEdit.shifts.Count - data.GetLength(0); i++)
-                {
-                    currentWorkdayInShiftEdit.shifts.Remove(currentWorkdayInShiftEdit.shifts[currentWorkdayInShiftEdit.shifts.Count - i - 1]);
-                }
-            }
-
-            setShiftTypesInShiftTypeColorSettings();
-
-            currentWorkdayInShiftEdit.shifts = getSortedWorkshiftsInWorkday(currentWorkdayInShiftEdit);
-        }
-
-        /// <summary>
-        /// sets the shifttypes in the shifttypecolor setting
-        /// </summary>
-        public void setShiftTypesInShiftTypeColorSettings()
-        {
-            //look if the workshifts in the month have changed and put data in the shifttypecolors accordingly
-            string[] shiftTypes = getShiftTypesInWorkdays(currentWorkmonth.workdays);
-            //add all shiftTypes in the currentMonth, who are not in the dict yet
-            foreach (string shiftType in shiftTypes)
-            {
-                if (!currentWorkmonth.settings.shiftTypeColors.ContainsKey(shiftType))
-                {
-                    currentWorkmonth.settings.shiftTypeColors.Add(shiftType, window.transparent);
-                }
-            }
-            //remove any shiftTypes who are not in the currentMonth anymore
-            List<string> shiftTypesToBeRemoved = new List<string>();
-            foreach (string shiftType in currentWorkmonth.settings.shiftTypeColors.Keys)
-            {
-                if (!Util.stringArrayContains(shiftTypes, shiftType))
-                {
-                    shiftTypesToBeRemoved.Add(shiftType);
-                }
-            }
-            foreach(string shiftType in shiftTypesToBeRemoved)
-            {
-                currentWorkmonth.settings.shiftTypeColors.Remove(shiftType);
-            }
-        }
-
-        /// <summary>
-        /// clones the weektemplate workshifts into the workshifts of all currentMonth.workdays with the corresponding weekdayindex
-        /// </summary>
-        public void setWeekTemplateOnMonth()
-        {
-            foreach(Workday workday in currentWorkmonth.workdays)
-            {
-                workday.shifts = currentWorkmonth.weekTemplate[workday.weekdayIndex].cloneWorkshifts();
-            }
-
-            setShiftTypesInShiftTypeColorSettings();
-        }
-
-        //-------------persons--------------------
-
-        /// <summary>
-        /// sets the currentPerson to the given personIndex in the currentMonth.persons
-        /// </summary>
-        /// <param name="personIndex">the personIndex in the currentMonth.persons</param>
-        public void setCurrentPersonInEdit(int personIndex)
-        {
-            currentPersonInEdit = currentWorkmonth.persons[personIndex];
-        }
-
-        /// <summary>
-        /// adds a person to the currentMonth.perons list with the given data and unavailabilities
-        /// and sets it as currentPerson
-        /// </summary>
-        /// <param name="data">person data</param>
-        public void addPerson(string[] data, Color personColor)
-        {
-            float saleryPerHour = Util.parseFloat(data[1], "Bitte nur Zahlen im Gehalt pro Stunde Textfeld benutzen.");
-            int minWorkHours = Util.parseInt(data[2], "Bitte nur Zahlen im min Arbeitsstunden Textfeld benutzen.");
-            int maxWorkHours = Util.parseInt(data[3], "Bitte nur Zahlen im max Arbeitsstunden Textfeld benutzen.");
-            if (minWorkHours == -1 || maxWorkHours == -1 || saleryPerHour == -1)
-            {
-                return;
-            }
-            Person person = new Person(data[0], saleryPerHour, minWorkHours, maxWorkHours, data[4].Split(','), data[5]);
-            currentWorkmonth.persons.Add(person);
-            currentWorkmonth.settings.personColors.Add(person, personColor);
-            currentPersonInEdit = person;
-        }
-
-        /// <summary>
-        /// deletes the currentPerson
-        /// </summary>
-        public void deleteCurrentPerson()
-        {
-            currentWorkmonth.persons.Remove(currentPersonInEdit);
-            currentWorkmonth.settings.personColors.Remove(currentPersonInEdit);
-            currentPersonInEdit = null;
-        }
-
-        /// <summary>
-        /// edits the currentPerson with the data and unavailabilities
-        /// </summary>
-        /// <param name="data">person data</param>
-        /// <param name="unavailability">person unavailabilities</param>
-        public void editCurrentPerson(string[] data, bool[] unavailability, bool[] onlyOneAble, Color personColor)
-        {
-            float saleryPerHour = Util.parseFloat(data[1], "Bitte nur Zahlen im Gehalt pro Stunde Textfeld benutzen.");
-            int minWorkHours = Util.parseInt(data[2], "Bitte nur Zahlen im min Arbeitsstunden Textfeld benutzen.");
-            int maxWorkHours = Util.parseInt(data[3], "Bitte nur Zahlen im max Arbeitsstunden Textfeld benutzen.");
-            float carryOver = Util.parseFloat(data[6], "Bitte nur Zahlen Übertrag vom letzten Monat Textfeld benutzen.");
-            if (minWorkHours == -1 || maxWorkHours == -1 || saleryPerHour == -1 || carryOver == -1)
-            {
-                return;
-            }
-
-            setUnavailabilitiesInCurrentPerson(unavailability);
-            setUnavailabilitiesInOtherPersons(onlyOneAble);
-
-            currentPersonInEdit.name = data[0];
-            currentPersonInEdit.saleryPerHour = saleryPerHour;
-            currentPersonInEdit.minWorkHours = minWorkHours;
-            currentPersonInEdit.maxWorkHours = maxWorkHours;
-            currentPersonInEdit.shiftTypes = data[4].Split(',');
-            currentPersonInEdit.description = data[5];
-
-            if (!currentWorkmonth.hourCarryOverLastMonth.ContainsKey(currentPersonInEdit))
-            {
-                currentWorkmonth.hourCarryOverLastMonth.Add(currentPersonInEdit, 0.0f);
-            }
-            currentWorkmonth.hourCarryOverLastMonth[currentPersonInEdit] = carryOver;
-
-            currentWorkmonth.settings.personColors[currentPersonInEdit] = personColor;
-        }
-
-        /// <summary>
-        /// sets the unavailabilities in the currentPerson
-        /// </summary>
-        /// <param name="unavailability">person unavailabilities</param>
-        public void setUnavailabilitiesInCurrentPerson(bool[] unavailability)
-        {
-            currentPersonInEdit.unavailability.Clear();
-            int index = 0;
-            List<Workshift> possibleWorkshifts = getPossibleWorkshiftsForPersonInWorkdays(currentPersonInEdit, currentWorkmonth.workdays);
-            foreach (Workshift workshift in possibleWorkshifts)
-            {
-                if (unavailability[index] == true)
-                {
-                    currentPersonInEdit.unavailability.Add(workshift);
-                }
-                index++;
-            }
-        }
-
-        /// <summary>
-        /// sets the unavailabilities in all other persons then the currentPerson
-        /// </summary>
-        /// <param name="unavailability">unavailabilities for all other persons</param>
-        public void setUnavailabilitiesInOtherPersons(bool[] unavailability)
-        {
-            int index = 0;
-            foreach (Workshift workshift in getPossibleWorkshiftsForPersonInWorkdays(currentPersonInEdit, currentWorkmonth.workdays))
-            {
-                if (unavailability[index] == true)
-                {
-                    foreach(Person person in currentWorkmonth.persons)
-                    {
-                        if (person != currentPersonInEdit)
-                        {
-                            List<Workshift> possibleWorkdaysForPerson = getPossibleWorkshiftsForPersonInWorkdays(person, currentWorkmonth.workdays);
-                            if (!person.unavailability.Contains(workshift) && possibleWorkdaysForPerson.Contains(workshift))
-                            {
-                                person.unavailability.Add(workshift);
-                            }
-                        }
-                    }
-                }
-                index++;
-            }
-        }
-
-        /// <summary>
-        /// deletes all unavailibilities from a given list of persons
-        /// </summary>
-        /// <param name="persons">list of persons to delete the unavailabilities from</param>
-        public void resetUnavailabilities(List<Person> persons)
-        {
-            foreach(Person person in persons)
-            {
-                person.unavailability.Clear();
-            }
-        }
-
-        //----------------shift plan---------------
-
-        /// <summary>
-        /// creates the shiftplan
-        /// </summary>
-        public void createShiftPlan(int algorithmIndex)
-        {
-            currentWorkmonth.shiftplan.Clear();
-
-            switch (algorithmIndex)
-            {
-                case 0:
-                    currentWorkmonth.shiftplan = getSimpleShiftPlan(currentWorkmonth.workdays, currentWorkmonth.persons, currentWorkmonth.hourCarryOverLastMonth);
-                    break;
-                case 1:
-                    currentWorkmonth.shiftplan = getEvenlyDistributedShiftPlan(currentWorkmonth.workdays, currentWorkmonth.persons, currentWorkmonth.hourCarryOverLastMonth);
-                    break;
-                default:
-                    break;
-            }
-        }
-
-        /// <summary>
-        /// sets currentWorkshiftInShiftPlanEdit to a given workshift
-        /// </summary>
-        /// <param name="workshift">the workshift to set as the current one</param>
-        public void setCurrentWorkshiftInShiftPlanEdit(Workshift workshift)
-        {
-            currentWorkshiftInShiftPlanEdit = workshift;
-        }
-
-        /// <summary>
-        /// edit the currentWorkshiftInShiftPlanEdit with the given shiftInfo
-        /// set the person for this workshift in the shiftplan as the given person
-        /// </summary>
-        /// <param name="person">person for this workshift</param>
-        /// <param name="shiftInfo">info for this workshift</param>
-        public void editWorkshiftInWorkshiftEdit(Person person, string[] shiftInfo)
-        {
-            //set person
-            currentWorkmonth.shiftplan[currentWorkshiftInShiftPlanEdit] = person;
-
-            //set other data
-            int[] startHoursMinutes = getHourMinutesFromString(shiftInfo[0]);
-            if (startHoursMinutes == null)
-            {
-                return;
-            }
-            int[] endHoursMinutes = getHourMinutesFromString(shiftInfo[1]);
-            if (endHoursMinutes == null)
-            {
-                return;
-            }
-            currentWorkshiftInShiftPlanEdit.startHour = startHoursMinutes[0];
-            currentWorkshiftInShiftPlanEdit.startMinute = startHoursMinutes[1];
-            currentWorkshiftInShiftPlanEdit.endHour = endHoursMinutes[0];
-            currentWorkshiftInShiftPlanEdit.endMinute = endHoursMinutes[1];
-            currentWorkshiftInShiftPlanEdit.shiftType = shiftInfo[2];
-            currentWorkshiftInShiftPlanEdit.description = shiftInfo[3];
-        }
-
-        /// <summary>
-        /// add a new workshift int the day of the currentWorkshiftInShiftPlanEdit with the given shiftInfo
-        /// set the person for this workshift in the shiftplan as the given person
-        /// </summary>
-        /// <param name="person">person for this workshift</param>
-        /// <param name="shiftInfo">info for this workshift</param>
-        public void addWorkshift(Person person, string[] shiftInfo)
-        {
-            Workday workday = getWorkdayFromWorkshiftInWorkdays(currentWorkshiftInShiftPlanEdit, currentWorkmonth.workdays);
-
-            //set other data
-            int[] startHoursMinutes = getHourMinutesFromString(shiftInfo[0]);
-            if (startHoursMinutes == null)
-            {
-                return;
-            }
-            int[] endHoursMinutes = getHourMinutesFromString(shiftInfo[1]);
-            if (endHoursMinutes == null)
-            {
-                return;
-            }
-
-            //create new Workshift
-            Workshift workshift = new Workshift(startHoursMinutes[0], startHoursMinutes[1],
-                endHoursMinutes[0], endHoursMinutes[1], shiftInfo[2], shiftInfo[3]);
-
-            //add new Workshift to workday
-            workday.shifts.Add(workshift);
-
-            workday.shifts = getSortedWorkshiftsInWorkday(workday);
-
-            currentWorkshiftInShiftPlanEdit = workshift;
-
-            //set person
-            currentWorkmonth.shiftplan.Add(currentWorkshiftInShiftPlanEdit, person);
-        }
-
-        /// <summary>
-        /// deletes the currentWorkshiftInShiftPlanEdit
-        /// </summary>
-        public void deleteCurrentWorkshiftInShiftEdit()
-        {
-            currentWorkmonth.shiftplan.Remove(currentWorkshiftInShiftPlanEdit);
-            foreach(Workday workday in currentWorkmonth.workdays)
-            {
-                foreach(Workshift workshift in workday.shifts)
-                {
-                    if(workshift == currentWorkshiftInShiftPlanEdit)
-                    {
-                        workday.shifts.Remove(workshift);
-                        break;
-                    }
-                }
-            }
-            foreach(Person person in currentWorkmonth.persons)
-            {
-                if (person.unavailability.Contains(currentWorkshiftInShiftPlanEdit))
-                {
-                    person.unavailability.Remove(currentWorkshiftInShiftPlanEdit);
-                }
-            }
-            currentWorkshiftInShiftPlanEdit = null;
-        }
-
-        /// <summary>
-        /// swaps the Persons in the 2 given workshifts
-        /// </summary>
-        /// <param name="workshift1">first workshift to swap</param>
-        /// <param name="workshift2">first workshift to swap</param>
-        public void swapPersonsInWorkshifts(Workshift workshift1, Workshift workshift2)
-        {
-            if(currentWorkmonth.shiftplan.ContainsKey(workshift1) && currentWorkmonth.shiftplan.ContainsKey(workshift2))
-            {
-                Person tempPerson = currentWorkmonth.shiftplan[workshift1];
-                currentWorkmonth.shiftplan[workshift1] = currentWorkmonth.shiftplan[workshift2];
-                currentWorkmonth.shiftplan[workshift2] = tempPerson;
-            }
-        }
-
-        //----------------costs---------------------
-
-        /// <summary>
-        /// saves the data given as parameter into the fixCosts of the currentMonth
-        /// </summary>
-        /// <param name="data">data to be saved</param>
-        public void setFixCostsFromStringArray(string[,] data)
-        {
-            currentWorkmonth.fixCosts.Clear();
-
-            for (int r = 0; r < data.GetLength(0); r++)
-            {
-                int day = Util.parseInt(data[r, 0], "Bitte nur Zahlen in das Bezahl Tag Textfeld eintragen. \n Am besten den Tag an dem der Betrag gezahlt wird als Zahl.");
-                if(day == -1)
-                {
-                    return;
-                }
-                float amount = Util.parseFloat(data[r, 3], "Bitte nur Zahlen in das Betrag Textfeld eintragen.");
-                currentWorkmonth.fixCosts.Add(new Cost(day, data[r, 1], data[r, 2], amount));
-            }
-        }
-
-        /// <summary>
-        /// saves the data given as parameter into the variableCosts of the currentMonth
-        /// </summary>
-        /// <param name="data">data to be saved</param>
-        public void setVariableCostsFromStringArray(string[,] data)
-        {
-            currentWorkmonth.variableCosts.Clear();
-
-            for (int r = 0; r < data.GetLength(0); r++)
-            {
-                int day = Util.parseInt(data[r, 0], "Bitte nur Zahlen in das Bezahl Tag Textfeld eintragen. \n Am besten den Tag an dem der Betrag gezahlt wird als Zahl.");
-                if (day == -1)
-                {
-                    return;
-                }
-                float amount = Util.parseFloat(data[r, 3], "Bitte nur Zahlen in das Betrag Textfeld eintragen.");
-                currentWorkmonth.variableCosts.Add(new Cost(day, data[r, 1], data[r, 2], amount));
-            }
-        }
-
-
-        //-----------------util---------------------
-
-        //------------return Lists-----------------
-
-
-        //---Workdays---
+        #region Workday List
 
 
         /// <summary>
@@ -968,9 +114,9 @@ namespace Schichtplan
             return workdays;
         }
 
+        #endregion
 
-        //---Workshifts---
-
+        #region Workshift List
 
         /// <summary>
         /// checks which workshifts a person could work in a given list of workdays and returns them as a list
@@ -1092,8 +238,9 @@ namespace Schichtplan
             return emptyWorkshifts;
         }
 
-        //---Persons---
+        #endregion
 
+        #region Person List
 
         /// <summary>
         /// checks which persons do not reach their minHours in a list of workdays with a given shiftplan and returns them
@@ -1203,9 +350,9 @@ namespace Schichtplan
             return persons;
         }
 
+        #endregion
 
-        //---DateTime---
-
+        #region DateTime List
 
         /// <summary>
         /// gets a list of all days as datetimes for a given year and month
@@ -1225,9 +372,9 @@ namespace Schichtplan
             return dates;
         }
 
+        #endregion
 
-        //---int---
-
+        #region int List
 
         /// <summary>
         /// gets all workshifts from a given workdayindex in a list of workdays, in which a given person could work
@@ -1258,12 +405,13 @@ namespace Schichtplan
             return workshiftIndexes;
         }
 
+        #endregion
 
-        //------------return Dicts------------------
+        #endregion
 
+        #region return Dicts
 
-        //---Person, float---
-
+        #region Person, float Dicts
 
         /// <summary>
         /// calculates, if any person in a given person list works more in a given workday list, then its maxWorkHours and saves them into a dict
@@ -1295,9 +443,9 @@ namespace Schichtplan
             return carryOverHours;
         }
 
+        #endregion
 
-        //---Workshift, Person---
-
+        #region Workshift, Person Dicts
 
         /// <summary>
         /// creates the shiftplan by iteratively for every workshift first trying fulfill the minWorkHour of every person
@@ -1541,9 +689,9 @@ namespace Schichtplan
             return shiftplan;
         }
 
+        #endregion
 
-        //---string, float---
-
+        #region string, float dicts
 
         /// <summary>
         /// gets a dict, which has all the different shifttypes of the workshifts in the given workdays list and as keys their worktimes
@@ -1590,9 +738,9 @@ namespace Schichtplan
             return counter;
         }
 
+        #endregion
 
-        //---string, int---
-
+        #region string, int Dicts
 
         /// <summary>
         /// counts the amount of shifts in a list of workdays by shifttype
@@ -1701,9 +849,11 @@ namespace Schichtplan
             return counter;
         }
 
+        #endregion
 
-        //-----------return Workday-----------------
+        #endregion
 
+        #region return Workday
 
         /// <summary>
         /// gets the workday of a given workshift in a given list of workdays
@@ -1726,9 +876,9 @@ namespace Schichtplan
             return null;
         }
 
+        #endregion
 
-        //-----------return string------------------
-
+        #region return string
 
         /// <summary>
         /// gets all shifttypes from a given workday and saves them in a string array
@@ -1774,7 +924,7 @@ namespace Schichtplan
         /// puts the year of the currentMonth and its month and monthname together in a string and returns it
         /// </summary>
         /// <returns>the year of the currentMonth and its month and monthname together in a string</returns>
-        public string getFileNameString()
+        public string getYearMonthString()
         {
             return currentWorkmonth.year + "_" + currentWorkmonth.month + "-" + currentWorkmonth.monthName;
         }
@@ -1906,9 +1056,9 @@ namespace Schichtplan
             return first + " " + currentWorkmonth.monthName + " - " + last + " " + currentWorkmonth.monthName;
         }
 
+        #endregion
 
-        //-----------return int---------------------
-
+        #region return int
 
         /// <summary>
         /// seperates the hours and minutes of a string with the format hh:mm and puts them into an int array
@@ -2068,9 +1218,9 @@ namespace Schichtplan
             return -1;
         }
 
+        #endregion
 
-        //-----------return float-------------------
-
+        #region return float
 
         /// <summary>
         /// returns a potential carryOver for a person
@@ -2198,9 +1348,9 @@ namespace Schichtplan
             return counter;
         }
 
+        #endregion
 
-        //---------------return bool----------------
-
+        #region return bool
 
         /// <summary>
         /// checks if two given workdays are in the same week
@@ -2361,5 +1511,9 @@ namespace Schichtplan
             }
             return false;
         }
+        #endregion
+
+
+        #endregion
     }
 }

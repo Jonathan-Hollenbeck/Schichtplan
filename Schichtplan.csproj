@@ -80,6 +80,12 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="controller\CostsControl.cs" />
+    <Compile Include="controller\MenuControl.cs" />
+    <Compile Include="controller\PersonsControl.cs" />
+    <Compile Include="controller\ShiftEditControl.cs" />
+    <Compile Include="controller\ShiftPlanControl.cs" />
+    <Compile Include="controller\ViewControl.cs" />
     <Compile Include="view\CostsView.cs">
       <SubType>Form</SubType>
     </Compile>
@@ -90,12 +96,12 @@
     <Compile Include="view\WindowView.Designer.cs">
       <DependentUpon>WindowView.cs</DependentUpon>
     </Compile>
-    <Compile Include="view\InformationView.cs">
+    <Compile Include="view\InformationsView.cs">
       <SubType>Form</SubType>
     </Compile>
     <Compile Include="model\Person.cs" />
     <Compile Include="model\Settings.cs" />
-    <Compile Include="view\PersonView.cs">
+    <Compile Include="view\PersonsView.cs">
       <SubType>Form</SubType>
     </Compile>
     <Compile Include="Program.cs" />

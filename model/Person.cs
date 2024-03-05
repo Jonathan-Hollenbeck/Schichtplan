@@ -8,7 +8,7 @@ namespace Schichtplan
 {
 
     [Serializable]
-    internal class Person
+    public class Person
     {
         public string name { get; set; }
 

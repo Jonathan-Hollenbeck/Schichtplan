@@ -9,7 +9,7 @@ namespace Schichtplan
 {
 
     [Serializable]
-    internal class Workmonth
+    public class Workmonth
     {
         public Settings settings { get; set; }
 

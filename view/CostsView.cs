@@ -21,7 +21,7 @@ namespace Schichtplan
         {
             string[,] data = getDataFromDataGridViewAsStringArray(fixCostsDataGridView);
 
-            modelControl.setFixCostsFromStringArray(data);
+            costsControl.setFixCostsFromStringArray(data);
 
             setFixCostsData();
         }
@@ -33,7 +33,7 @@ namespace Schichtplan
         {
             string[,] data = getDataFromDataGridViewAsStringArray(variableCostsDataGridView);
 
-            modelControl.setVariableCostsFromStringArray(data);
+            costsControl.setVariableCostsFromStringArray(data);
 
             setVariableCostsData();
         }

@@ -8,7 +8,7 @@ namespace Schichtplan
 {
 
     [Serializable]
-    internal class Workday
+    public class Workday
     {
         public string weekday { get; set; }
         public int weekdayIndex { get; set; }

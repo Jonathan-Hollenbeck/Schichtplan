@@ -5,9 +5,31 @@ using System.Runtime.Serialization.Formatters.Binary;
 
 namespace Schichtplan
 {
-    internal class Serializer
+    public class Serializer
     {
+        /// <summary>
+        /// variable to declare the save folder for the save files
+        /// </summary>
+        public const string SAVE_FOLDER = "./saves/";
 
+        /// <summary>
+        /// variable to declare the save folder for the csv files
+        /// </summary>
+        public const string CSV_FOLDER = "./csv/";
+
+        /// <summary>
+        /// variable to declare the save folder for the ics calender files
+        /// </summary>
+        public const string ICS_FOLDER = "./calender/";
+
+        /// <summary>
+        /// variable to declare the save folder for the html files
+        /// </summary>
+        public const string HTML_FOLDER = "./html/";
+
+        /// <summary>
+        /// Singelton Serializer object
+        /// </summary>
         private static Serializer serializer;
 
         /// <summary>
