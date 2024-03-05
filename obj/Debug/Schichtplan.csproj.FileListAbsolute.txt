@@ -1,0 +1,16 @@
+F:\Ordner\2ProgrammierProjekte\C#Projekte\Schichtplan\bin\Debug\Schichtplan.exe.config
+F:\Ordner\2ProgrammierProjekte\C#Projekte\Schichtplan\bin\Debug\Schichtplan.exe
+F:\Ordner\2ProgrammierProjekte\C#Projekte\Schichtplan\bin\Debug\Schichtplan.pdb
+F:\Ordner\2ProgrammierProjekte\C#Projekte\Schichtplan\obj\Debug\Schichtplan.csproj.AssemblyReference.cache
+F:\Ordner\2ProgrammierProjekte\C#Projekte\Schichtplan\obj\Debug\Schichtplan.csproj.SuggestedBindingRedirects.cache
+F:\Ordner\2ProgrammierProjekte\C#Projekte\Schichtplan\obj\Debug\Schichtplan.Properties.Resources.resources
+F:\Ordner\2ProgrammierProjekte\C#Projekte\Schichtplan\obj\Debug\Schichtplan.csproj.GenerateResource.cache
+F:\Ordner\2ProgrammierProjekte\C#Projekte\Schichtplan\obj\Debug\Schichtplan.csproj.CoreCompileInputs.cache
+F:\Ordner\2ProgrammierProjekte\C#Projekte\Schichtplan\obj\Debug\Schichtplan.exe
+F:\Ordner\2ProgrammierProjekte\C#Projekte\Schichtplan\obj\Debug\Schichtplan.pdb
+F:\Ordner\2ProgrammierProjekte\C#Projekte\Schichtplan\obj\Debug\Schichtplan.window.resources
+F:\Ordner\2ProgrammierProjekte\C#Projekte\Schichtplan\bin\Debug\Schichtplan.exe.manifest
+F:\Ordner\2ProgrammierProjekte\C#Projekte\Schichtplan\bin\Debug\Schichtplan.application
+F:\Ordner\2ProgrammierProjekte\C#Projekte\Schichtplan\obj\Debug\Schichtplan.exe.manifest
+F:\Ordner\2ProgrammierProjekte\C#Projekte\Schichtplan\obj\Debug\Schichtplan.application
+F:\Ordner\2ProgrammierProjekte\C#Projekte\Schichtplan\bin\Debug\Resources\schichenplaner.ico

@@ -1,0 +1,16 @@
+F:\Ordner\2ProgrammierProjekte\C#Projekte\Schichtplan\bin\Release\Schichtplan.exe.config
+F:\Ordner\2ProgrammierProjekte\C#Projekte\Schichtplan\bin\Release\Schichtplan.exe
+F:\Ordner\2ProgrammierProjekte\C#Projekte\Schichtplan\bin\Release\Schichtplan.pdb
+F:\Ordner\2ProgrammierProjekte\C#Projekte\Schichtplan\obj\Release\Schichtplan.csproj.AssemblyReference.cache
+F:\Ordner\2ProgrammierProjekte\C#Projekte\Schichtplan\obj\Release\Schichtplan.csproj.SuggestedBindingRedirects.cache
+F:\Ordner\2ProgrammierProjekte\C#Projekte\Schichtplan\obj\Release\Schichtplan.window.resources
+F:\Ordner\2ProgrammierProjekte\C#Projekte\Schichtplan\obj\Release\Schichtplan.Properties.Resources.resources
+F:\Ordner\2ProgrammierProjekte\C#Projekte\Schichtplan\obj\Release\Schichtplan.csproj.GenerateResource.cache
+F:\Ordner\2ProgrammierProjekte\C#Projekte\Schichtplan\obj\Release\Schichtplan.csproj.CoreCompileInputs.cache
+F:\Ordner\2ProgrammierProjekte\C#Projekte\Schichtplan\obj\Release\Schichtplan.exe
+F:\Ordner\2ProgrammierProjekte\C#Projekte\Schichtplan\obj\Release\Schichtplan.pdb
+F:\Ordner\2ProgrammierProjekte\C#Projekte\Schichtplan\bin\Release\Schichtplan.exe.manifest
+F:\Ordner\2ProgrammierProjekte\C#Projekte\Schichtplan\bin\Release\Schichtplan.application
+F:\Ordner\2ProgrammierProjekte\C#Projekte\Schichtplan\obj\Release\Schichtplan.exe.manifest
+F:\Ordner\2ProgrammierProjekte\C#Projekte\Schichtplan\obj\Release\Schichtplan.application
+F:\Ordner\2ProgrammierProjekte\C#Projekte\Schichtplan\bin\Release\Resources\schichenplaner.ico

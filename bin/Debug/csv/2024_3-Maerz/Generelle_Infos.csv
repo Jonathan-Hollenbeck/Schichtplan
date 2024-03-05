@@ -1,0 +1,14 @@
+Name;Gehalt pro Stunde;Stunden gearbeitet diesen Monat;Monatsgehalt (davon vom letzten Monat);Tage nicht gearbeitet;Anzahl Schichten
+Alejandro;12,41;85,5h (40h, 150h);1061,55 (0);6/23;Kueche: 17, Service: 3
+Amelie;12,41;55h (40h, 86h);683,05 (0);13/23;Service: 10
+Daniela;12,41;44h (20h, 40h);546,53 (0);15/23;Kueche: 8
+Helen;12,41;66h (40h, 86h);819,56 (0);12/23;Service: 11
+Jules;12,41;60h (40h, 86h);745,1 (0);12/23;Service: 11
+Kerstin;12,41;18h (40h, 86h);223,88 (0);20/23;Service: 3
+Sophie;12,41;53,5h (40h, 150h);664,43 (0);12/23;Kueche: 8, Service: 3
+Steffi;12,41;27,5h (20h, 40h);515,51 (173,74);18/23;Service: 5
+
+
+Gehaelter Sum:;5255,63 (173,74)
+Summe Schichten:;79 (Service: 46, Kueche: 33)
+Summe Stunden:;409,5h
