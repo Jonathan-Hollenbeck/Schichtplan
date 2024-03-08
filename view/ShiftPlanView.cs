@@ -209,6 +209,7 @@ namespace Schichtplan
             label.DragEnter += new DragEventHandler(shiftPlanLabel_DragEnter);
             label.DragDrop += new DragEventHandler(shiftPlanLabel_DragDrop);
             label.MouseUp += new MouseEventHandler(shiftPlanLabel_MouseUp);
+            label.AllowDrop = true;
             return label;
         }
 
@@ -254,7 +255,7 @@ namespace Schichtplan
         /// <summary>
         /// checks if there are persons with unsatisfied Worktimes and creates an alert with a list of them
         /// </summary>
-        private void checkPersonsWithUnsatisfiedWorktimes()
+        private void showPersonsWithUnsatisfiedWorktimes()
         {
             List<Person> minPersons = modelControl.getPersonsWithLessThanMinWorkhours(modelControl.currentWorkmonth.persons, modelControl.currentWorkmonth.workdays, modelControl.currentWorkmonth.shiftplan, modelControl.currentWorkmonth.hourCarryOverLastMonth);
             List<Person> maxPersons = modelControl.getPersonsWithMoreThanMaxWorkhours(modelControl.currentWorkmonth.persons, modelControl.currentWorkmonth.workdays, modelControl.currentWorkmonth.shiftplan, modelControl.currentWorkmonth.hourCarryOverLastMonth);
@@ -328,12 +329,12 @@ namespace Schichtplan
         /// </summary>
         public void resetShiftPlanView()
         {
-            checkPersonsWithUnsatisfiedWorktimes();
             setShiftPlan();
             resetGeneralInfoView();
             setInfoPersonTable();
             setShiftPlanShiftTypeColorComboBoxItems();
             setShiftsNotSetLabel();
+            setPersonsWithOutOfBoudsWorkhoursLabel();
         }
 
         /// <summary>
@@ -363,6 +364,19 @@ namespace Schichtplan
 
             shiftPlanShiftsNotSetLabel.Text = "Nicht gesetzte Schichten: " + emtpyWorkshifts.Count + "/" + workshiftsCount;
             shiftPlanShiftsNotSetLabel.BackColor = emtpyWorkshifts.Count == 0 ? Color.Green : Color.Red;
+        }
+
+        /// <summary>
+        /// sets the text for the label, which shows the amount of shifts that are not set
+        /// </summary>
+        private void setPersonsWithOutOfBoudsWorkhoursLabel()
+        {
+            List<Person> minPersons = modelControl.getPersonsWithLessThanMinWorkhours(modelControl.currentWorkmonth.persons, modelControl.currentWorkmonth.workdays, modelControl.currentWorkmonth.shiftplan, modelControl.currentWorkmonth.hourCarryOverLastMonth);
+            List<Person> maxPersons = modelControl.getPersonsWithMoreThanMaxWorkhours(modelControl.currentWorkmonth.persons, modelControl.currentWorkmonth.workdays, modelControl.currentWorkmonth.shiftplan, modelControl.currentWorkmonth.hourCarryOverLastMonth);
+            int sum = minPersons.Count + maxPersons.Count;
+
+            shiftPlanPersonsWithOutOfBoudsWorkhoursLabel.Text = "Personen mit zuviel/zuwenig Arbeitsstunden: " + sum + "/" + modelControl.currentWorkmonth.persons.Count;
+            shiftPlanPersonsWithOutOfBoudsWorkhoursLabel.BackColor = sum == 0 ? Color.Green : Color.Red;
         }
 
         /// <summary>
@@ -489,6 +503,7 @@ namespace Schichtplan
         /// <param name="e">event details</param>
         private void shiftPlanLabel_MouseUp(object sender, MouseEventArgs e)
         {
+            mouseDownRow = -1;
             int row = shiftPlanTable.GetRow((Control)sender);
             //set current workshift in edit
             if (shiftPlanRowToWorkshift.ContainsKey(row))
@@ -523,7 +538,7 @@ namespace Schichtplan
         /// <param name="e">event details</param>
         private void shiftPlanLabel_MouseDown(object sender, MouseEventArgs e)
         {
-            // Start the drag operation when the mouse button is pressed
+            // Start the drag operation when the right mouse button is pressed
             Label label = sender as Label;
             if (e.Button == MouseButtons.Right)
             {
@@ -532,6 +547,7 @@ namespace Schichtplan
 
                 if (shiftPlanRowToWorkshift.ContainsKey(row))
                 {
+                    Console.WriteLine("starting dnd with row: " + row);
                     label.DoDragDrop(row, DragDropEffects.Copy);
                 }
             }
@@ -545,15 +561,18 @@ namespace Schichtplan
         private void shiftPlanLabel_DragEnter(object sender, DragEventArgs e)
         {
             int row = shiftPlanTable.GetRow((Control)sender);
+            Console.WriteLine("dnd enter with row: " + row);
             // Check if the dragged data is of the expected type
             if (e.Data.GetDataPresent(typeof(int)) && row != mouseDownRow)
             {
+                Console.WriteLine("dnd enter with row: " + row + " starting dnd copy");
                 e.Effect = DragDropEffects.Copy;
             }
             else
             {
                 e.Effect = DragDropEffects.None;
             }
+            mouseDownRow = -1;
         }
 
         /// <summary>
@@ -564,6 +583,7 @@ namespace Schichtplan
         private void shiftPlanLabel_DragDrop(object sender, DragEventArgs e)
         {
             int row = shiftPlanTable.GetRow((Control)sender);
+            Console.WriteLine("ended dnd in row: " + row);
             //set current workshift in edit
             if (shiftPlanRowToWorkshift.ContainsKey(row))
             {
@@ -571,9 +591,11 @@ namespace Schichtplan
                 if (e.Data.GetDataPresent(typeof(int)))
                 {
                     int draggedRow = (int)e.Data.GetData(typeof(int));
+                    Console.WriteLine("ended dnd with row: " + draggedRow);
                     if (shiftPlanRowToWorkshift.ContainsKey(draggedRow))
                     {
-                        if(currentClickedRowShiftPlan != -1)
+                        Console.WriteLine("doing dnd with draggedrow " + draggedRow + " to " + row);
+                        if (currentClickedRowShiftPlan != -1)
                         {
                             resetTableControlColor(shiftPlanTable, shiftplanControlColors, currentClickedRowShiftPlan);
                             currentClickedRowShiftPlan = -1;
@@ -691,6 +713,17 @@ namespace Schichtplan
         private void showShiftsNotSetButton_Click(object sender, EventArgs e)
         {
             showShiftsNotSet();
+        }
+
+        /// <summary>
+        /// handels the click event for the shiftPlanPersonsWithOutOfBoudsWorkhours button
+        /// shows a messagebow with all the persons whos workhour bounds are not satisfied
+        /// </summary>
+        /// <param name="sender">the button control</param>
+        /// <param name="e">event details</param>
+        private void shiftPlanPersonsWithOutOfBoudsWorkhoursButton_Click(object sender, EventArgs e)
+        {
+            showPersonsWithUnsatisfiedWorktimes();
         }
 
         #endregion

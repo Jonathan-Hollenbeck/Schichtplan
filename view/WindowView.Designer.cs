@@ -106,6 +106,8 @@ namespace Schichtplan
             this.personNameLabel = new System.Windows.Forms.Label();
             this.shiftPlanTabPage = new System.Windows.Forms.TabPage();
             this.shiftPlanFilterPanel = new System.Windows.Forms.Panel();
+            this.shiftPlanPersonsWithOutOfBoudsWorkhoursButton = new System.Windows.Forms.Button();
+            this.shiftPlanPersonsWithOutOfBoudsWorkhoursLabel = new System.Windows.Forms.Label();
             this.shiftPlanShowShiftsNotSetButton = new System.Windows.Forms.Button();
             this.shiftPlanShiftsNotSetLabel = new System.Windows.Forms.Label();
             this.label1 = new System.Windows.Forms.Label();
@@ -141,6 +143,7 @@ namespace Schichtplan
             this.variableCostsAmountColumn = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.fixCostsPanel = new System.Windows.Forms.Panel();
             this.fixCostsLabelButtonPanel = new System.Windows.Forms.Panel();
+            this.fixCostsLoadFromOtherMonthButton = new System.Windows.Forms.Button();
             this.fixCostsSaveButton = new System.Windows.Forms.Button();
             this.fixCostsLabel = new System.Windows.Forms.Label();
             this.fixCostsDataGridView = new System.Windows.Forms.DataGridView();
@@ -222,7 +225,6 @@ namespace Schichtplan
             this.maxArbeitsstundenToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.schichtTypenToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.anmerkungenToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            this.fixCostsLoadFromOtherMonthButton = new System.Windows.Forms.Button();
             this.yearMonthSelectorPanel.SuspendLayout();
             this.infoSettingsTabPage.SuspendLayout();
             this.shiftTabPage.SuspendLayout();
@@ -1015,6 +1017,8 @@ namespace Schichtplan
             // 
             // shiftPlanFilterPanel
             // 
+            this.shiftPlanFilterPanel.Controls.Add(this.shiftPlanPersonsWithOutOfBoudsWorkhoursButton);
+            this.shiftPlanFilterPanel.Controls.Add(this.shiftPlanPersonsWithOutOfBoudsWorkhoursLabel);
             this.shiftPlanFilterPanel.Controls.Add(this.shiftPlanShowShiftsNotSetButton);
             this.shiftPlanFilterPanel.Controls.Add(this.shiftPlanShiftsNotSetLabel);
             this.shiftPlanFilterPanel.Controls.Add(this.label1);
@@ -1044,9 +1048,29 @@ namespace Schichtplan
             this.shiftPlanFilterPanel.Size = new System.Drawing.Size(1232, 74);
             this.shiftPlanFilterPanel.TabIndex = 3;
             // 
+            // shiftPlanPersonsWithOutOfBoudsWorkhoursButton
+            // 
+            this.shiftPlanPersonsWithOutOfBoudsWorkhoursButton.Location = new System.Drawing.Point(984, 2);
+            this.shiftPlanPersonsWithOutOfBoudsWorkhoursButton.Name = "shiftPlanPersonsWithOutOfBoudsWorkhoursButton";
+            this.shiftPlanPersonsWithOutOfBoudsWorkhoursButton.Size = new System.Drawing.Size(75, 23);
+            this.shiftPlanPersonsWithOutOfBoudsWorkhoursButton.TabIndex = 25;
+            this.shiftPlanPersonsWithOutOfBoudsWorkhoursButton.Text = "Anzeigen";
+            this.shiftPlanPersonsWithOutOfBoudsWorkhoursButton.UseVisualStyleBackColor = true;
+            this.shiftPlanPersonsWithOutOfBoudsWorkhoursButton.Click += new System.EventHandler(this.shiftPlanPersonsWithOutOfBoudsWorkhoursButton_Click);
+            // 
+            // shiftPlanPersonsWithOutOfBoudsWorkhoursLabel
+            // 
+            this.shiftPlanPersonsWithOutOfBoudsWorkhoursLabel.AutoSize = true;
+            this.shiftPlanPersonsWithOutOfBoudsWorkhoursLabel.Location = new System.Drawing.Point(740, 5);
+            this.shiftPlanPersonsWithOutOfBoudsWorkhoursLabel.Name = "shiftPlanPersonsWithOutOfBoudsWorkhoursLabel";
+            this.shiftPlanPersonsWithOutOfBoudsWorkhoursLabel.Padding = new System.Windows.Forms.Padding(2);
+            this.shiftPlanPersonsWithOutOfBoudsWorkhoursLabel.Size = new System.Drawing.Size(225, 17);
+            this.shiftPlanPersonsWithOutOfBoudsWorkhoursLabel.TabIndex = 24;
+            this.shiftPlanPersonsWithOutOfBoudsWorkhoursLabel.Text = "Personen mit zuviel/zuwenig Arbeitsstunden: ";
+            // 
             // shiftPlanShowShiftsNotSetButton
             // 
-            this.shiftPlanShowShiftsNotSetButton.Location = new System.Drawing.Point(675, 3);
+            this.shiftPlanShowShiftsNotSetButton.Location = new System.Drawing.Point(659, 2);
             this.shiftPlanShowShiftsNotSetButton.Name = "shiftPlanShowShiftsNotSetButton";
             this.shiftPlanShowShiftsNotSetButton.Size = new System.Drawing.Size(75, 23);
             this.shiftPlanShowShiftsNotSetButton.TabIndex = 23;
@@ -1059,7 +1083,8 @@ namespace Schichtplan
             this.shiftPlanShiftsNotSetLabel.AutoSize = true;
             this.shiftPlanShiftsNotSetLabel.Location = new System.Drawing.Point(506, 7);
             this.shiftPlanShiftsNotSetLabel.Name = "shiftPlanShiftsNotSetLabel";
-            this.shiftPlanShiftsNotSetLabel.Size = new System.Drawing.Size(129, 13);
+            this.shiftPlanShiftsNotSetLabel.Padding = new System.Windows.Forms.Padding(2);
+            this.shiftPlanShiftsNotSetLabel.Size = new System.Drawing.Size(133, 17);
             this.shiftPlanShiftsNotSetLabel.TabIndex = 22;
             this.shiftPlanShiftsNotSetLabel.Text = "Nicht gesetzte Schichten:";
             // 
@@ -1372,6 +1397,16 @@ namespace Schichtplan
             this.fixCostsLabelButtonPanel.Name = "fixCostsLabelButtonPanel";
             this.fixCostsLabelButtonPanel.Size = new System.Drawing.Size(610, 29);
             this.fixCostsLabelButtonPanel.TabIndex = 1;
+            // 
+            // fixCostsLoadFromOtherMonthButton
+            // 
+            this.fixCostsLoadFromOtherMonthButton.Location = new System.Drawing.Point(180, 6);
+            this.fixCostsLoadFromOtherMonthButton.Name = "fixCostsLoadFromOtherMonthButton";
+            this.fixCostsLoadFromOtherMonthButton.Size = new System.Drawing.Size(144, 23);
+            this.fixCostsLoadFromOtherMonthButton.TabIndex = 2;
+            this.fixCostsLoadFromOtherMonthButton.Text = "von anderem Monat laden";
+            this.fixCostsLoadFromOtherMonthButton.UseVisualStyleBackColor = true;
+            this.fixCostsLoadFromOtherMonthButton.Click += new System.EventHandler(this.fixCostsLoadFromOtherMonthButton_Click);
             // 
             // fixCostsSaveButton
             // 
@@ -2158,16 +2193,6 @@ namespace Schichtplan
             this.anmerkungenToolStripMenuItem.Text = "Anmerkungen";
             this.anmerkungenToolStripMenuItem.Click += new System.EventHandler(this.anmerkungenToolStripMenuItem_Click);
             // 
-            // fixCostsLoadFromOtherMonthButton
-            // 
-            this.fixCostsLoadFromOtherMonthButton.Location = new System.Drawing.Point(180, 6);
-            this.fixCostsLoadFromOtherMonthButton.Name = "fixCostsLoadFromOtherMonthButton";
-            this.fixCostsLoadFromOtherMonthButton.Size = new System.Drawing.Size(144, 23);
-            this.fixCostsLoadFromOtherMonthButton.TabIndex = 2;
-            this.fixCostsLoadFromOtherMonthButton.Text = "von anderem Monat laden";
-            this.fixCostsLoadFromOtherMonthButton.UseVisualStyleBackColor = true;
-            this.fixCostsLoadFromOtherMonthButton.Click += new System.EventHandler(this.fixCostsLoadFromOtherMonthButton_Click);
-            // 
             // window
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
@@ -2423,6 +2448,8 @@ namespace Schichtplan
         private System.Windows.Forms.Label infoMonthFixCostsSumContent;
         private System.Windows.Forms.Label infoMonthCostsSumLabel;
         private System.Windows.Forms.Button fixCostsLoadFromOtherMonthButton;
+        private System.Windows.Forms.Button shiftPlanPersonsWithOutOfBoudsWorkhoursButton;
+        private System.Windows.Forms.Label shiftPlanPersonsWithOutOfBoudsWorkhoursLabel;
     }
 }
 

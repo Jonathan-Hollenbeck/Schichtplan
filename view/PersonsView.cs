@@ -527,7 +527,7 @@ namespace Schichtplan
                 personsControl.editCurrentPerson(personData, getPersonUnavailabilityCheckBoxValue(1), getPersonUnavailabilityCheckBoxValue(2), personColorButton.BackColor);
                 resetPersonView();
                 setTableControlColor(personTable, currentClickedRowPerson, hoverColor);
-                setShiftPlan();
+                resetShiftPlanView();
             }
         }
 
