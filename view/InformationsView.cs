@@ -32,7 +32,9 @@ namespace Schichtplan
         /// </summary>
         private List<List<Workday>> weeksInWeekComboBox = new List<List<Workday>>();
 
-        //---------------Person----------------
+        #region my functions
+
+        #region persons
 
         /// <summary>
         /// fills the infoPersonTable in the infoPersonTab with the infos to the persons in the currentMonth
@@ -46,32 +48,40 @@ namespace Schichtplan
 
             int row = 0;
 
-            infoPersonTable.Controls.Add(createInfoPersonLabel("Gehalt pro Stunde", dayColor), 1, row);
-            infoPersonTable.Controls.Add(createInfoPersonLabel("Stunden gearbeitet", dayColor), 2, row);
-            infoPersonTable.Controls.Add(createInfoPersonLabel("Monatsgehalt (davon vom letzten Monat)", dayColor), 3, row);
-            infoPersonTable.Controls.Add(createInfoPersonLabel("Tage nicht im gearbeitet", dayColor), 4, row);
-            infoPersonTable.Controls.Add(createInfoPersonLabel("Anzahl Schichten", dayColor), 5, row);
+            infoPersonTable.Controls.Add(createTableLabel(null, infoPersonTable.Width, tableLabelHeight, "Gehalt pro Stunde", dayColor), 1, row);
+            infoPersonTable.Controls.Add(createTableLabel(null, infoPersonTable.Width, tableLabelHeight, "Stunden gearbeitet", dayColor), 2, row);
+            infoPersonTable.Controls.Add(createTableLabel(null, infoPersonTable.Width, tableLabelHeight, "Monatsgehalt (davon vom letzten Monat)", dayColor), 3, row);
+            infoPersonTable.Controls.Add(createTableLabel(null, infoPersonTable.Width, tableLabelHeight, "Tage nicht im gearbeitet", dayColor), 4, row);
+            infoPersonTable.Controls.Add(createTableLabel(null, infoPersonTable.Width, tableLabelHeight, "Anzahl Schichten", dayColor), 5, row);
 
             row++;
 
             foreach(Person person in modelControl.currentWorkmonth.persons)
             {
-
                 Color backColor = transparent;
-                if (modelControl.currentWorkmonth.settings.personColors.ContainsKey(person)){
+                if (modelControl.currentWorkmonth.settings.personColors.ContainsKey(person))
+                {
                     backColor = modelControl.currentWorkmonth.settings.personColors[person];
                 }
 
-                infoPersonTable.Controls.Add(createInfoPersonLabel(person.name, dayColor), 0, row);
+                infoPersonTable.Controls.Add(createTableLabel(null, infoPersonTable.Width, tableLabelHeight, person.name, dayColor), 0, row);
 
                 //set infos
                 float worktimeInMonth = modelControl.getWorktimeForPersonInWorkdays(person, modelControl.currentWorkmonth.workdays, modelControl.currentWorkmonth.shiftplan);
                 float carryOver = modelControl.getPersonCarryOver(person, modelControl.currentWorkmonth.hourCarryOverLastMonth);
+                float effictiveWorktime = worktimeInMonth + carryOver;
 
-                infoPersonTable.Controls.Add(createInfoPersonLabel(person.saleryPerHour + "€", backColor), 1, row);
-                infoPersonTable.Controls.Add(createInfoPersonLabel(worktimeInMonth + "h (+" + carryOver + "h) [" + person.minWorkHours + "h, " + person.maxWorkHours + "h]", backColor), 2, row);
-                infoPersonTable.Controls.Add(createInfoPersonLabel((carryOver + worktimeInMonth) * person.saleryPerHour + "€ (" + (carryOver * person.saleryPerHour + "€)"), backColor), 3, row);
-                infoPersonTable.Controls.Add(createInfoPersonLabel(
+                //backcolor for worktime, if min workhour not reached or maxworkhour exceeded red. green otherwise
+                Color workedHoursBackColor = backColor;
+                if (person.minWorkHours > effictiveWorktime || effictiveWorktime > person.maxWorkHours)
+                {
+                    workedHoursBackColor = Color.Red;
+                }
+
+                infoPersonTable.Controls.Add(createTableLabel(null, infoPersonTable.Width, tableLabelHeight, person.saleryPerHour + "€", backColor), 1, row);
+                infoPersonTable.Controls.Add(createTableLabel(null, infoPersonTable.Width, tableLabelHeight, worktimeInMonth + "h (+" + carryOver + "h) [" + person.minWorkHours + "h, " + person.maxWorkHours + "h]", workedHoursBackColor), 2, row);
+                infoPersonTable.Controls.Add(createTableLabel(null, infoPersonTable.Width, tableLabelHeight, effictiveWorktime * person.saleryPerHour + "€ (" + (carryOver * person.saleryPerHour + "€)"), backColor), 3, row);
+                infoPersonTable.Controls.Add(createTableLabel(null, infoPersonTable.Width, tableLabelHeight,
                     modelControl.getDaysNotWorkingForPersonInWorkdaysCount(person, modelControl.currentWorkmonth.workdays, modelControl.currentWorkmonth.shiftplan)
                     + "/" + modelControl.getWorkingDaysCounter(modelControl.currentWorkmonth.workdays)
                     , backColor), 4, row);
@@ -87,7 +97,7 @@ namespace Schichtplan
 
                 if(workshiftAmountsString.Length > 0)
                 {
-                    infoPersonTable.Controls.Add(createInfoPersonLabel(workshiftAmountsString.Substring(0, workshiftAmountsString.Length - 2), backColor), 5, row);
+                    infoPersonTable.Controls.Add(createTableLabel(null, infoPersonTable.Width, tableLabelHeight, workshiftAmountsString.Substring(0, workshiftAmountsString.Length - 2), backColor), 5, row);
                 }
 
                 row++;
@@ -97,24 +107,9 @@ namespace Schichtplan
             infoPersonTable.Visible = true;
         }
 
-        /// <summary>
-        /// creates a new Label for the infoPersonTable with a given text and backgroundcolor.
-        /// </summary>
-        /// <param name="Text">text for the label</param>
-        /// <param name="backColor">backgroundcolor for the label</param>
-        /// <returns>Label for the infoPersonTable</returns>
-        private Label createInfoPersonLabel(string Text, Color backColor)
-        {
-            Label label = new Label();
-            label.Text = Text;
-            label.Margin = new Padding(0);
-            label.Size = new Size(infoPersonTable.Width, 28);
-            label.TextAlign = ContentAlignment.MiddleCenter;
-            label.BackColor = backColor;
-            return label;
-        }
+        #endregion
 
-        //--------------General----------------
+        #region general
 
         /// <summary>
         /// sets the items for the infoDayCombobox to the days with workshifts of the currentMonth
@@ -184,7 +179,16 @@ namespace Schichtplan
 
             infoMonthHoursSumContent.Text = modelControl.getWorktimeInWorkdays(modelControl.currentWorkmonth.workdays) + "h";
 
-            if(modelControl.currentWorkmonth.turnoverMonth != 0.0f)
+            //costs
+            float fixCostsAmountSum = modelControl.getCostsAmountSum(modelControl.currentWorkmonth.fixCosts);
+            float variableCostsAmountSum = modelControl.getCostsAmountSum(modelControl.currentWorkmonth.variableCosts);
+
+            infoMonthFixCostsSumContent.Text = fixCostsAmountSum + "€";
+            infoMonthVariableCostsSumContent.Text = variableCostsAmountSum + "€";
+            infoMonthCostsSumContent.Text = (fixCostsAmountSum + variableCostsAmountSum) + "€";
+
+            //turnover
+            if (modelControl.currentWorkmonth.turnoverMonth != 0.0f)
             {
                 infoMonthTurnoverTextBox.Text = "" + modelControl.currentWorkmonth.turnoverMonth;
                 setGeneralTurnoverInfoMonth();
@@ -220,9 +224,12 @@ namespace Schichtplan
                         salarySum += carryOverSalerySum;
                     }
 
-                    infoMonthTurnoverAfterSaleriesContent.Text = Util.clampToDecimalpoints(turnover - salarySum, 2) + "€ (" + carryOverSalerySum + "€)";
                     infoMonthAverageTurnoverHourContent.Text = Util.clampToDecimalpoints(turnover / modelControl.getWorktimeInWorkdays(modelControl.currentWorkmonth.workdays), 2) + "€";
                     infoMonthAverageTurnoverDayContent.Text = Util.clampToDecimalpoints(turnover / modelControl.getWorkingDaysCounter(modelControl.currentWorkmonth.workdays), 2) + "€";
+
+                    float profit = turnover - salarySum - modelControl.getCostsAmountSum(modelControl.currentWorkmonth.fixCosts) - modelControl.getCostsAmountSum(modelControl.currentWorkmonth.variableCosts);
+
+                    infoMonthProfitAfterSaleriesCostsContent.Text = Util.clampToDecimalpoints(profit, 2) + "€ (" + carryOverSalerySum + "€)";
                 }
             }
         }
@@ -309,7 +316,7 @@ namespace Schichtplan
         /// </summary>
         public void setGeneralInfoDay()
         {
-            if(currentInfoWorkdayIndex != -1)
+            if(currentInfoWorkdayIndex != -1 && daysInDayComboBox.Count > currentInfoWorkdayIndex)
             {
                 Workday currentWorkday = daysInDayComboBox[currentInfoWorkdayIndex];
 
@@ -383,7 +390,7 @@ namespace Schichtplan
         /// <summary>
         /// resets all general info
         /// </summary>
-        public void resetGeneralInfo()
+        public void resetGeneralInfoView()
         {
             setInfoDayComboBox();
             setInfoWeekComboBox();
@@ -392,8 +399,11 @@ namespace Schichtplan
             setGeneralInfoDay();
         }
 
+        #endregion
 
-        //-------------------generated---------------------
+        #endregion
+
+        #region generated UI functions
 
         /// <summary>
         /// handels the click event for the infoDayCalculateButton button
@@ -451,5 +461,7 @@ namespace Schichtplan
             currentInfoWorkdayIndex = infoDayComboBox.SelectedIndex;
             setGeneralInfoDay();
         }
+
+        #endregion
     }
 }

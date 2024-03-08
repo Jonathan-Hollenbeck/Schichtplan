@@ -35,8 +35,8 @@ namespace Schichtplan.controller
         public void addPerson(string[] data, Color personColor)
         {
             float saleryPerHour = Util.parseFloat(data[1], "Bitte nur Zahlen im Gehalt pro Stunde Textfeld benutzen.");
-            int minWorkHours = Util.parseInt(data[2], "Bitte nur Zahlen im min Arbeitsstunden Textfeld benutzen.");
-            int maxWorkHours = Util.parseInt(data[3], "Bitte nur Zahlen im max Arbeitsstunden Textfeld benutzen.");
+            float minWorkHours = Util.parseFloat(data[2], "Bitte nur Zahlen im min Arbeitsstunden Textfeld benutzen.");
+            float maxWorkHours = Util.parseFloat(data[3], "Bitte nur Zahlen im max Arbeitsstunden Textfeld benutzen.");
             if (minWorkHours == -1 || maxWorkHours == -1 || saleryPerHour == -1)
             {
                 return;
@@ -65,8 +65,8 @@ namespace Schichtplan.controller
         public void editCurrentPerson(string[] data, bool[] unavailability, bool[] onlyOneAble, Color personColor)
         {
             float saleryPerHour = Util.parseFloat(data[1], "Bitte nur Zahlen im Gehalt pro Stunde Textfeld benutzen.");
-            int minWorkHours = Util.parseInt(data[2], "Bitte nur Zahlen im min Arbeitsstunden Textfeld benutzen.");
-            int maxWorkHours = Util.parseInt(data[3], "Bitte nur Zahlen im max Arbeitsstunden Textfeld benutzen.");
+            float minWorkHours = Util.parseFloat(data[2], "Bitte nur Zahlen im min Arbeitsstunden Textfeld benutzen.");
+            float maxWorkHours = Util.parseFloat(data[3], "Bitte nur Zahlen im max Arbeitsstunden Textfeld benutzen.");
             float carryOver = Util.parseFloat(data[6], "Bitte nur Zahlen Übertrag vom letzten Monat Textfeld benutzen.");
             if (minWorkHours == -1 || maxWorkHours == -1 || saleryPerHour == -1 || carryOver == -1)
             {
@@ -148,6 +148,23 @@ namespace Schichtplan.controller
             {
                 person.unavailability.Clear();
             }
+        }
+
+        /// <summary>
+        /// sets the persons in the currentWorkmonth from a different workmonth
+        /// </summary>
+        /// <param name="workmonth"></param>
+        public void setPersonsFromOtherMonth(Workmonth workmonth)
+        {
+            modelControl.currentWorkmonth.persons = workmonth.persons;
+            modelControl.currentWorkmonth.settings.personColors = workmonth.settings.personColors;
+
+            resetUnavailabilities(modelControl.currentWorkmonth.persons);
+
+            modelControl.currentWorkmonth.hourCarryOverLastMonth = workmonth.hourCarryOverThisMonth;
+
+            modelControl.currentWorkmonth.shiftplan.Clear();
+
         }
     }
 }

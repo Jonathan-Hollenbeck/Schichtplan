@@ -90,6 +90,9 @@
       <SubType>Form</SubType>
     </Compile>
     <Compile Include="model\Cost.cs" />
+    <Compile Include="view\MenuView.cs">
+      <SubType>Form</SubType>
+    </Compile>
     <Compile Include="view\WindowView.cs">
       <SubType>Form</SubType>
     </Compile>

@@ -14,8 +14,8 @@ namespace Schichtplan
 
         public float saleryPerHour { get; set; }
 
-        public int minWorkHours { get; set; }
-        public int maxWorkHours { get; set; }
+        public float minWorkHours { get; set; }
+        public float maxWorkHours { get; set; }
 
         public string[] shiftTypes { get; set; }
 
@@ -23,7 +23,7 @@ namespace Schichtplan
 
         public List<Workshift> unavailability { get; set; }
 
-        public Person(string name, float saleryPerHour, int minWorkHours, int maxWorkHours, string[] shiftTypes, string description)
+        public Person(string name, float saleryPerHour, float minWorkHours, float maxWorkHours, string[] shiftTypes, string description)
         {
             this.name = name;
             this.saleryPerHour = saleryPerHour;

@@ -10,22 +10,27 @@ namespace Schichtplan
         /// <summary>
         /// variable to declare the save folder for the save files
         /// </summary>
-        public const string SAVE_FOLDER = "./saves/";
+        public const string SAVE_FOLDER = "/saves/";
 
         /// <summary>
         /// variable to declare the save folder for the csv files
         /// </summary>
-        public const string CSV_FOLDER = "./csv/";
+        public const string CSV_FOLDER = "/csv/";
 
         /// <summary>
         /// variable to declare the save folder for the ics calender files
         /// </summary>
-        public const string ICS_FOLDER = "./calender/";
+        public const string ICS_FOLDER = "/calender/";
 
         /// <summary>
         /// variable to declare the save folder for the html files
         /// </summary>
-        public const string HTML_FOLDER = "./html/";
+        public const string HTML_FOLDER = "/html/";
+
+        /// <summary>
+        /// variable to declare the base directory
+        /// </summary>
+        public string BASE_DICT = AppDomain.CurrentDomain.BaseDirectory;
 
         /// <summary>
         /// Singelton Serializer object

@@ -4,12 +4,13 @@
 
 # Shiftplan Tab
 
+	- shiftplan erstellen modularisieren
+
 # Info Tab
 
 # Kosten Tab
 
-	- Fixkosten DataGridView
-	- Variable Kosten DataGridView
+	- fixkosten von anderem Monat laden
 
 # general
 

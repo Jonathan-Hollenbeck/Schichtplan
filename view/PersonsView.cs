@@ -23,6 +23,8 @@ namespace Schichtplan
         /// </summary>
         private int currentClickedRowPerson = -1;
 
+        #region my functions
+
         /// <summary>
         /// fills the personTable with the persons of the currentMonth
         /// </summary>
@@ -41,7 +43,7 @@ namespace Schichtplan
 
             foreach (Person person in persons)
             {
-                //set person color depending on shiftType
+                //set person color depending its set color or transparent if not set
                 Color color = transparent;
                 if (modelControl.currentWorkmonth.settings.personColors.ContainsKey(person))
                 {
@@ -81,7 +83,7 @@ namespace Schichtplan
         /// <summary>
         /// resets the personTab
         /// </summary>
-        private void resetPersonTab()
+        private void resetPersonView()
         {
             setPersonTable();
             setInfoPersonTable();
@@ -330,16 +332,10 @@ namespace Schichtplan
         /// <returns>Label for the personTable</returns>
         private Label createPersonLabel(string Text, Color backColor)
         {
-            Label label = new Label();
-            label.Text = Text;
-            label.Margin = new Padding(0);
-            label.Size = new Size(personTable.Width / 6, 28);
-            label.TextAlign = ContentAlignment.MiddleCenter;
+            Label label = createTableLabel(personsControlColors, personTable.Width, tableLabelHeight, Text, backColor);
             label.MouseEnter += new EventHandler(personTableLabel_MouseEnter);
             label.MouseLeave += new EventHandler(personTableLabel_MouseLeave);
             label.Click += new EventHandler(personTableLabel_Click);
-            label.BackColor = backColor;
-            personsControlColors.Add(label, backColor);
             return label;
         }
 
@@ -395,44 +391,6 @@ namespace Schichtplan
         }
 
         /// <summary>
-        /// gets the color for each weekday by weekdayname
-        /// </summary>
-        /// <param name="weekday">the weekdayname</param>
-        /// <returns>the color for the given weekdayname</returns>
-        private Color getColorForWeekDay(string weekday)
-        {
-            if(weekday == "Montag")
-            {
-                return mondayColor;
-            }
-            else if (weekday == "Dienstag")
-            {
-                return tuesdayColor;
-            }
-            else if (weekday == "Mittwoch")
-            {
-                return wednesdayColor;
-            }
-            else if (weekday == "Donnerstag")
-            {
-                return thursdayColor;
-            }
-            else if (weekday == "Freitag")
-            {
-                return fridayColor;
-            }
-            else if (weekday == "Samstag")
-            {
-                return saturdayColor;
-            }
-            else if (weekday == "Sonntag")
-            {
-                return sundayColor;
-            }
-            return Color.White;
-        }
-
-        /// <summary>
         /// sorts the persons in the currentWorkmonth and sets the person tables accordingly
         /// </summary>
         /// <param name="personTableSort">sort string</param>
@@ -443,8 +401,42 @@ namespace Schichtplan
             setInfoPersonTable();
         }
 
-        //-------------------generated---------------------
+        /// <summary>
+        /// sets the person, which was clicked as the currentPersonInEdit and sets all its data into the textboxes and loads its unavailablilities
+        /// </summary>
+        /// <param name="row"></param>
+        private void setSelectedPerson(int row)
+        {
+            personsControl.setCurrentPersonInEdit(row);
 
+            //set person TextBoxes to info
+            personNameTextBox.Text = personsControl.currentPersonInEdit.name;
+            personSaleryTextBox.Text = "" + personsControl.currentPersonInEdit.saleryPerHour;
+            personMinWorkHoursTextBox.Text = "" + personsControl.currentPersonInEdit.minWorkHours;
+            personMaxWorkHoursTextBox.Text = "" + personsControl.currentPersonInEdit.maxWorkHours;
+            personShifttypesTextBox.Text = personsControl.currentPersonInEdit.shiftTypesToString();
+            personDescriptionTextBox.Text = personsControl.currentPersonInEdit.description;
+            personCarryOverTextBox.Text = modelControl.getPersonCarryOver(personsControl.currentPersonInEdit, modelControl.currentWorkmonth.hourCarryOverLastMonth) + "";
+
+            personColorButton.BackColor = transparent;
+            if (modelControl.currentWorkmonth.settings.personColors.ContainsKey(personsControl.currentPersonInEdit))
+            {
+                personColorButton.BackColor = modelControl.currentWorkmonth.settings.personColors[personsControl.currentPersonInEdit];
+            }
+
+            //load shiftUnavaialbeSelector
+            setPersonUnavailableShiftSelector();
+
+            if (currentClickedRowPerson != -1)
+            {
+                resetTableControlColor(personTable, personsControlColors, currentClickedRowPerson);
+            }
+            currentClickedRowPerson = row;
+        }
+
+        #endregion
+
+        #region generated UI functions
 
         /// <summary>
         /// handels the click event for the personColorButton button
@@ -469,12 +461,14 @@ namespace Schichtplan
         /// <param name="e">event details</param>
         private void personResetAllUnavailabilitiesButton_Click(object sender, EventArgs e)
         {
+            //dialog to tell the user, that all unavailablilities are beeing rest with this button
             DialogResult dialogResult = MessageBox.Show("Hierdurch werden alle nicht verfügbarkeiten von allen Personen gelöscht.\n\n" +
                 "Willst du fortfahren?", "", MessageBoxButtons.YesNo);
             if (dialogResult == DialogResult.Yes)
             {
+                //reset all unavailablilities and reload the persons view
                 personsControl.resetUnavailabilities(modelControl.currentWorkmonth.persons);
-                resetPersonTab();
+                resetPersonView();
             }
         }
 
@@ -491,7 +485,7 @@ namespace Schichtplan
             {
                 personsControl.addPerson(getPersonInfoFromTextBoxes(), personColorButton.BackColor);
                 resetTableControlColor(personTable, personsControlColors, currentClickedRowPerson);
-                resetPersonTab();
+                resetPersonView();
                 currentClickedRowPerson = modelControl.currentWorkmonth.persons.Count - 1;
                 setTableControlColor(personTable, currentClickedRowPerson, hoverColor);
             }
@@ -510,7 +504,7 @@ namespace Schichtplan
                 personsControl.deleteCurrentPerson();
                 resetTableControlColor(personTable, personsControlColors, currentClickedRowPerson);
                 currentClickedRowPerson = -1;
-                resetPersonTab();
+                resetPersonView();
             }
         }
 
@@ -531,7 +525,7 @@ namespace Schichtplan
             if (personData.Length > 0)
             {
                 personsControl.editCurrentPerson(personData, getPersonUnavailabilityCheckBoxValue(1), getPersonUnavailabilityCheckBoxValue(2), personColorButton.BackColor);
-                resetPersonTab();
+                resetPersonView();
                 setTableControlColor(personTable, currentClickedRowPerson, hoverColor);
                 setShiftPlan();
             }
@@ -597,31 +591,7 @@ namespace Schichtplan
         private void personTableLabel_Click(object sender, EventArgs e)
         {
             int row = personTable.GetRow((Control)sender);
-            personsControl.setCurrentPersonInEdit(row);
-
-            //set person TextBoxes to info
-            personNameTextBox.Text = personsControl.currentPersonInEdit.name;
-            personSaleryTextBox.Text = "" + personsControl.currentPersonInEdit.saleryPerHour;
-            personMinWorkHoursTextBox.Text = "" + personsControl.currentPersonInEdit.minWorkHours;
-            personMaxWorkHoursTextBox.Text = "" + personsControl.currentPersonInEdit.maxWorkHours;
-            personShifttypesTextBox.Text = personsControl.currentPersonInEdit.shiftTypesToString();
-            personDescriptionTextBox.Text = personsControl.currentPersonInEdit.description;
-            personCarryOverTextBox.Text = modelControl.getPersonCarryOver(personsControl.currentPersonInEdit, modelControl.currentWorkmonth.hourCarryOverLastMonth) + "";
-
-            personColorButton.BackColor = transparent;
-            if (modelControl.currentWorkmonth.settings.personColors.ContainsKey(personsControl.currentPersonInEdit))
-            {
-                personColorButton.BackColor = modelControl.currentWorkmonth.settings.personColors[personsControl.currentPersonInEdit];
-            }
-
-            //load shiftUnavaialbeSelector
-            setPersonUnavailableShiftSelector();
-
-            if (currentClickedRowPerson != -1)
-            {
-                resetTableControlColor(personTable, personsControlColors, currentClickedRowPerson);
-            }
-            currentClickedRowPerson = row;
+            setSelectedPerson(row);
         }
 
         /// <summary>
@@ -636,85 +606,22 @@ namespace Schichtplan
                 "Willst du fortfahren?", "", MessageBoxButtons.YesNo);
             if (dialogResult == DialogResult.Yes)
             {
-                OpenFileDialog openFileDialog = createOpenFileDialog();
+                OpenFileDialog openFileDialog = createOpenFileDialog(Serializer.Instance().BASE_DICT + "" + Serializer.SAVE_FOLDER);
 
                 if (openFileDialog.ShowDialog() == DialogResult.OK)
                 {
-                    Workmonth loadedMonth = (Workmonth)Serializer.Instance().loadObject(openFileDialog.FileName);
-                    modelControl.currentWorkmonth.persons = loadedMonth.persons;
-                    modelControl.currentWorkmonth.settings.personColors = loadedMonth.settings.personColors;
+                    Workmonth workMonth = (Workmonth)Serializer.Instance().loadObject(openFileDialog.FileName);
 
-                    personsControl.resetUnavailabilities(modelControl.currentWorkmonth.persons);
+                    personsControl.setPersonsFromOtherMonth(workMonth);
 
-                    modelControl.currentWorkmonth.hourCarryOverLastMonth = loadedMonth.hourCarryOverThisMonth;
-                    resetPersonTab();
+                    currentClickedRowPerson = -1;
 
-                    modelControl.currentWorkmonth.shiftplan.Clear();
-                    setShiftPlan();
+                    resetPersonView();
+                    resetShiftPlanView();
                 }
             }
         }
 
-        //------------sort-------------
-
-        /// <summary>
-        /// sets the personTableSort variable to name and reloads the personTable
-        /// </summary>
-        /// <param name="sender">the clicked menu item</param>
-        /// <param name="e">event details</param>
-        private void namenToolStripMenuItem_Click(object sender, EventArgs e)
-        {
-            sortPersons("name");
-        }
-
-        /// <summary>
-        /// sets the personTableSort variable to saleryPerHour and reloads the personTable
-        /// </summary>
-        /// <param name="sender">the clicked menu item</param>
-        /// <param name="e">event details</param>
-        private void gehaltProStundeToolStripMenuItem_Click(object sender, EventArgs e)
-        {
-            sortPersons("saleryPerHour");
-        }
-
-        /// <summary>
-        /// sets the personTableSort variable to minWorkHours and reloads the personTable
-        /// </summary>
-        /// <param name="sender">the clicked menu item</param>
-        /// <param name="e">event details</param>
-        private void minArbeitsstundenToolStripMenuItem_Click(object sender, EventArgs e)
-        {
-            sortPersons("minWorkHours");
-        }
-
-        /// <summary>
-        /// sets the personTableSort variable to maxWorkHours and reloads the personTable
-        /// </summary>
-        /// <param name="sender">the clicked menu item</param>
-        /// <param name="e">event details</param>
-        private void maxArbeitsstundenToolStripMenuItem_Click(object sender, EventArgs e)
-        {
-            sortPersons("maxWorkHours");
-        }
-
-        /// <summary>
-        /// sets the personTableSort variable to shiftType and reloads the personTable
-        /// </summary>
-        /// <param name="sender">the clicked menu item</param>
-        /// <param name="e">event details</param>
-        private void schichtTypenToolStripMenuItem_Click(object sender, EventArgs e)
-        {
-            sortPersons("shiftTypes");
-        }
-
-        /// <summary>
-        /// sets the personTableSort variable to description and reloads the personTable
-        /// </summary>
-        /// <param name="sender">the clicked menu item</param>
-        /// <param name="e">event details</param>
-        private void anmerkungenToolStripMenuItem_Click(object sender, EventArgs e)
-        {
-            sortPersons("description");
-        }
+        #endregion
     }
 }

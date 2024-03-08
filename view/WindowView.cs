@@ -72,7 +72,8 @@ namespace Schichtplan
 
         public static int
             dayLabelHeight = 30,
-            weekLabelHeight = 30;
+            weekLabelHeight = 30,
+            tableLabelHeight = 28;
 
         /// <summary>
         /// constructor, which sets up the application
@@ -91,10 +92,10 @@ namespace Schichtplan
             menuControl = new MenuControl(modelControl);
 
             //create Folders for save files
-            Serializer.Instance().createDir(Serializer.SAVE_FOLDER);
-            Serializer.Instance().createDir(Serializer.CSV_FOLDER);
-            Serializer.Instance().createDir(Serializer.ICS_FOLDER);
-            Serializer.Instance().createDir(Serializer.HTML_FOLDER);
+            Serializer.Instance().createDir(Serializer.Instance().BASE_DICT + "" + Serializer.SAVE_FOLDER);
+            Serializer.Instance().createDir(Serializer.Instance().BASE_DICT + "" + Serializer.CSV_FOLDER);
+            Serializer.Instance().createDir(Serializer.Instance().BASE_DICT + "" + Serializer.ICS_FOLDER);
+            Serializer.Instance().createDir(Serializer.Instance().BASE_DICT + "" + Serializer.HTML_FOLDER);
 
             InitializeComponent();
 
@@ -103,7 +104,7 @@ namespace Schichtplan
             yearTextBox.Text = currentDate.Year.ToString();
             monthTextBox.Text = currentDate.Month.ToString();
 
-            string filePath = Serializer.SAVE_FOLDER + "" + currentDate.Year + "_" + currentDate.Month + "-" + modelControl.getMonthNameFromMonthNumber(currentDate.Month) + ".save";
+            string filePath = Serializer.Instance().BASE_DICT + "" + Serializer.SAVE_FOLDER + "" + currentDate.Year + "_" + currentDate.Month + "-" + modelControl.getMonthNameFromMonthNumber(currentDate.Month) + ".save";
 
             //check if there is a file for the current month and year
             if (Serializer.Instance().fileExists(filePath))
@@ -134,12 +135,6 @@ namespace Schichtplan
 
             //select first item in shiftPlanAlgorithmCombobox
             shiftPlanAlgorithmComboBox.SelectedIndex = 0;
-
-
-            modelControl.currentWorkmonth.turnoverWeeks = new Dictionary<int, float>();
-            modelControl.currentWorkmonth.turnoverWorkdays = new Dictionary<Workday, float>();
-            modelControl.currentWorkmonth.fixCosts = new List<model.Cost>();
-            modelControl.currentWorkmonth.variableCosts = new List<model.Cost>();
         }
 
         #region my Functions
@@ -162,10 +157,10 @@ namespace Schichtplan
         private void resetEverything()
         {
             resetShiftEditTab();
-            resetPersonTab();
-            resetShiftPlanTab();
-            resetGeneralInfo();
-            resetCostsTab();
+            resetPersonView();
+            resetShiftPlanView();
+            resetGeneralInfoView();
+            resetCostsView();
         }
 
         /// <summary>
@@ -244,6 +239,47 @@ namespace Schichtplan
             return data;
         }
 
+        /// <summary>
+        /// creates a Label for a Table
+        /// </summary>
+        /// <param name="width">label width</param>
+        /// <param name="height">label height</param>
+        /// <param name="controlColor">dictionary, the label and color are added to</param>
+        /// <param name="backColor">label backgtround color</param>
+        /// <param name="Text">label text</param>
+        /// <returns></returns>
+        private Label createTableLabel(Dictionary<Control, Color> controlColor, int width, int height, string Text, Color backColor)
+        {
+            Label label = new Label();
+            label.Text = Text;
+            label.Margin = new Padding(0);
+            label.Size = new Size(width, height);
+            label.TextAlign = ContentAlignment.MiddleCenter;
+            label.BackColor = backColor;
+            if(controlColor != null)
+            {
+                controlColor.Add(label, backColor);
+            }
+            return label;
+        }
+
+        /// <summary>
+        /// creates a OpenFileDialog with an initial directory
+        /// </summary>
+        /// <returns>OpenFileDialog</returns>
+        private OpenFileDialog createOpenFileDialog(string initialDirectory)
+        {
+            OpenFileDialog openFileDialog = new OpenFileDialog();
+            openFileDialog.InitialDirectory = initialDirectory;
+            openFileDialog.Title = "Bitte gewuenschte Speicherdatei auswaehlen.";
+            openFileDialog.DefaultExt = "save";
+            openFileDialog.Filter = "save files (*.save)|*.save|All files (*.*)|*.*";
+            openFileDialog.FilterIndex = 0;
+            openFileDialog.CheckFileExists = true;
+            openFileDialog.CheckPathExists = true;
+            return openFileDialog;
+        }
+
         #endregion
 
         #region generated Functions
@@ -299,6 +335,44 @@ namespace Schichtplan
             }
         }
 
+        /// <summary>
+        /// gets the color for each weekday by weekdayname
+        /// </summary>
+        /// <param name="weekday">the weekdayname</param>
+        /// <returns>the color for the given weekdayname</returns>
+        private Color getColorForWeekDay(string weekday)
+        {
+            if (weekday == "Montag")
+            {
+                return mondayColor;
+            }
+            else if (weekday == "Dienstag")
+            {
+                return tuesdayColor;
+            }
+            else if (weekday == "Mittwoch")
+            {
+                return wednesdayColor;
+            }
+            else if (weekday == "Donnerstag")
+            {
+                return thursdayColor;
+            }
+            else if (weekday == "Freitag")
+            {
+                return fridayColor;
+            }
+            else if (weekday == "Samstag")
+            {
+                return saturdayColor;
+            }
+            else if (weekday == "Sonntag")
+            {
+                return sundayColor;
+            }
+            return Color.White;
+        }
+
         #region Control size changed
 
         /// <summary>
@@ -348,7 +422,7 @@ namespace Schichtplan
 
             personLoadFromDifferentMonthButton.Location = new Point(personContentPanel.Width - personLoadFromDifferentMonthButton.Width - 5, personLoadFromDifferentMonthButton.Location.Y);
 
-            resetPersonTab();
+            resetPersonView();
         }
 
         /// <summary>
@@ -393,85 +467,6 @@ namespace Schichtplan
             variableCostsDataGridView.Size = new Size(fixCostsPanel.Width, fixCostsPanel.Height - 35);
         }
 
-        #endregion
-
-        #region menu
-
-        /// <summary>
-        /// calls save() function in the manager
-        /// </summary>
-        /// <param name="sender">saveToolStripMenuItem</param>
-        /// <param name="e">event details</param>
-        private void saveToolStripMenuItem_Click(object sender, EventArgs e)
-        {
-            menuControl.save();
-        }
-
-        /// <summary>
-        /// calls open() function in the manager with a selected filename from a OpenFileDialog
-        /// </summary>
-        /// <param name="sender">saveToolStripMenuItem</param>
-        /// <param name="e">event details</param>
-        private void openToolStripMenuItem_Click(object sender, EventArgs e)
-        {
-            OpenFileDialog openFileDialog = createOpenFileDialog();
-
-            if (openFileDialog.ShowDialog() == DialogResult.OK)
-            {
-                menuControl.open(openFileDialog.FileName);
-                resetEverything();
-
-                yearTextBox.Text = modelControl.currentWorkmonth.year + "";
-                monthTextBox.Text = modelControl.currentWorkmonth.month + "";
-            }
-        }
-
-        /// <summary>
-        /// creates a OpenFileDialog in the save Folder
-        /// </summary>
-        /// <returns>OpenFileDialog</returns>
-        private OpenFileDialog createOpenFileDialog()
-        {
-            OpenFileDialog openFileDialog = new OpenFileDialog();
-            openFileDialog.InitialDirectory = AppDomain.CurrentDomain.BaseDirectory;
-            openFileDialog.Title = "Bitte gewuenschte Speicherdatei auswaehlen.";
-            openFileDialog.DefaultExt = "save";
-            openFileDialog.Filter = "save files (*.save)|*.save|All files (*.*)|*.*";
-            openFileDialog.FilterIndex = 0;
-            openFileDialog.CheckFileExists = true;
-            openFileDialog.CheckPathExists = true;
-            return openFileDialog;
-        }
-
-        /// <summary>
-        /// calls exportCSVFiles() function in the manager
-        /// </summary>
-        /// <param name="sender">exportAsCSVToolStripMenuItem</param>
-        /// <param name="e">event details</param>
-        private void exportAsCSVToolStripMenuItem_Click(object sender, EventArgs e)
-        {
-            menuControl.exportCSVFiles();
-        }
-
-        /// <summary>
-        /// calls exportCalenderFiles() function in the manager
-        /// </summary>
-        /// <param name="sender">kalenderDateienExportierenToolStripMenuItem</param>
-        /// <param name="e">event details</param>
-        private void kalenderDateienExportierenToolStripMenuItem_Click(object sender, EventArgs e)
-        {
-            menuControl.exportCalenderFiles();
-        }
-
-        /// <summary>
-        /// calls exportHTMLFiles() function in the manager
-        /// </summary>
-        /// <param name="sender">hTMLDateienExportierenToolStripMenuItem</param>
-        /// <param name="e">event details</param>
-        private void hTMLDateienExportierenToolStripMenuItem_Click(object sender, EventArgs e)
-        {
-            menuControl.exportHTMLFiles();
-        }
         #endregion
 
         #endregion

@@ -45,12 +45,8 @@ namespace Schichtplan.controller
             for (int r = 0; r < data.GetLength(0); r++)
             {
                 int[] startHoursMinutes = modelControl.getHourMinutesFromString(data[r, 0]);
-                if (startHoursMinutes == null)
-                {
-                    return;
-                }
                 int[] endHoursMinutes = modelControl.getHourMinutesFromString(data[r, 1]);
-                if (endHoursMinutes == null)
+                if (startHoursMinutes == null || endHoursMinutes == null)
                 {
                     return;
                 }
@@ -125,6 +121,15 @@ namespace Schichtplan.controller
             }
 
             setShiftTypesInShiftTypeColorSettings();
+        }
+
+        /// <summary>
+        /// sets the weektemplate from a different workmonth
+        /// </summary>
+        /// <param name="workmonth">the workmonth to the the weektemplate from</param>
+        public void setWeekTemplateFromOtherMonth(Workmonth workmonth)
+        {
+            modelControl.currentWorkmonth.weekTemplate = workmonth.weekTemplate;
         }
     }
 }

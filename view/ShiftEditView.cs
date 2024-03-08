@@ -28,6 +28,8 @@ namespace Schichtplan
         private int currentClickedRowWeekTemplate = -1;
         private int currentClickedRowMonthView = -1;
 
+        #region my functions
+
         /// <summary>
         /// Sets the labels texts of the weektemplate
         /// </summary>
@@ -107,23 +109,23 @@ namespace Schichtplan
         }
 
         /// <summary>
+        /// resets the shiftEdit
+        /// </summary>
+        private void resetShiftEditView()
+        {
+            shiftEditLabel.Text = "Schichtbearbeitung";
+            shiftEditDataGridView.Rows.Clear();
+        }
+
+        /// <summary>
         /// resets the shiftTab. Sets the Weektemplate, the monthViewTable and the shiftEdit
         /// </summary>
         private void resetShiftEditTab()
         {
             setWeekTemplate();
             setMonthViewTable();
-            resetShiftEdit();
+            resetShiftEditView();
             setShiftPlanShiftTypeColorComboBoxItems();
-        }
-
-        /// <summary>
-        /// resets the shiftEdit
-        /// </summary>
-        private void resetShiftEdit()
-        {
-            shiftEditLabel.Text = "Schichtbearbeitung";
-            shiftEditDataGridView.Rows.Clear();
         }
 
         /// <summary>
@@ -135,22 +137,16 @@ namespace Schichtplan
         /// <returns>Label for the monthViewTable</returns>
         private Label createMonthViewLabel(string Text, Color backColor)
         {
-            Label label = new Label();
-            label.Text = Text;
-            label.Margin = new Padding(0);
-            label.Size = new Size(monthViewTable.Width, 28);
-            label.TextAlign = ContentAlignment.MiddleCenter;
+            Label label = createTableLabel(monthViewControlColors, monthViewTable.Width, tableLabelHeight, Text, backColor);
             label.MouseEnter += new EventHandler(monthViewTableLabel_MouseEnter);
             label.MouseLeave += new EventHandler(monthViewTableLabel_MouseLeave);
             label.Click += new EventHandler(monthViewTableLabel_Click);
-            label.BackColor = backColor;
-            monthViewControlColors.Add(label, backColor);
             return label;
         }
 
+        #endregion
 
-        //-------------------generated---------------------
-
+        #region generated UI functions
 
         /// <summary>
         /// handels the mouseEnter Event for the weekTemplate labels
@@ -213,14 +209,16 @@ namespace Schichtplan
         private void weekTemplateTableLabel_Click(object sender, EventArgs e)
         {
             int row = weekTemplateTable.GetRow((Control)sender);
+            //set the currentDayInShiftEdit to the clicked day from the weektemplate
             shiftEditControl.setCurrentDayInShiftEditFromWeekTemplate(row);
+            //reset the shiftedit
+            resetShiftEditView();
+            //set the shiftEditLabel text
             shiftEditLabel.Text = "Schichtbearbeitung: Wochenvorlage(" + shiftEditControl.currentWorkdayInShiftEdit.weekday + ")";
-
-            //clear shiftedit view
-            shiftEditDataGridView.Rows.Clear();
-
+            //set the data into the shiftEdit
             setShiftEdit();
 
+            //reset the currently clicked rows in weektemplate and monthview
             if (currentClickedRowWeekTemplate != -1)
             {
                 resetTableControlColor(weekTemplateTable, weekTemplateControlColors, currentClickedRowWeekTemplate);
@@ -230,6 +228,7 @@ namespace Schichtplan
                 resetTableControlColor(monthViewTable, monthViewControlColors, currentClickedRowMonthView);
                 currentClickedRowMonthView = -1;
             }
+            //set currently clicked row in weektemplate as the one mark
             currentClickedRowWeekTemplate = row;
         }
 
@@ -242,13 +241,18 @@ namespace Schichtplan
         private void monthViewTableLabel_Click(object sender, EventArgs e)
         {
             int row = monthViewTable.GetRow((Control)sender);
+            //set currentDayInShiftEdit to the one clicked in monthview
             shiftEditControl.setCurrentDayInShiftEditFromWorkdays(row);
+            //reset the shiftedit
+            resetShiftEditView();
+            //set the shiftEditLabel text
             shiftEditLabel.Text = "Schichtbearbeitung: "
                 + shiftEditControl.currentWorkdayInShiftEdit.day + " ("
                 + shiftEditControl.currentWorkdayInShiftEdit.weekday + ")";
-
+            //set the workshifts from the currentday in shiftEdit to the shiftEdit dgv
             setShiftEdit();
 
+            //reset the currently clicked rows in weektemplate and monthview
             if (currentClickedRowWeekTemplate != -1)
             {
                 resetTableControlColor(weekTemplateTable, weekTemplateControlColors, currentClickedRowWeekTemplate);
@@ -258,6 +262,7 @@ namespace Schichtplan
             {
                 resetTableControlColor(monthViewTable, monthViewControlColors, currentClickedRowMonthView);
             }
+            //set the clicked row as the one to mark
             currentClickedRowMonthView = row;
         }
 
@@ -275,27 +280,11 @@ namespace Schichtplan
                 MessageBox.Show("Bitte erst Tag zum bearbeiten auswaehlen.");
                 return;
             }
-            //check if there is an entry in every cell
-            string[,] rows = new string[shiftEditDataGridView.RowCount - 1, shiftEditDataGridView.ColumnCount];
-            for (int r = 0; r < shiftEditDataGridView.Rows.Count - 1; r++)
-            {
-                for (int c = 0; c < shiftEditDataGridView.Rows[r].Cells.Count; c++)
-                {
-                    string value = (string)shiftEditDataGridView.Rows[r].Cells[c].Value;
-                    if (value == null)
-                    {
-                        MessageBox.Show("Bitte in jede Zelle etwas eintragen.");
-                        return;
-                    }
-                    else
-                    {
-                        rows[r, c] = value;
-                    }
-                }
-            }
-
-            shiftEditControl.saveWorkshiftsIntoCurrentDayInShiftEdit(rows);
-
+            //get data from the shiftEdit dgv
+            string[,] data = getDataFromDataGridViewAsStringArray(shiftEditDataGridView);
+            //save the retrieved data into the workday
+            shiftEditControl.saveWorkshiftsIntoCurrentDayInShiftEdit(data);
+            //reset the shiftEdit tab to show the changes in the UI
             resetShiftEditTab();
         }
 
@@ -307,12 +296,15 @@ namespace Schichtplan
         /// <param name="e">event details</param>
         private void useOnHoleMonth_Click(object sender, EventArgs e)
         {
+            //dialog to show the user, that all workshifts are beeing replaced and potential connections in the persons unavailable dict are deleted
             DialogResult dialogResult = MessageBox.Show("Alle aktuellen Schichten werden gelöscht und mit dem Template neu erstellt.\n" +
                 "Es kann zu unvorhersehbarem Verhalten in den anderen Tabs kommen. Bitte nur bei neuaufsetzen eines Monats verwenden.\n\n" +
                 "Willst du fortfahren?", "", MessageBoxButtons.YesNo);
             if (dialogResult == DialogResult.Yes)
             {
+                //use the weektemplate on the hole month
                 shiftEditControl.setWeekTemplateOnMonth();
+                //reset the shiftEdit to update the ui
                 resetShiftEditTab();
             }
         }
@@ -325,14 +317,17 @@ namespace Schichtplan
         /// <param name="e">event details</param>
         private void loadFromOtherMonthButton_Click(object sender, EventArgs e)
         {
-            OpenFileDialog openFileDialog = createOpenFileDialog();
+            //create openfiledialog with the save folder open
+            OpenFileDialog openFileDialog = createOpenFileDialog(Serializer.Instance().BASE_DICT + "" + Serializer.SAVE_FOLDER);
 
             if (openFileDialog.ShowDialog() == DialogResult.OK)
             {
                 Workmonth workmonth = (Workmonth)Serializer.Instance().loadObject(openFileDialog.FileName);
-                modelControl.currentWorkmonth.weekTemplate = workmonth.weekTemplate;
+                shiftEditControl.setWeekTemplateFromOtherMonth(workmonth);
                 resetShiftEditTab();
             }
         }
+
+        #endregion
     }
 }

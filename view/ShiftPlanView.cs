@@ -32,6 +32,8 @@ namespace Schichtplan
         /// </summary>
         int currentClickedRowShiftPlan = -1;
 
+        #region my functions
+
         /// <summary>
         /// fills the shiftPlanTable with the workshifts and its corresponding persons in the shiftPlan
         /// </summary>
@@ -200,21 +202,13 @@ namespace Schichtplan
         /// <returns>Label for the shiftPlanTable</returns>
         private Label createShiftPlanLabel(string Text, Color backColor)
         {
-            Label label = new Label();
-            label.Text = Text;
-            label.Margin = new Padding(0);
-            label.Size = new Size(shiftPlanTable.Width, 20);
-            label.TextAlign = ContentAlignment.MiddleCenter;
-            label.BackColor = backColor;
-            label.AllowDrop = true;
-            //EventHandlers
+            Label label = createTableLabel(shiftplanControlColors, shiftPlanTable.Width, tableLabelHeight, Text, backColor);
             label.MouseEnter += new EventHandler(shiftPlanLabel_MouseEnter);
             label.MouseLeave += new EventHandler(shiftPlanLabel_MouseLeave);
             label.MouseDown += new MouseEventHandler(shiftPlanLabel_MouseDown);
             label.DragEnter += new DragEventHandler(shiftPlanLabel_DragEnter);
             label.DragDrop += new DragEventHandler(shiftPlanLabel_DragDrop);
             label.MouseUp += new MouseEventHandler(shiftPlanLabel_MouseUp);
-            shiftplanControlColors.Add(label, backColor);
             return label;
         }
 
@@ -332,11 +326,11 @@ namespace Schichtplan
         /// <summary>
         /// resets the shiftPlanView
         /// </summary>
-        public void resetShiftPlanTab()
+        public void resetShiftPlanView()
         {
             checkPersonsWithUnsatisfiedWorktimes();
             setShiftPlan();
-            resetGeneralInfo();
+            resetGeneralInfoView();
             setInfoPersonTable();
             setShiftPlanShiftTypeColorComboBoxItems();
             setShiftsNotSetLabel();
@@ -395,7 +389,9 @@ namespace Schichtplan
             }
         }
 
-        //-------------------generated---------------------
+        #endregion
+
+        #region generated UI functions
 
         /// <summary>
         /// handels the SelectedIndex Event in the shiftPlanShiftTypeColorComboBox
@@ -433,7 +429,7 @@ namespace Schichtplan
                 {
                     shiftPlanShiftTypeColorButton.BackColor = colorDialog.Color;
                     modelControl.currentWorkmonth.settings.shiftTypeColors[shiftPlanShiftTypeColorComboBox.Text] = colorDialog.Color;
-                    resetShiftPlanTab();
+                    resetShiftPlanView();
                 }
             }
         }
@@ -451,9 +447,8 @@ namespace Schichtplan
             if (dialogResult == DialogResult.Yes)
             {
                 shiftPlanControl.createShiftPlan(shiftPlanAlgorithmComboBox.SelectedIndex);
-                resetShiftPlanTab();
+                resetShiftPlanView();
                 showShiftsNotSet();
-                setShiftsNotSetLabel();
             }
         }
 
@@ -592,7 +587,7 @@ namespace Schichtplan
                         shiftPlanControl.setCurrentWorkshiftInShiftPlanEdit(null);
 
                         setWorkshiftInShiftEdit(shiftPlanControl.currentWorkshiftInShiftPlanEdit);
-                        resetShiftPlanTab();
+                        resetShiftPlanView();
                     }
                 }
             }
@@ -617,13 +612,13 @@ namespace Schichtplan
                     string[] workshiftInfo = getWorkshiftInfoFromTextBoxes();
                     shiftPlanControl.editWorkshiftInWorkshiftEdit(modelControl.currentWorkmonth.persons[shiftPlanPersonComboBox.SelectedIndex], workshiftInfo);
 
-                    resetShiftPlanTab();
+                    resetShiftPlanView();
                     setTableControlColor(shiftPlanTable, currentClickedRowShiftPlan, hoverColor);
                     setShiftEditPersonsComboBoxItems(shiftPlanControl.currentWorkshiftInShiftPlanEdit);
                 }
                 else
                 {
-                    MessageBox.Show("Bitte Person auswählen vor dem speichern.");
+                    MessageBox.Show("Bitte vor dem speichern Person auswählen.");
                 }
             }
         }
@@ -697,5 +692,7 @@ namespace Schichtplan
         {
             showShiftsNotSet();
         }
+
+        #endregion
     }
 }

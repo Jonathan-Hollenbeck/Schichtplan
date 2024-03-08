@@ -186,13 +186,19 @@ namespace Schichtplan
             this.infoDaySalerySumContent = new System.Windows.Forms.Label();
             this.infoDayLabel = new System.Windows.Forms.Label();
             this.infoGeneralMonthPanel = new System.Windows.Forms.Panel();
+            this.infoMonthCostsSumContent = new System.Windows.Forms.Label();
+            this.infoMonthVariableCostsSumContent = new System.Windows.Forms.Label();
+            this.infoMonthFixCostsSumContent = new System.Windows.Forms.Label();
+            this.infoMonthCostsSumLabel = new System.Windows.Forms.Label();
+            this.infoMonthVariableCostsSumLabel = new System.Windows.Forms.Label();
+            this.infoMonthFixCostsSumLabel = new System.Windows.Forms.Label();
             this.infoMonthAverageTurnoverDayContent = new System.Windows.Forms.Label();
             this.infoMonthAverageTurnoverHourContent = new System.Windows.Forms.Label();
-            this.infoMonthTurnoverAfterSaleriesContent = new System.Windows.Forms.Label();
+            this.infoMonthProfitAfterSaleriesCostsContent = new System.Windows.Forms.Label();
             this.infoMonthHoursSumContent = new System.Windows.Forms.Label();
             this.infoMonthShiftSumContent = new System.Windows.Forms.Label();
             this.infoMonthAverageTurnoverDayLabel = new System.Windows.Forms.Label();
-            this.infoMonthTurnoverAfterSaleriesLabel = new System.Windows.Forms.Label();
+            this.infoMonthProfitAfterSaleriesCostsLabel = new System.Windows.Forms.Label();
             this.infoMonthAverageTurnoverHourLabel = new System.Windows.Forms.Label();
             this.infoMonthCalculateButton = new System.Windows.Forms.Button();
             this.infoMonthTurnover = new System.Windows.Forms.Label();
@@ -216,6 +222,7 @@ namespace Schichtplan
             this.maxArbeitsstundenToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.schichtTypenToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.anmerkungenToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.fixCostsLoadFromOtherMonthButton = new System.Windows.Forms.Button();
             this.yearMonthSelectorPanel.SuspendLayout();
             this.infoSettingsTabPage.SuspendLayout();
             this.shiftTabPage.SuspendLayout();
@@ -1288,7 +1295,7 @@ namespace Schichtplan
             // 
             // variableCostsSaveButton
             // 
-            this.variableCostsSaveButton.Location = new System.Drawing.Point(92, 4);
+            this.variableCostsSaveButton.Location = new System.Drawing.Point(138, 6);
             this.variableCostsSaveButton.Name = "variableCostsSaveButton";
             this.variableCostsSaveButton.Size = new System.Drawing.Size(75, 23);
             this.variableCostsSaveButton.TabIndex = 1;
@@ -1299,9 +1306,10 @@ namespace Schichtplan
             // variableCostsLabel
             // 
             this.variableCostsLabel.AutoSize = true;
-            this.variableCostsLabel.Location = new System.Drawing.Point(4, 4);
+            this.variableCostsLabel.Font = new System.Drawing.Font("Microsoft Sans Serif", 12.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.variableCostsLabel.Location = new System.Drawing.Point(5, 9);
             this.variableCostsLabel.Name = "variableCostsLabel";
-            this.variableCostsLabel.Size = new System.Drawing.Size(81, 13);
+            this.variableCostsLabel.Size = new System.Drawing.Size(127, 20);
             this.variableCostsLabel.TabIndex = 0;
             this.variableCostsLabel.Text = "Variable Kosten";
             // 
@@ -1356,6 +1364,7 @@ namespace Schichtplan
             // 
             // fixCostsLabelButtonPanel
             // 
+            this.fixCostsLabelButtonPanel.Controls.Add(this.fixCostsLoadFromOtherMonthButton);
             this.fixCostsLabelButtonPanel.Controls.Add(this.fixCostsSaveButton);
             this.fixCostsLabelButtonPanel.Controls.Add(this.fixCostsLabel);
             this.fixCostsLabelButtonPanel.Dock = System.Windows.Forms.DockStyle.Top;
@@ -1366,7 +1375,7 @@ namespace Schichtplan
             // 
             // fixCostsSaveButton
             // 
-            this.fixCostsSaveButton.Location = new System.Drawing.Point(67, 4);
+            this.fixCostsSaveButton.Location = new System.Drawing.Point(96, 6);
             this.fixCostsSaveButton.Name = "fixCostsSaveButton";
             this.fixCostsSaveButton.Size = new System.Drawing.Size(75, 23);
             this.fixCostsSaveButton.TabIndex = 1;
@@ -1377,9 +1386,10 @@ namespace Schichtplan
             // fixCostsLabel
             // 
             this.fixCostsLabel.AutoSize = true;
-            this.fixCostsLabel.Location = new System.Drawing.Point(4, 4);
+            this.fixCostsLabel.Font = new System.Drawing.Font("Microsoft Sans Serif", 12.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.fixCostsLabel.Location = new System.Drawing.Point(3, 9);
             this.fixCostsLabel.Name = "fixCostsLabel";
-            this.fixCostsLabel.Size = new System.Drawing.Size(56, 13);
+            this.fixCostsLabel.Size = new System.Drawing.Size(88, 20);
             this.fixCostsLabel.TabIndex = 0;
             this.fixCostsLabel.Text = "Fix Kosten";
             // 
@@ -1808,13 +1818,19 @@ namespace Schichtplan
             // infoGeneralMonthPanel
             // 
             this.infoGeneralMonthPanel.BackColor = System.Drawing.Color.DarkGray;
+            this.infoGeneralMonthPanel.Controls.Add(this.infoMonthCostsSumContent);
+            this.infoGeneralMonthPanel.Controls.Add(this.infoMonthVariableCostsSumContent);
+            this.infoGeneralMonthPanel.Controls.Add(this.infoMonthFixCostsSumContent);
+            this.infoGeneralMonthPanel.Controls.Add(this.infoMonthCostsSumLabel);
+            this.infoGeneralMonthPanel.Controls.Add(this.infoMonthVariableCostsSumLabel);
+            this.infoGeneralMonthPanel.Controls.Add(this.infoMonthFixCostsSumLabel);
             this.infoGeneralMonthPanel.Controls.Add(this.infoMonthAverageTurnoverDayContent);
             this.infoGeneralMonthPanel.Controls.Add(this.infoMonthAverageTurnoverHourContent);
-            this.infoGeneralMonthPanel.Controls.Add(this.infoMonthTurnoverAfterSaleriesContent);
+            this.infoGeneralMonthPanel.Controls.Add(this.infoMonthProfitAfterSaleriesCostsContent);
             this.infoGeneralMonthPanel.Controls.Add(this.infoMonthHoursSumContent);
             this.infoGeneralMonthPanel.Controls.Add(this.infoMonthShiftSumContent);
             this.infoGeneralMonthPanel.Controls.Add(this.infoMonthAverageTurnoverDayLabel);
-            this.infoGeneralMonthPanel.Controls.Add(this.infoMonthTurnoverAfterSaleriesLabel);
+            this.infoGeneralMonthPanel.Controls.Add(this.infoMonthProfitAfterSaleriesCostsLabel);
             this.infoGeneralMonthPanel.Controls.Add(this.infoMonthAverageTurnoverHourLabel);
             this.infoGeneralMonthPanel.Controls.Add(this.infoMonthCalculateButton);
             this.infoGeneralMonthPanel.Controls.Add(this.infoMonthTurnover);
@@ -1830,10 +1846,64 @@ namespace Schichtplan
             this.infoGeneralMonthPanel.Size = new System.Drawing.Size(410, 531);
             this.infoGeneralMonthPanel.TabIndex = 11;
             // 
+            // infoMonthCostsSumContent
+            // 
+            this.infoMonthCostsSumContent.AutoSize = true;
+            this.infoMonthCostsSumContent.Location = new System.Drawing.Point(238, 209);
+            this.infoMonthCostsSumContent.Name = "infoMonthCostsSumContent";
+            this.infoMonthCostsSumContent.Size = new System.Drawing.Size(19, 13);
+            this.infoMonthCostsSumContent.TabIndex = 30;
+            this.infoMonthCostsSumContent.Text = "0€";
+            // 
+            // infoMonthVariableCostsSumContent
+            // 
+            this.infoMonthVariableCostsSumContent.AutoSize = true;
+            this.infoMonthVariableCostsSumContent.Location = new System.Drawing.Point(238, 185);
+            this.infoMonthVariableCostsSumContent.Name = "infoMonthVariableCostsSumContent";
+            this.infoMonthVariableCostsSumContent.Size = new System.Drawing.Size(19, 13);
+            this.infoMonthVariableCostsSumContent.TabIndex = 29;
+            this.infoMonthVariableCostsSumContent.Text = "0€";
+            // 
+            // infoMonthFixCostsSumContent
+            // 
+            this.infoMonthFixCostsSumContent.AutoSize = true;
+            this.infoMonthFixCostsSumContent.Location = new System.Drawing.Point(238, 159);
+            this.infoMonthFixCostsSumContent.Name = "infoMonthFixCostsSumContent";
+            this.infoMonthFixCostsSumContent.Size = new System.Drawing.Size(19, 13);
+            this.infoMonthFixCostsSumContent.TabIndex = 28;
+            this.infoMonthFixCostsSumContent.Text = "0€";
+            // 
+            // infoMonthCostsSumLabel
+            // 
+            this.infoMonthCostsSumLabel.AutoSize = true;
+            this.infoMonthCostsSumLabel.Location = new System.Drawing.Point(8, 209);
+            this.infoMonthCostsSumLabel.Name = "infoMonthCostsSumLabel";
+            this.infoMonthCostsSumLabel.Size = new System.Drawing.Size(78, 13);
+            this.infoMonthCostsSumLabel.TabIndex = 27;
+            this.infoMonthCostsSumLabel.Text = "Summe Kosten";
+            // 
+            // infoMonthVariableCostsSumLabel
+            // 
+            this.infoMonthVariableCostsSumLabel.AutoSize = true;
+            this.infoMonthVariableCostsSumLabel.Location = new System.Drawing.Point(8, 185);
+            this.infoMonthVariableCostsSumLabel.Name = "infoMonthVariableCostsSumLabel";
+            this.infoMonthVariableCostsSumLabel.Size = new System.Drawing.Size(119, 13);
+            this.infoMonthVariableCostsSumLabel.TabIndex = 26;
+            this.infoMonthVariableCostsSumLabel.Text = "Summe Variable Kosten";
+            // 
+            // infoMonthFixCostsSumLabel
+            // 
+            this.infoMonthFixCostsSumLabel.AutoSize = true;
+            this.infoMonthFixCostsSumLabel.Location = new System.Drawing.Point(8, 159);
+            this.infoMonthFixCostsSumLabel.Name = "infoMonthFixCostsSumLabel";
+            this.infoMonthFixCostsSumLabel.Size = new System.Drawing.Size(94, 13);
+            this.infoMonthFixCostsSumLabel.TabIndex = 25;
+            this.infoMonthFixCostsSumLabel.Text = "Summe Fix Kosten";
+            // 
             // infoMonthAverageTurnoverDayContent
             // 
             this.infoMonthAverageTurnoverDayContent.AutoSize = true;
-            this.infoMonthAverageTurnoverDayContent.Location = new System.Drawing.Point(238, 281);
+            this.infoMonthAverageTurnoverDayContent.Location = new System.Drawing.Point(238, 330);
             this.infoMonthAverageTurnoverDayContent.Name = "infoMonthAverageTurnoverDayContent";
             this.infoMonthAverageTurnoverDayContent.Size = new System.Drawing.Size(19, 13);
             this.infoMonthAverageTurnoverDayContent.TabIndex = 24;
@@ -1842,20 +1912,20 @@ namespace Schichtplan
             // infoMonthAverageTurnoverHourContent
             // 
             this.infoMonthAverageTurnoverHourContent.AutoSize = true;
-            this.infoMonthAverageTurnoverHourContent.Location = new System.Drawing.Point(238, 251);
+            this.infoMonthAverageTurnoverHourContent.Location = new System.Drawing.Point(238, 300);
             this.infoMonthAverageTurnoverHourContent.Name = "infoMonthAverageTurnoverHourContent";
             this.infoMonthAverageTurnoverHourContent.Size = new System.Drawing.Size(19, 13);
             this.infoMonthAverageTurnoverHourContent.TabIndex = 23;
             this.infoMonthAverageTurnoverHourContent.Text = "0€";
             // 
-            // infoMonthTurnoverAfterSaleriesContent
+            // infoMonthProfitAfterSaleriesCostsContent
             // 
-            this.infoMonthTurnoverAfterSaleriesContent.AutoSize = true;
-            this.infoMonthTurnoverAfterSaleriesContent.Location = new System.Drawing.Point(238, 218);
-            this.infoMonthTurnoverAfterSaleriesContent.Name = "infoMonthTurnoverAfterSaleriesContent";
-            this.infoMonthTurnoverAfterSaleriesContent.Size = new System.Drawing.Size(19, 13);
-            this.infoMonthTurnoverAfterSaleriesContent.TabIndex = 22;
-            this.infoMonthTurnoverAfterSaleriesContent.Text = "0€";
+            this.infoMonthProfitAfterSaleriesCostsContent.AutoSize = true;
+            this.infoMonthProfitAfterSaleriesCostsContent.Location = new System.Drawing.Point(238, 359);
+            this.infoMonthProfitAfterSaleriesCostsContent.Name = "infoMonthProfitAfterSaleriesCostsContent";
+            this.infoMonthProfitAfterSaleriesCostsContent.Size = new System.Drawing.Size(19, 13);
+            this.infoMonthProfitAfterSaleriesCostsContent.TabIndex = 22;
+            this.infoMonthProfitAfterSaleriesCostsContent.Text = "0€";
             // 
             // infoMonthHoursSumContent
             // 
@@ -1878,25 +1948,25 @@ namespace Schichtplan
             // infoMonthAverageTurnoverDayLabel
             // 
             this.infoMonthAverageTurnoverDayLabel.AutoSize = true;
-            this.infoMonthAverageTurnoverDayLabel.Location = new System.Drawing.Point(8, 281);
+            this.infoMonthAverageTurnoverDayLabel.Location = new System.Drawing.Point(8, 330);
             this.infoMonthAverageTurnoverDayLabel.Name = "infoMonthAverageTurnoverDayLabel";
             this.infoMonthAverageTurnoverDayLabel.Size = new System.Drawing.Size(128, 13);
             this.infoMonthAverageTurnoverDayLabel.TabIndex = 19;
             this.infoMonthAverageTurnoverDayLabel.Text = "Durschn. Umsatz pro Tag";
             // 
-            // infoMonthTurnoverAfterSaleriesLabel
+            // infoMonthProfitAfterSaleriesCostsLabel
             // 
-            this.infoMonthTurnoverAfterSaleriesLabel.AutoSize = true;
-            this.infoMonthTurnoverAfterSaleriesLabel.Location = new System.Drawing.Point(8, 218);
-            this.infoMonthTurnoverAfterSaleriesLabel.Name = "infoMonthTurnoverAfterSaleriesLabel";
-            this.infoMonthTurnoverAfterSaleriesLabel.Size = new System.Drawing.Size(145, 13);
-            this.infoMonthTurnoverAfterSaleriesLabel.TabIndex = 18;
-            this.infoMonthTurnoverAfterSaleriesLabel.Text = "Umsatz nach Abzug Gehälter";
+            this.infoMonthProfitAfterSaleriesCostsLabel.AutoSize = true;
+            this.infoMonthProfitAfterSaleriesCostsLabel.Location = new System.Drawing.Point(9, 359);
+            this.infoMonthProfitAfterSaleriesCostsLabel.Name = "infoMonthProfitAfterSaleriesCostsLabel";
+            this.infoMonthProfitAfterSaleriesCostsLabel.Size = new System.Drawing.Size(203, 13);
+            this.infoMonthProfitAfterSaleriesCostsLabel.TabIndex = 18;
+            this.infoMonthProfitAfterSaleriesCostsLabel.Text = "Gewinn nach Abzug Gehälter und Kosten";
             // 
             // infoMonthAverageTurnoverHourLabel
             // 
             this.infoMonthAverageTurnoverHourLabel.AutoSize = true;
-            this.infoMonthAverageTurnoverHourLabel.Location = new System.Drawing.Point(8, 251);
+            this.infoMonthAverageTurnoverHourLabel.Location = new System.Drawing.Point(8, 300);
             this.infoMonthAverageTurnoverHourLabel.Name = "infoMonthAverageTurnoverHourLabel";
             this.infoMonthAverageTurnoverHourLabel.Size = new System.Drawing.Size(143, 13);
             this.infoMonthAverageTurnoverHourLabel.TabIndex = 17;
@@ -1904,7 +1974,7 @@ namespace Schichtplan
             // 
             // infoMonthCalculateButton
             // 
-            this.infoMonthCalculateButton.Location = new System.Drawing.Point(241, 175);
+            this.infoMonthCalculateButton.Location = new System.Drawing.Point(242, 257);
             this.infoMonthCalculateButton.Name = "infoMonthCalculateButton";
             this.infoMonthCalculateButton.Size = new System.Drawing.Size(75, 23);
             this.infoMonthCalculateButton.TabIndex = 16;
@@ -1915,7 +1985,7 @@ namespace Schichtplan
             // infoMonthTurnover
             // 
             this.infoMonthTurnover.AutoSize = true;
-            this.infoMonthTurnover.Location = new System.Drawing.Point(8, 159);
+            this.infoMonthTurnover.Location = new System.Drawing.Point(9, 241);
             this.infoMonthTurnover.Name = "infoMonthTurnover";
             this.infoMonthTurnover.Size = new System.Drawing.Size(75, 13);
             this.infoMonthTurnover.TabIndex = 15;
@@ -1923,7 +1993,7 @@ namespace Schichtplan
             // 
             // infoMonthTurnoverTextBox
             // 
-            this.infoMonthTurnoverTextBox.Location = new System.Drawing.Point(11, 178);
+            this.infoMonthTurnoverTextBox.Location = new System.Drawing.Point(12, 260);
             this.infoMonthTurnoverTextBox.Name = "infoMonthTurnoverTextBox";
             this.infoMonthTurnoverTextBox.Size = new System.Drawing.Size(119, 20);
             this.infoMonthTurnoverTextBox.TabIndex = 14;
@@ -1940,7 +2010,7 @@ namespace Schichtplan
             // infoMonthShiftSumLabel
             // 
             this.infoMonthShiftSumLabel.AutoSize = true;
-            this.infoMonthShiftSumLabel.Location = new System.Drawing.Point(8, 101);
+            this.infoMonthShiftSumLabel.Location = new System.Drawing.Point(9, 101);
             this.infoMonthShiftSumLabel.Name = "infoMonthShiftSumLabel";
             this.infoMonthShiftSumLabel.Size = new System.Drawing.Size(93, 13);
             this.infoMonthShiftSumLabel.TabIndex = 12;
@@ -1959,7 +2029,7 @@ namespace Schichtplan
             // infoMonthSalerySumLabel
             // 
             this.infoMonthSalerySumLabel.AutoSize = true;
-            this.infoMonthSalerySumLabel.Location = new System.Drawing.Point(8, 74);
+            this.infoMonthSalerySumLabel.Location = new System.Drawing.Point(9, 74);
             this.infoMonthSalerySumLabel.Name = "infoMonthSalerySumLabel";
             this.infoMonthSalerySumLabel.Size = new System.Drawing.Size(86, 13);
             this.infoMonthSalerySumLabel.TabIndex = 9;
@@ -2087,6 +2157,16 @@ namespace Schichtplan
             this.anmerkungenToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
             this.anmerkungenToolStripMenuItem.Text = "Anmerkungen";
             this.anmerkungenToolStripMenuItem.Click += new System.EventHandler(this.anmerkungenToolStripMenuItem_Click);
+            // 
+            // fixCostsLoadFromOtherMonthButton
+            // 
+            this.fixCostsLoadFromOtherMonthButton.Location = new System.Drawing.Point(180, 6);
+            this.fixCostsLoadFromOtherMonthButton.Name = "fixCostsLoadFromOtherMonthButton";
+            this.fixCostsLoadFromOtherMonthButton.Size = new System.Drawing.Size(144, 23);
+            this.fixCostsLoadFromOtherMonthButton.TabIndex = 2;
+            this.fixCostsLoadFromOtherMonthButton.Text = "von anderem Monat laden";
+            this.fixCostsLoadFromOtherMonthButton.UseVisualStyleBackColor = true;
+            this.fixCostsLoadFromOtherMonthButton.Click += new System.EventHandler(this.fixCostsLoadFromOtherMonthButton_Click);
             // 
             // window
             // 
@@ -2243,7 +2323,7 @@ namespace Schichtplan
         private System.Windows.Forms.TextBox infoMonthTurnoverTextBox;
         private System.Windows.Forms.Label infoMonthHoursSumLabel;
         private System.Windows.Forms.Label infoMonthAverageTurnoverDayLabel;
-        private System.Windows.Forms.Label infoMonthTurnoverAfterSaleriesLabel;
+        private System.Windows.Forms.Label infoMonthProfitAfterSaleriesCostsLabel;
         private System.Windows.Forms.Label infoMonthAverageTurnoverHourLabel;
         private System.Windows.Forms.ComboBox infoWeekComboBox;
         private System.Windows.Forms.Label infoWeekAverageTurnoverDayContent;
@@ -2277,7 +2357,7 @@ namespace Schichtplan
         private System.Windows.Forms.Label infoDaySalerySumContent;
         private System.Windows.Forms.Label infoMonthAverageTurnoverDayContent;
         private System.Windows.Forms.Label infoMonthAverageTurnoverHourContent;
-        private System.Windows.Forms.Label infoMonthTurnoverAfterSaleriesContent;
+        private System.Windows.Forms.Label infoMonthProfitAfterSaleriesCostsContent;
         private System.Windows.Forms.Label infoMonthHoursSumContent;
         private System.Windows.Forms.Label infoMonthShiftSumContent;
         private System.Windows.Forms.DataGridViewTextBoxColumn shiftEditStartColumn;
@@ -2336,6 +2416,13 @@ namespace Schichtplan
         private System.Windows.Forms.DataGridViewTextBoxColumn fixCostsTypeColumn;
         private System.Windows.Forms.DataGridViewTextBoxColumn fixCostsDescriptionColumn;
         private System.Windows.Forms.DataGridViewTextBoxColumn fixCostsAmountColumn;
+        private System.Windows.Forms.Label infoMonthFixCostsSumLabel;
+        private System.Windows.Forms.Label infoMonthVariableCostsSumLabel;
+        private System.Windows.Forms.Label infoMonthCostsSumContent;
+        private System.Windows.Forms.Label infoMonthVariableCostsSumContent;
+        private System.Windows.Forms.Label infoMonthFixCostsSumContent;
+        private System.Windows.Forms.Label infoMonthCostsSumLabel;
+        private System.Windows.Forms.Button fixCostsLoadFromOtherMonthButton;
     }
 }
 

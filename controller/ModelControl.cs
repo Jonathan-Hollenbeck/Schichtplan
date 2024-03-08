@@ -447,248 +447,6 @@ namespace Schichtplan
 
         #region Workshift, Person Dicts
 
-        /// <summary>
-        /// creates the shiftplan by iteratively for every workshift first trying fulfill the minWorkHour of every person
-        /// and then to not to get over their maxWorkHour
-        /// also not inserts person, if it is working at the day before or after
-        /// </summary>
-        public Dictionary<Workshift, Person> getSimpleShiftPlan(List<Workday> workdays, List<Person> persons, Dictionary<Person, float> carryOver)
-        {
-            Dictionary<Workshift, Person> shiftplan = new Dictionary<Workshift, Person>();
-
-            Dictionary<Person, float> workTimeMonth = new Dictionary<Person, float>();
-            //fill dict with 0
-            foreach (Person person in persons)
-            {
-                workTimeMonth.Add(person, getPersonCarryOver(person, carryOver));
-            }
-
-            //fill dict with available persons
-            Dictionary<Workshift, List<Person>> availablePersons = new Dictionary<Workshift, List<Person>>();
-            foreach (Workday workday in workdays)
-            {
-                foreach (Workshift workshift in workday.shifts)
-                {
-                    //check what kind of shift it is and fill List with corresponding persons
-                    availablePersons.Add(workshift, getAvailablePersonsInWorkshift(workshift, persons));
-                }
-            }
-
-            //set Person per shift in shiftplan
-            for (int wd = 0; wd < workdays.Count; wd++)
-            {
-                Workday workday = workdays[wd];
-                foreach (Workshift workshift in workday.shifts)
-                {
-                    float shiftWorkTime = getWorktimeInWorkshift(workshift);
-                    //take the available person, who has the most distance to its minWorkhours.
-                    bool noPersonFound = true;
-                    Person currentPerson = null;
-                    float currentDistance = 0.0f;
-                    foreach (Person person in availablePersons[workshift])
-                    {
-                        float distance = person.minWorkHours - workTimeMonth[person];
-                        if (distance > currentDistance && !isPersonWorkingAtDayBeforeOrAfter(person, workday, workdays, shiftplan))
-                        {
-                            noPersonFound = false;
-                            currentPerson = person;
-                            currentDistance = distance;
-                        }
-                    }
-                    //all minWorkhours were satisfied. Now look for persons, who can work this shift without getting over their maxWorkhours
-                    if (noPersonFound == true)
-                    {
-                        currentDistance = float.MaxValue;
-                        foreach (Person person in availablePersons[workshift])
-                        {
-                            if (workTimeMonth[person] < currentDistance && person.maxWorkHours >= (workTimeMonth[person] + shiftWorkTime) && !isPersonWorkingAtDayBeforeOrAfter(person, workday, workdays, shiftplan))
-                            {
-                                noPersonFound = false;
-                                currentPerson = person;
-                                currentDistance = workTimeMonth[person];
-                            }
-                        }
-                    }
-                    if (noPersonFound == false)
-                    {
-                        //add the worktime to its counter
-                        workTimeMonth[currentPerson] += shiftWorkTime;
-                        //remove the person from all shifts of the day
-                        foreach (Workshift shift in workday.shifts)
-                        {
-                            availablePersons[shift].Remove(currentPerson);
-                        }
-
-                        //set current Person as the one to get this shift
-                        shiftplan.Add(workshift, currentPerson);
-                    }
-                }
-            }
-
-            return shiftplan;
-        }
-
-        /// <summary>
-        /// creates the shiftplan and tries to distribute their workhours evenly over the month
-        /// </summary>
-        public Dictionary<Workshift, Person> getEvenlyDistributedShiftPlan(List<Workday> workdays, List<Person> persons, Dictionary<Person, float> carryOver)
-        {
-            Dictionary<Workshift, Person> shiftplan = new Dictionary<Workshift, Person>();
-
-            Dictionary<Person, float> workTimeMonth = new Dictionary<Person, float>();
-            //fill dict with 0
-            foreach (Person person in persons)
-            {
-                workTimeMonth.Add(person, getPersonCarryOver(person, carryOver));
-            }
-
-            //workshifts where only one person can work. set this person to work
-            foreach(Workday workday in workdays)
-            {
-                foreach(Workshift workshift in workday.shifts)
-                {
-                    foreach(Person person in persons)
-                    {
-                        if(isPersonOnlyOneAvailableForWorkshift(person, persons, workshift, workdays))
-                        {
-                            shiftplan.Add(workshift, person);
-                            workTimeMonth[person] += getWorktimeInWorkshift(workshift);
-                        }
-                    }
-                }
-            }
-
-            //first try to distribute the workshifts evenly
-            //loop persons
-            foreach(Person person in persons)
-            {
-                //list with all workdays a person could work
-                List<Workday> availableWorkdays = getWorkdaysWithAvailableEmtpyWorkshiftsForPersonInWorkdays(person, workdays, shiftplan);
-
-                //distribute workshifts based on persons average time, minworkhours and available workdays
-                float averageWorktime = 0.0f;
-                Dictionary<string, float> shiftTypesWorktimes = getWorktimesForShiftTypesInWorkdays(availableWorkdays);
-                Dictionary<string, int> shiftTypesCount = getShiftCountByShiftTypesInWorkdays(shiftTypesWorktimes.Keys.ToArray(), availableWorkdays);
-                foreach (KeyValuePair<string, float> shiftTypeWorktime in shiftTypesWorktimes)
-                {
-                    if(Util.stringArrayContains(person.shiftTypes, shiftTypeWorktime.Key))
-                    {
-                        averageWorktime += (shiftTypeWorktime.Value / shiftTypesCount[shiftTypeWorktime.Key]) / person.shiftTypes.Length;
-                    }
-                }
-
-                float distributionDistance = availableWorkdays.Count / (person.minWorkHours / averageWorktime);
-                //distribution distance is a little to high so here its brought down a bit
-                distributionDistance -= 1 - (5 / person.minWorkHours);
-                float currentDistributionDistance = 0;
-                //loop weeks
-                List<List<Workday>> weeksPerson = getWeeksInWorkdays(availableWorkdays);
-                for(int weekCounter = 0; weekCounter < weeksPerson.Count; weekCounter++)
-                {
-                    //workdays sorted by day
-                    List<Workday> week = getSortedWorkdays(weeksPerson[weekCounter]);
-                    //loop week
-                    foreach (Workday workday in week)
-                    {
-                        List<Workshift> emptyWorkshifts = getEmptyWorkshiftsByShiftTypesFromWorkday(person.shiftTypes, workday, shiftplan);
-                        if (emptyWorkshifts.Count != 0 && currentDistributionDistance <= 0.0f)
-                        {
-                            //distribution distance reached. set person to workshift
-                            foreach (Workshift workshift in emptyWorkshifts)
-                            {
-                                if (!isPersonWorkingAtDay(person, workday, shiftplan)
-                                && isPersonAvailableInWorkshift(person, workshift))
-                                {
-                                    shiftplan.Add(workshift, person);
-                                    workTimeMonth[person] += getWorktimeInWorkshift(workshift);
-                                    currentDistributionDistance += distributionDistance;
-                                    break;
-                                }
-                            }
-                        }
-                        else
-                        {
-                            currentDistributionDistance--;
-                        }
-                    }
-                }
-            }
-
-            
-            //now try to set the other workshifts and not let persons work two days in a row.
-            //loop throu weeks, workdays, workshifts
-            List<List<Workday>> weeks = getWeeksInWorkdays(workdays);
-            for (int weekCounter = 0; weekCounter < weeks.Count; weekCounter++)
-            {
-                //workdays sort by day
-                List<Workday> week = getSortedWorkdays(weeks[weekCounter]);
-                foreach(Workday workday in week)
-                {
-                    foreach(Workshift workshift in workday.shifts)
-                    {
-                        if (!shiftplan.ContainsKey(workshift))
-                        {
-                            float worktime = getWorktimeInWorkshift(workshift);
-
-                            //look for persons who can work this workshifts
-                            //take person, which isnt working that day and has the least worktime
-                            Person currentPerson = null;
-                            float currentMinWorktime = float.MaxValue;
-                            foreach (Person person in getAvailablePersonsInWorkshift(workshift, persons))
-                            {
-                                if (!isPersonWorkingAtDayBeforeOrAfter(person, workday, week, shiftplan)
-                                    && !isPersonWorkingAtDay(person, workday, shiftplan)
-                                && workTimeMonth[person] < currentMinWorktime
-                                    && workTimeMonth[person] + worktime <= person.maxWorkHours)
-                                {
-                                    currentPerson = person;
-                                    currentMinWorktime = workTimeMonth[person];
-                                }
-                            }
-                            if (currentPerson != null)
-                            {
-                                shiftplan.Add(workshift, currentPerson);
-                                workTimeMonth[currentPerson] += worktime;
-                            }
-                        }
-                    }
-                }
-            }
-
-            //lastly set workshifts based on the person with the most days not working in the workdays
-            foreach(Workday workday in workdays)
-            {
-                foreach(Workshift workshift in workday.shifts)
-                {
-                    if (!shiftplan.ContainsKey(workshift))
-                    {
-                        float worktime = getWorktimeInWorkshift(workshift);
-
-                        Person currentPerson = null;
-                        int currentDaysNotWorking = 0;
-                        foreach (Person person in getAvailablePersonsInWorkshift(workshift, persons))
-                        {
-                            int daysNotWorking = getDaysNotWorkingForPersonInWorkdaysCount(person, workdays, shiftplan);
-                            if (!isPersonWorkingAtDay(person, workday, shiftplan)
-                                && daysNotWorking > currentDaysNotWorking
-                                && workTimeMonth[person] + worktime <= person.maxWorkHours)
-                            {
-                                currentPerson = person;
-                                currentDaysNotWorking = daysNotWorking;
-                            }
-                        }
-                        if (currentPerson != null)
-                        {
-                            shiftplan.Add(workshift, currentPerson);
-                            workTimeMonth[currentPerson] += worktime;
-                        }
-                    }
-                }
-            }
-            
-            return shiftplan;
-        }
-
         #endregion
 
         #region string, float dicts
@@ -1346,6 +1104,23 @@ namespace Schichtplan
             }
 
             return counter;
+        }
+
+        /// <summary>
+        /// calculates the sum of the amount in a list of costs
+        /// </summary>
+        /// <param name="costs">list of costs</param>
+        /// <returns>the sum of the amount in a list of costs</returns>
+        public float getCostsAmountSum(List<Cost> costs)
+        {
+            float sum = 0;
+
+            foreach (Cost cost in costs)
+            {
+                sum += cost.amount;
+            }
+
+            return sum;
         }
 
         #endregion

@@ -14,44 +14,33 @@ namespace Schichtplan.controller
         }
 
         /// <summary>
-        /// saves the data given as parameter into the fixCosts of the currentMonth
+        /// saves the data given as parameter into the given costs
         /// </summary>
         /// <param name="data">data to be saved</param>
-        public void setFixCostsFromStringArray(string[,] data)
+        /// <param name="costs">list of costs to set</param>
+        public void setCostsFromStringArray(string[,] data, List<Cost> costs)
         {
-            modelControl.currentWorkmonth.fixCosts.Clear();
+            costs.Clear();
 
             for (int r = 0; r < data.GetLength(0); r++)
             {
                 int day = Util.parseInt(data[r, 0], "Bitte nur Zahlen in das Bezahl Tag Textfeld eintragen. \n Am besten den Tag an dem der Betrag gezahlt wird als Zahl.");
-                if (day == -1)
+                float amount = Util.parseFloat(data[r, 3], "Bitte nur Zahlen in das Betrag Textfeld eintragen.");
+                if (day == -1 || amount == -1)
                 {
                     return;
                 }
-                float amount = Util.parseFloat(data[r, 3], "Bitte nur Zahlen in das Betrag Textfeld eintragen.");
-                modelControl.currentWorkmonth.fixCosts.Add(new Cost(day, data[r, 1], data[r, 2], amount));
+                costs.Add(new Cost(day, data[r, 1], data[r, 2], amount));
             }
         }
 
         /// <summary>
-        /// saves the data given as parameter into the variableCosts of the currentMonth
+        /// loads the fixcosts for the currentMonth from a differnt month
         /// </summary>
-        /// <param name="data">data to be saved</param>
-        public void setVariableCostsFromStringArray(string[,] data)
+        /// <param name="workmonth">the workmonth to load from</param>
+        public void loadFixCostsFromDifferentMonth(Workmonth workmonth)
         {
-            modelControl.currentWorkmonth.variableCosts.Clear();
-
-            for (int r = 0; r < data.GetLength(0); r++)
-            {
-                int day = Util.parseInt(data[r, 0], "Bitte nur Zahlen in das Bezahl Tag Textfeld eintragen. \n Am besten den Tag an dem der Betrag gezahlt wird als Zahl.");
-                if (day == -1)
-                {
-                    return;
-                }
-                float amount = Util.parseFloat(data[r, 3], "Bitte nur Zahlen in das Betrag Textfeld eintragen.");
-                modelControl.currentWorkmonth.variableCosts.Add(new Cost(day, data[r, 1], data[r, 2], amount));
-            }
+            modelControl.currentWorkmonth.fixCosts = workmonth.fixCosts;
         }
-
     }
 }
