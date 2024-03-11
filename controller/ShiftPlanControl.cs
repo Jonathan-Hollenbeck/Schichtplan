@@ -17,6 +17,8 @@ namespace Schichtplan.controller
         {
         }
 
+        #region my functions
+
         /// <summary>
         /// creates the shiftplan
         /// </summary>
@@ -155,6 +157,9 @@ namespace Schichtplan.controller
             }
         }
 
+        #endregion
+
+        #region create shiftPlan
 
         /// <summary>
         /// creates the shiftplan by iteratively for every workshift first trying fulfill the minWorkHour of every person
@@ -165,76 +170,11 @@ namespace Schichtplan.controller
         {
             Dictionary<Workshift, Person> shiftplan = new Dictionary<Workshift, Person>();
 
-            Dictionary<Person, float> workTimeMonth = new Dictionary<Person, float>();
-            //fill dict with 0
-            foreach (Person person in persons)
-            {
-                workTimeMonth.Add(person, modelControl.getPersonCarryOver(person, carryOver));
-            }
+            shiftplan = setWorkshiftsToOnlyAvailablePerson(shiftplan, workdays, persons, carryOver);
 
-            //fill dict with available persons
-            Dictionary<Workshift, List<Person>> availablePersons = new Dictionary<Workshift, List<Person>>();
-            foreach (Workday workday in workdays)
-            {
-                foreach (Workshift workshift in workday.shifts)
-                {
-                    //check what kind of shift it is and fill List with corresponding persons
-                    availablePersons.Add(workshift, modelControl.getAvailablePersonsInWorkshift(workshift, persons));
-                }
-            }
+            shiftplan = setWorkshiftsToPersonWithMostDistanceToMinWorktime(shiftplan, workdays, persons, carryOver);
 
-            //set Person per shift in shiftplan
-            for (int wd = 0; wd < workdays.Count; wd++)
-            {
-                Workday workday = workdays[wd];
-                foreach (Workshift workshift in workday.shifts)
-                {
-                    float shiftWorkTime = modelControl.getWorktimeInWorkshift(workshift);
-                    //take the available person, who has the most distance to its minWorkhours.
-                    bool noPersonFound = true;
-                    Person currentPerson = null;
-                    float currentDistance = 0.0f;
-                    foreach (Person person in availablePersons[workshift])
-                    {
-                        float distance = person.minWorkHours - workTimeMonth[person];
-                        if (distance > currentDistance && !modelControl.isPersonWorkingAtDayBeforeOrAfter(person, workday, workdays, shiftplan))
-                        {
-                            noPersonFound = false;
-                            currentPerson = person;
-                            currentDistance = distance;
-                        }
-                    }
-                    //all minWorkhours were satisfied. Now look for persons, who can work this shift without getting over their maxWorkhours
-                    if (noPersonFound == true)
-                    {
-                        currentDistance = float.MaxValue;
-                        foreach (Person person in availablePersons[workshift])
-                        {
-                            if (workTimeMonth[person] < currentDistance
-                                && person.maxWorkHours >= (workTimeMonth[person] + shiftWorkTime)
-                                && !modelControl.isPersonWorkingAtDayBeforeOrAfter(person, workday, workdays, shiftplan))
-                            {
-                                noPersonFound = false;
-                                currentPerson = person;
-                                currentDistance = workTimeMonth[person];
-                            }
-                        }
-                    }
-                    if (noPersonFound == false)
-                    {
-                        //add the worktime to its counter
-                        workTimeMonth[currentPerson] += shiftWorkTime;
-                        //remove the person from all shifts of the day
-                        foreach (Workshift shift in workday.shifts)
-                        {
-                            availablePersons[shift].Remove(currentPerson);
-                        }
-
-                        //set current Person as the one to get this shift
-                        shiftplan.Add(workshift, currentPerson);
-                    }
-                }
-            }
+            shiftplan = setWorkshiftsToPersonWithMostDistanceToMaxWorktime(shiftplan, workdays, persons, carryOver);
 
             return shiftplan;
         }
@@ -246,30 +186,62 @@ namespace Schichtplan.controller
         {
             Dictionary<Workshift, Person> shiftplan = new Dictionary<Workshift, Person>();
 
-            Dictionary<Person, float> workTimeMonth = new Dictionary<Person, float>();
-            //fill dict with 0
-            foreach (Person person in persons)
-            {
-                workTimeMonth.Add(person, modelControl.getPersonCarryOver(person, carryOver));
-            }
+            shiftplan = setWorkshiftsToOnlyAvailablePerson(shiftplan, workdays, persons, carryOver);
+
+            shiftplan = setWorkshiftsEvenlyDistributed(shiftplan, workdays, persons, carryOver);
+
+            shiftplan = setWorkshiftsAndNotLetPersonsWorkTwoDaysInARow(shiftplan, workdays, persons, carryOver);
+            
+            shiftplan = setWorkshiftBasedOnPersonWithLeastDaysWorking(shiftplan, workdays, persons, carryOver);
+
+            return shiftplan;
+        }
+
+        /// <summary>
+        /// sets the person, who is the only one available for that workshift into that workshift
+        /// </summary>
+        /// <param name="currentShiftplan">the current shiftplan</param>
+        /// <param name="workdays">the workdays with the workshifts</param>
+        /// <param name="persons">the persons to set</param>
+        /// <param name="carryOver">the carryOver for the persons</param>
+        /// <returns>a shiftplan with all workshifts, where only one person can work set to that person</returns>
+        public Dictionary<Workshift, Person> setWorkshiftsToOnlyAvailablePerson(Dictionary<Workshift, Person> currentShiftplan, List<Workday> workdays, List<Person> persons, Dictionary<Person, float> carryOver)
+        {
+            Dictionary<Workshift, Person> shiftplan = currentShiftplan;
 
             //workshifts where only one person can work. set this person to work
             foreach (Workday workday in workdays)
             {
                 foreach (Workshift workshift in workday.shifts)
                 {
-                    foreach (Person person in persons)
+                    if (!shiftplan.ContainsKey(workshift))
                     {
-                        if (modelControl.isPersonOnlyOneAvailableForWorkshift(person, persons, workshift, workdays))
+                        foreach (Person person in persons)
                         {
-                            shiftplan.Add(workshift, person);
-                            workTimeMonth[person] += modelControl.getWorktimeInWorkshift(workshift);
+                            if (modelControl.isPersonOnlyOneAvailableForWorkshift(person, persons, workshift, workdays))
+                            {
+                                shiftplan.Add(workshift, person);
+                            }
                         }
                     }
                 }
             }
 
-            //first try to distribute the workshifts evenly
+            return shiftplan;
+        }
+        
+        /// <summary>
+        /// sets the workshifts and tries to evenly distribute the persons based on their minworktime
+        /// </summary>
+        /// <param name="currentShiftplan">the current shiftplan</param>
+        /// <param name="workdays">the workdays with the workshifts</param>
+        /// <param name="persons">the persons to set</param>
+        /// <param name="carryOver">the carryOver for the persons</param>
+        /// <returns>a shiftplan with all workshifts, where only one person can work set to that person</returns>
+        public Dictionary<Workshift, Person> setWorkshiftsEvenlyDistributed(Dictionary<Workshift, Person> currentShiftplan, List<Workday> workdays, List<Person> persons, Dictionary<Person, float> carryOver)
+        {
+            Dictionary<Workshift, Person> shiftplan = currentShiftplan;
+
             //loop persons
             foreach (Person person in persons)
             {
@@ -311,7 +283,6 @@ namespace Schichtplan.controller
                                 && modelControl.isPersonAvailableInWorkshift(person, workshift))
                                 {
                                     shiftplan.Add(workshift, person);
-                                    workTimeMonth[person] += modelControl.getWorktimeInWorkshift(workshift);
                                     currentDistributionDistance += distributionDistance;
                                     break;
                                 }
@@ -325,8 +296,21 @@ namespace Schichtplan.controller
                 }
             }
 
+            return shiftplan;
+        }
 
-            //now try to set the other workshifts and not let persons work two days in a row.
+        /// <summary>
+        /// sets the workshifts and only sets the person, if it didnt work the day before or after
+        /// </summary>
+        /// <param name="currentShiftplan">the current shiftplan</param>
+        /// <param name="workdays">the workdays with the workshifts</param>
+        /// <param name="persons">the persons to set</param>
+        /// <param name="carryOver">the carryOver for the persons</param>
+        /// <returns>a shiftplan with all workshifts, where only one person can work set to that person</returns>
+        public Dictionary<Workshift, Person> setWorkshiftsAndNotLetPersonsWorkTwoDaysInARow(Dictionary<Workshift, Person> currentShiftplan, List<Workday> workdays, List<Person> persons, Dictionary<Person, float> carryOver)
+        {
+            Dictionary<Workshift, Person> shiftplan = currentShiftplan;
+
             //loop throu weeks, workdays, workshifts
             List<List<Workday>> weeks = modelControl.getWeeksInWorkdays(workdays);
             for (int weekCounter = 0; weekCounter < weeks.Count; weekCounter++)
@@ -347,26 +331,43 @@ namespace Schichtplan.controller
                             float currentMinWorktime = float.MaxValue;
                             foreach (Person person in modelControl.getAvailablePersonsInWorkshift(workshift, persons))
                             {
+                                //calculate effictive worktime
+                                float effictiveWorktimeInMonth = modelControl.getWorktimeForPersonInWorkdays(person, workdays, shiftplan);
+                                effictiveWorktimeInMonth += modelControl.getPersonCarryOver(person, carryOver);
+
                                 if (!modelControl.isPersonWorkingAtDayBeforeOrAfter(person, workday, week, shiftplan)
                                     && !modelControl.isPersonWorkingAtDay(person, workday, shiftplan)
-                                && workTimeMonth[person] < currentMinWorktime
-                                    && workTimeMonth[person] + worktime <= person.maxWorkHours)
+                                && effictiveWorktimeInMonth < currentMinWorktime
+                                    && effictiveWorktimeInMonth + worktime <= person.maxWorkHours)
                                 {
                                     currentPerson = person;
-                                    currentMinWorktime = workTimeMonth[person];
+                                    currentMinWorktime = effictiveWorktimeInMonth;
                                 }
                             }
                             if (currentPerson != null)
                             {
                                 shiftplan.Add(workshift, currentPerson);
-                                workTimeMonth[currentPerson] += worktime;
                             }
                         }
                     }
                 }
             }
 
-            //lastly set workshifts based on the person with the most days not working in the workdays
+            return shiftplan;
+        }
+
+        /// <summary>
+        /// sets the workshifts to the person with the least days working
+        /// </summary>
+        /// <param name="currentShiftplan">the current shiftplan</param>
+        /// <param name="workdays">the workdays with the workshifts</param>
+        /// <param name="persons">the persons to set</param>
+        /// <param name="carryOver">the carryOver for the persons</param>
+        /// <returns>a shiftplan with all workshifts, where only one person can work set to that person</returns>
+        public Dictionary<Workshift, Person> setWorkshiftBasedOnPersonWithLeastDaysWorking(Dictionary<Workshift, Person> currentShiftplan, List<Workday> workdays, List<Person> persons, Dictionary<Person, float> carryOver)
+        {
+            Dictionary<Workshift, Person> shiftplan = currentShiftplan;
+
             foreach (Workday workday in workdays)
             {
                 foreach (Workshift workshift in workday.shifts)
@@ -376,13 +377,17 @@ namespace Schichtplan.controller
                         float worktime = modelControl.getWorktimeInWorkshift(workshift);
 
                         Person currentPerson = null;
-                        int currentDaysNotWorking = 0;
+                        int currentDaysNotWorking = int.MinValue;
                         foreach (Person person in modelControl.getAvailablePersonsInWorkshift(workshift, persons))
                         {
+                            //calculate effictive worktime
+                            float effictiveWorktimeInMonth = modelControl.getWorktimeForPersonInWorkdays(person, workdays, shiftplan);
+                            effictiveWorktimeInMonth += modelControl.getPersonCarryOver(person, carryOver);
+
                             int daysNotWorking = modelControl.getDaysNotWorkingForPersonInWorkdaysCount(person, workdays, shiftplan);
                             if (!modelControl.isPersonWorkingAtDay(person, workday, shiftplan)
                                 && daysNotWorking > currentDaysNotWorking
-                                && workTimeMonth[person] + worktime <= person.maxWorkHours)
+                                && effictiveWorktimeInMonth + worktime <= person.maxWorkHours)
                             {
                                 currentPerson = person;
                                 currentDaysNotWorking = daysNotWorking;
@@ -391,7 +396,6 @@ namespace Schichtplan.controller
                         if (currentPerson != null)
                         {
                             shiftplan.Add(workshift, currentPerson);
-                            workTimeMonth[currentPerson] += worktime;
                         }
                     }
                 }
@@ -400,5 +404,152 @@ namespace Schichtplan.controller
             return shiftplan;
         }
 
+        /// <summary>
+        /// sets the workshifts to the person with the least worktime
+        /// </summary>
+        /// <param name="currentShiftplan">the current shiftplan</param>
+        /// <param name="workdays">the workdays with the workshifts</param>
+        /// <param name="persons">the persons to set</param>
+        /// <param name="carryOver">the carryOver for the persons</param>
+        /// <returns>a shiftplan with all workshifts, where only one person can work set to that person</returns>
+        public Dictionary<Workshift, Person> setWorkshiftsBasedOnPersonWithLeastWorktime(Dictionary<Workshift, Person> currentShiftplan, List<Workday> workdays, List<Person> persons, Dictionary<Person, float> carryOver)
+        {
+            Dictionary<Workshift, Person> shiftplan = currentShiftplan;
+
+            foreach (Workday workday in workdays)
+            {
+                foreach (Workshift workshift in workday.shifts)
+                {
+                    if (!shiftplan.ContainsKey(workshift))
+                    {
+                        float worktime = modelControl.getWorktimeInWorkshift(workshift);
+
+                        Person currentPerson = null;
+                        float currentLeastWorktime = float.MaxValue;
+                        foreach (Person person in modelControl.getAvailablePersonsInWorkshift(workshift, persons))
+                        {
+                            //calculate effictive worktime
+                            float effictiveWorktimeInMonth = modelControl.getWorktimeForPersonInWorkdays(person, workdays, shiftplan);
+                            effictiveWorktimeInMonth += modelControl.getPersonCarryOver(person, carryOver);
+
+                            if (!modelControl.isPersonWorkingAtDay(person, workday, shiftplan)
+                                && effictiveWorktimeInMonth < currentLeastWorktime
+                                && effictiveWorktimeInMonth + worktime <= person.maxWorkHours)
+                            {
+                                currentPerson = person;
+                                currentLeastWorktime = effictiveWorktimeInMonth;
+                            }
+                        }
+                        if (currentPerson != null)
+                        {
+                            shiftplan.Add(workshift, currentPerson);
+                        }
+                    }
+                }
+            }
+
+            return shiftplan;
+        }
+
+        /// <summary>
+        /// sets the workshifts to the person with most distance to the minworktime 
+        /// and only sets persons if they have not reached their minworktime
+        /// </summary>
+        /// <param name="currentShiftplan">the current shiftplan</param>
+        /// <param name="workdays">the workdays with the workshifts</param>
+        /// <param name="persons">the persons to set</param>
+        /// <param name="carryOver">the carryOver for the persons</param>
+        /// <returns>a shiftplan with all workshifts, where only one person can work set to that person</returns>
+        public Dictionary<Workshift, Person> setWorkshiftsToPersonWithMostDistanceToMinWorktime(Dictionary<Workshift, Person> currentShiftplan, List<Workday> workdays, List<Person> persons, Dictionary<Person, float> carryOver)
+        {
+            Dictionary<Workshift, Person> shiftplan = currentShiftplan;
+
+            foreach (Workday workday in workdays)
+            {
+                foreach (Workshift workshift in workday.shifts)
+                {
+                    if (!shiftplan.ContainsKey(workshift))
+                    {
+                        float worktime = modelControl.getWorktimeInWorkshift(workshift);
+
+                        Person currentPerson = null;
+                        float currentDistToMinWorktime = float.MinValue;
+                        foreach (Person person in modelControl.getAvailablePersonsInWorkshift(workshift, persons))
+                        {
+                            //calculate effictive worktime
+                            float effictiveWorktimeInMonth = modelControl.getWorktimeForPersonInWorkdays(person, workdays, shiftplan);
+                            effictiveWorktimeInMonth += modelControl.getPersonCarryOver(person, carryOver);
+
+                            float distanceToMinWorktime = person.minWorkHours - effictiveWorktimeInMonth;
+
+                            if (!modelControl.isPersonWorkingAtDay(person, workday, shiftplan)
+                                && distanceToMinWorktime > currentDistToMinWorktime
+                                && distanceToMinWorktime > 0
+                                && effictiveWorktimeInMonth + worktime <= person.maxWorkHours)
+                            {
+                                currentPerson = person;
+                                currentDistToMinWorktime = distanceToMinWorktime;
+                            }
+                        }
+                        if (currentPerson != null)
+                        {
+                            shiftplan.Add(workshift, currentPerson);
+                        }
+                    }
+                }
+            }
+
+            return shiftplan;
+        }
+
+        /// <summary>
+        /// sets the workshifts to the person with most distance to the maxworktime
+        /// </summary>
+        /// <param name="currentShiftplan">the current shiftplan</param>
+        /// <param name="workdays">the workdays with the workshifts</param>
+        /// <param name="persons">the persons to set</param>
+        /// <param name="carryOver">the carryOver for the persons</param>
+        /// <returns>a shiftplan with all workshifts, where only one person can work set to that person</returns>
+        public Dictionary<Workshift, Person> setWorkshiftsToPersonWithMostDistanceToMaxWorktime(Dictionary<Workshift, Person> currentShiftplan, List<Workday> workdays, List<Person> persons, Dictionary<Person, float> carryOver)
+        {
+            Dictionary<Workshift, Person> shiftplan = currentShiftplan;
+
+            foreach (Workday workday in workdays)
+            {
+                foreach (Workshift workshift in workday.shifts)
+                {
+                    if (!shiftplan.ContainsKey(workshift))
+                    {
+                        float worktime = modelControl.getWorktimeInWorkshift(workshift);
+
+                        Person currentPerson = null;
+                        float currentDistToMaxWorktime = float.MinValue;
+                        foreach (Person person in modelControl.getAvailablePersonsInWorkshift(workshift, persons))
+                        {
+                            //calculate effictive worktime
+                            float effictiveWorktimeInMonth = modelControl.getWorktimeForPersonInWorkdays(person, workdays, shiftplan);
+                            effictiveWorktimeInMonth += modelControl.getPersonCarryOver(person, carryOver);
+
+                            float distanceToMaxWorktime = person.maxWorkHours - effictiveWorktimeInMonth;
+
+                            if (!modelControl.isPersonWorkingAtDay(person, workday, shiftplan)
+                                && distanceToMaxWorktime > currentDistToMaxWorktime
+                                && effictiveWorktimeInMonth + worktime <= person.maxWorkHours)
+                            {
+                                currentPerson = person;
+                                currentDistToMaxWorktime = distanceToMaxWorktime;
+                            }
+                        }
+                        if (currentPerson != null)
+                        {
+                            shiftplan.Add(workshift, currentPerson);
+                        }
+                    }
+                }
+            }
+
+            return shiftplan;
+        }
+        #endregion
     }
 }

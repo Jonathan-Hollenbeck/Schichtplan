@@ -4,9 +4,6 @@
 
 # Shiftplan Tab
 
-	- shiftplan erstellen modularisieren
-	- drag and drop tausch reparieren
-
 # Info Tab
 
 # Kosten Tab

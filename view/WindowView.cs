@@ -1,4 +1,5 @@
 ﻿using Schichtplan.controller;
+using Schichtplan.model;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
@@ -49,10 +50,23 @@ namespace Schichtplan
         private MenuControl menuControl;
 
         /// <summary>
+        /// current Controls, the mouse hovers
+        /// </summary>
+        private List<ControlColorSave> currentHoverControls;
+
+        /// <summary>
+        /// current Controls, the mouse hovers
+        /// </summary>
+        private List<ControlColorSave> currentClickedControls;
+
+        /// <summary>
         /// sets a few colors to use
         /// </summary>
         public static Color
             hoverColor = Color.Blue,
+            hoverFontColor = Color.White,
+            clickColor = Color.Red,
+            clickFontColor = Color.White,
             transparent = Color.Transparent,
             dayColor = Color.LightGray,
             dayFontColor = Color.Black,
@@ -91,6 +105,9 @@ namespace Schichtplan
             costsControl = new CostsControl(modelControl);
             menuControl = new MenuControl(modelControl);
 
+            currentHoverControls = new List<ControlColorSave>();
+            currentClickedControls = new List<ControlColorSave>();
+
             //create Folders for save files
             Serializer.Instance().createDir(Serializer.Instance().BASE_DICT + "" + Serializer.SAVE_FOLDER);
             Serializer.Instance().createDir(Serializer.Instance().BASE_DICT + "" + Serializer.CSV_FOLDER);
@@ -126,10 +143,7 @@ namespace Schichtplan
                 {
                     Control control = weekTemplateTable.GetControlFromPosition(col, row);
                     control.MouseEnter += new EventHandler(this.weekTemplateTabelLabel_MouseEnter);
-                    control.MouseLeave += new EventHandler(this.weekTemplateTabelLabel_MouseLeave);
                     control.Click += new EventHandler(this.weekTemplateTableLabel_Click);
-
-                    weekTemplateControlColors.Add(control, getColorForWeekDay(modelControl.currentWorkmonth.weekTemplate[row].weekday));
                 }
             }
 
@@ -164,6 +178,24 @@ namespace Schichtplan
         }
 
         /// <summary>
+        /// checks if a control is in a list of controlColorSaves
+        /// </summary>
+        /// <param name="controls">list of controlcolorsaves</param>
+        /// <param name="control">control</param>
+        /// <returns>if a control is in a list of controlColorSaves</returns>
+        private bool isControlInControlColorSaves(List<ControlColorSave> controls, Control control)
+        {
+            foreach (ControlColorSave controlColorSave in controls)
+            {
+                if(controlColorSave.control == control)
+                {
+                    return true;
+                }
+            }
+            return false;
+        }
+
+        /// <summary>
         /// gets a given color as a html rgb color string
         /// </summary>
         /// <param name="color">color to transform into html color string</param>
@@ -174,40 +206,90 @@ namespace Schichtplan
         }
 
         /// <summary>
-        /// resets the control color in a given table with the color stored in a dict <Control, Color> in a specific row
+        /// sets the colors for the controls in the given list if they are not currently clicked
+        /// and saves their original colors into the currentHoverControls
         /// </summary>
-        /// <param name="table">table to search for the controls</param>
-        /// <param name="controlColor">Control Color dict to get the color</param>
-        /// <param name="row">row with the controls</param>
-        private void resetTableControlColor(TableLayoutPanel table, Dictionary<Control, Color> controlColor, int row)
+        /// <param name="controls">list of controls to set as hovered</param>
+        private void setHoveredControlsColors(List<Control> controls, Color backColor, Color foreColor)
         {
-            for (int i = 0; i < table.ColumnCount; i++)
+            if (controls != null)
             {
-                Control control = table.GetControlFromPosition(i, row);
-                if (control != null && controlColor.ContainsKey(control))
+                resetControlsColors(currentHoverControls);
+                currentHoverControls.Clear();
+                foreach (Control control in controls)
                 {
-                    Color color = controlColor[control];
-                    control.BackColor = color;
+                    if (!isControlInControlColorSaves(currentClickedControls, control))
+                    {
+                        currentHoverControls.Add(new ControlColorSave(control, control.BackColor, control.ForeColor));
+                        control.BackColor = backColor;
+                        control.ForeColor = foreColor;
+                    }
                 }
             }
         }
 
         /// <summary>
-        /// resets the control color in a given table with the color stored in a dict <Control, Color> in a specific row
+        /// sets the colors for the controls in the given list if they are not currently clicked
+        /// and saves their original colors into the currentHoverControls
         /// </summary>
-        /// <param name="table">table to search for the controls</param>
-        /// <param name="controlColor">Control Color dict to get the color</param>
-        /// <param name="row">row with the controls</param>
-        private void setTableControlColor(TableLayoutPanel table, int row, Color color)
+        /// <param name="controls">list of controls to set as hovered</param>
+        private void setClickedControlsColors(List<Control> controls, Color backColor, Color foreColor)
         {
-            for (int i = 0; i < table.ColumnCount; i++)
+            if (controls != null)
             {
-                Control control = table.GetControlFromPosition(i, row);
-                if (control != null)
+                resetControlsColors(currentHoverControls);
+                currentHoverControls.Clear();
+                resetControlsColors(currentClickedControls);
+                currentClickedControls.Clear();
+                foreach (Control control in controls)
                 {
-                    control.BackColor = color;
+                    currentClickedControls.Add(new ControlColorSave(control, control.BackColor, control.ForeColor));
+                    control.BackColor = backColor;
+                    control.ForeColor = foreColor;
                 }
             }
+        }
+
+        /// <summary>
+        /// resets the control colors in a list of controlColorSaves
+        /// </summary>
+        /// <param name="controlColorSaves">list of controlColorSaves to reset</param>
+        private void resetControlsColors(List<ControlColorSave> controlColorSaves)
+        {
+            foreach (ControlColorSave controlColorSave in controlColorSaves)
+            {
+                resetControlColors(controlColorSave);
+            }
+        }
+
+        /// <summary>
+        /// resets the control colors for a given controlColorSave
+        /// </summary>
+        /// <param name="controlColorSave">controlColorSave to reset</param>
+        private void resetControlColors(ControlColorSave controlColorSave)
+        {
+            controlColorSave.control.BackColor = controlColorSave.originalBackColor;
+            controlColorSave.control.ForeColor = controlColorSave.originalForeColor;
+        }
+
+        /// <summary>
+        /// gets all Controls in a row of a table and returns them as a list
+        /// </summary>
+        /// <param name="table">table who has the controls</param>
+        /// <param name="row">row in which to look</param>
+        /// <returns>list of controls in the given row in the given table or null, if row is out of bounds</returns>
+        private List<Control> getControlsInTableRow(TableLayoutPanel table, int row)
+        {
+            if(row < table.RowCount)
+            {
+                List<Control> controls = new List<Control>();
+                for(int column = 0; column < table.ColumnCount; column++)
+                {
+                    controls.Add(table.GetControlFromPosition(column, row));
+                }
+                return controls;
+            }
+            return null;
         }
 
         /// <summary>
@@ -248,7 +330,7 @@ namespace Schichtplan
         /// <param name="backColor">label backgtround color</param>
         /// <param name="Text">label text</param>
         /// <returns></returns>
-        private Label createTableLabel(Dictionary<Control, Color> controlColor, int width, int height, string Text, Color backColor)
+        private Label createTableLabel(int width, int height, string Text, Color backColor)
         {
             Label label = new Label();
             label.Text = Text;
@@ -256,10 +338,6 @@ namespace Schichtplan
             label.Size = new Size(width, height);
             label.TextAlign = ContentAlignment.MiddleCenter;
             label.BackColor = backColor;
-            if(controlColor != null)
-            {
-                controlColor.Add(label, backColor);
-            }
             return label;
         }
 

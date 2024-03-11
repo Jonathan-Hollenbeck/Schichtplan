@@ -218,6 +218,7 @@ namespace Schichtplan
             this.kalenderDateienExportierenToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.exportAsCSVToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.hTMLDateienExportierenToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.googleTabelleExportierenToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.personenSortierenToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.namenToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.gehaltProStundeToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
@@ -2097,7 +2098,8 @@ namespace Schichtplan
             this.openToolStripMenuItem,
             this.kalenderDateienExportierenToolStripMenuItem,
             this.exportAsCSVToolStripMenuItem,
-            this.hTMLDateienExportierenToolStripMenuItem});
+            this.hTMLDateienExportierenToolStripMenuItem,
+            this.googleTabelleExportierenToolStripMenuItem});
             this.dateiToolStripMenuItem.Name = "dateiToolStripMenuItem";
             this.dateiToolStripMenuItem.Size = new System.Drawing.Size(46, 20);
             this.dateiToolStripMenuItem.Text = "Datei";
@@ -2137,6 +2139,13 @@ namespace Schichtplan
             this.hTMLDateienExportierenToolStripMenuItem.Size = new System.Drawing.Size(226, 22);
             this.hTMLDateienExportierenToolStripMenuItem.Text = "HTML Dateien exportieren";
             this.hTMLDateienExportierenToolStripMenuItem.Click += new System.EventHandler(this.hTMLDateienExportierenToolStripMenuItem_Click);
+            // 
+            // googleTabelleExportierenToolStripMenuItem
+            // 
+            this.googleTabelleExportierenToolStripMenuItem.Name = "googleTabelleExportierenToolStripMenuItem";
+            this.googleTabelleExportierenToolStripMenuItem.Size = new System.Drawing.Size(226, 22);
+            this.googleTabelleExportierenToolStripMenuItem.Text = "Google Tabelle exportieren";
+            this.googleTabelleExportierenToolStripMenuItem.Click += new System.EventHandler(this.googleTabelleExportierenToolStripMenuItem_Click);
             // 
             // personenSortierenToolStripMenuItem
             // 
@@ -2450,6 +2459,7 @@ namespace Schichtplan
         private System.Windows.Forms.Button fixCostsLoadFromOtherMonthButton;
         private System.Windows.Forms.Button shiftPlanPersonsWithOutOfBoudsWorkhoursButton;
         private System.Windows.Forms.Label shiftPlanPersonsWithOutOfBoudsWorkhoursLabel;
+        private System.Windows.Forms.ToolStripMenuItem googleTabelleExportierenToolStripMenuItem;
     }
 }
 

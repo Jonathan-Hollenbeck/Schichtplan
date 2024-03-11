@@ -3,6 +3,10 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Google.Apis.Sheets.v4;
+using Google.Apis.Sheets.v4.Data;
+using System.IO;
+using Google.Apis.Services;
 
 namespace Schichtplan.controller
 {
@@ -395,6 +399,48 @@ namespace Schichtplan.controller
             fileContentShifts += "END:VCALENDAR";
 
             Serializer.Instance().writeToFile(Serializer.Instance().BASE_DICT + "" + Serializer.ICS_FOLDER + modelControl.getYearMonthString() + "/Schichten.ics", fileContentShifts);
+        }
+
+        /// <summary>
+        /// uploads the shiftplan to google table
+        /// </summary>
+        public void uploadToGoogleTable()
+        {
+            // Replace with the path to your credentials file
+            string credentialsFilePath = @"path/to/your/credentials.json";
+
+            // Create the Sheets service object
+            var sheetsService = new SheetsService(new BaseClientService.Initializer()
+            {
+                HttpClientInitializer = GoogleAuthenticationCredentials.FromFile(credentialsFilePath),
+                ApplicationName = "Your Application Name"
+            });
+
+            // Prepare your data in a ValueRange object
+            // This example creates a simple list of lists representing rows and columns
+            var values = new List<List<object>>()
+                {
+                    new List<object>() { "Column 1", "Column 2" },
+                    new List<object>() { "Data 1.1", "Data 1.2" },
+                    // ... add more rows as needed
+                };
+            var body = new ValueRange { Values = values };
+
+            // Specify the spreadsheet ID and the sheet name where you want to add data
+            string spreadsheetId = "YOUR_SPREADSHEET_ID"; // Replace with your actual spreadsheet ID
+            string sheetName = "Sheet1"; // Replace with the sheet name where you want to add data
+
+            // Choose how you want to append the data:
+            // - ValueInputOption.USER_ENTERED: Treat the values as text and numbers as you entered them.
+            // - ValueInputOption.RAW: Interpret values as raw numbers without any conversion.
+            var valueInputOption = ValueInputOption.USER_ENTERED;
+
+            // Append the data to the specified range (A1 in this case)
+            var appendRequest = sheetsService.Spreadsheets.Values().Append(body, spreadsheetId + "!A1:B");
+            appendRequest.ValueInputOption = valueInputOption;
+            var appendResponse = await appendRequest.ExecuteAsync();
+
+            Console.WriteLine("Data appended successfully.");
         }
 
     }

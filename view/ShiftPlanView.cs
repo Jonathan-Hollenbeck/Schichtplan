@@ -13,11 +13,6 @@ namespace Schichtplan
     public partial class window : Form
     {
         /// <summary>
-        /// save backgroundcolors for the Controls in the shiftPlanTable
-        /// </summary>
-        private Dictionary<Control, Color> shiftplanControlColors = new Dictionary<Control, Color>();
-
-        /// <summary>
         /// saves the row in the shiftPlanTable to a corresponding workshift
         /// </summary>
         private Dictionary<int, Workshift> shiftPlanRowToWorkshift = new Dictionary<int, Workshift>();
@@ -27,11 +22,6 @@ namespace Schichtplan
         /// </summary>
         int mouseDownRow = -1;
 
-        /// <summary>
-        /// save the currently clicked row
-        /// </summary>
-        int currentClickedRowShiftPlan = -1;
-
         #region my functions
 
         /// <summary>
@@ -39,8 +29,6 @@ namespace Schichtplan
         /// </summary>
         private void setShiftPlan()
         {
-            shiftplanControlColors.Clear();
-
             shiftPlanTable.Visible = false;
             shiftPlanTable.SuspendLayout();
             shiftPlanTable.Controls.Clear();
@@ -189,6 +177,8 @@ namespace Schichtplan
                 }
             }
 
+            shiftPlanTable.RowCount = row;
+
             shiftPlanTable.ResumeLayout();
             shiftPlanTable.Visible = true;
         }
@@ -202,9 +192,8 @@ namespace Schichtplan
         /// <returns>Label for the shiftPlanTable</returns>
         private Label createShiftPlanLabel(string Text, Color backColor)
         {
-            Label label = createTableLabel(shiftplanControlColors, shiftPlanTable.Width, tableLabelHeight, Text, backColor);
+            Label label = createTableLabel(shiftPlanTable.Width, tableLabelHeight, Text, backColor);
             label.MouseEnter += new EventHandler(shiftPlanLabel_MouseEnter);
-            label.MouseLeave += new EventHandler(shiftPlanLabel_MouseLeave);
             label.MouseDown += new MouseEventHandler(shiftPlanLabel_MouseDown);
             label.DragEnter += new DragEventHandler(shiftPlanLabel_DragEnter);
             label.DragDrop += new DragEventHandler(shiftPlanLabel_DragDrop);
@@ -476,22 +465,7 @@ namespace Schichtplan
             int row = shiftPlanTable.GetRow((Control)sender);
             if (shiftPlanRowToWorkshift.ContainsKey(row))
             {
-                setTableControlColor(shiftPlanTable, row, hoverColor);
-            }
-        }
-
-        /// <summary>
-        /// handels the mouseLeave Event for the shiftPlanTable labels
-        /// </summary>
-        /// <param name="sender">the label, where the mouse left</param>
-        /// <param name="e">event details</param>
-        private void shiftPlanLabel_MouseLeave(object sender, EventArgs e)
-        {
-            Control control = sender as Control;
-            int row = shiftPlanTable.GetRow(control);
-            if (row != currentClickedRowShiftPlan)
-            {
-                resetTableControlColor(shiftPlanTable, shiftplanControlColors, row);
+                setHoveredControlsColors(getControlsInTableRow(shiftPlanTable, row), hoverColor, hoverFontColor);
             }
         }
 
@@ -519,15 +493,13 @@ namespace Schichtplan
                     shiftPlanDayContent.Text = workday.weekday + ", " + workday.day + " " + modelControl.currentWorkmonth.monthName;
                 }
 
-                if (currentClickedRowShiftPlan != -1)
-                {
-                    resetTableControlColor(shiftPlanTable, shiftplanControlColors, currentClickedRowShiftPlan);
-                }
-                currentClickedRowShiftPlan = row;
+                setClickedControlsColors(getControlsInTableRow(shiftPlanTable, row), clickColor, clickFontColor);
             }
             else
             {
-                MessageBox.Show("Nur Arbeitsschichten können in die Bearbeitung geladen werden.");
+                setWorkshiftInShiftEdit(null);
+                resetControlsColors(currentClickedControls);
+                currentClickedControls.Clear();
             }
         }
 
@@ -561,11 +533,9 @@ namespace Schichtplan
         private void shiftPlanLabel_DragEnter(object sender, DragEventArgs e)
         {
             int row = shiftPlanTable.GetRow((Control)sender);
-            Console.WriteLine("dnd enter with row: " + row);
             // Check if the dragged data is of the expected type
             if (e.Data.GetDataPresent(typeof(int)) && row != mouseDownRow)
             {
-                Console.WriteLine("dnd enter with row: " + row + " starting dnd copy");
                 e.Effect = DragDropEffects.Copy;
             }
             else
@@ -591,15 +561,8 @@ namespace Schichtplan
                 if (e.Data.GetDataPresent(typeof(int)))
                 {
                     int draggedRow = (int)e.Data.GetData(typeof(int));
-                    Console.WriteLine("ended dnd with row: " + draggedRow);
                     if (shiftPlanRowToWorkshift.ContainsKey(draggedRow))
                     {
-                        Console.WriteLine("doing dnd with draggedrow " + draggedRow + " to " + row);
-                        if (currentClickedRowShiftPlan != -1)
-                        {
-                            resetTableControlColor(shiftPlanTable, shiftplanControlColors, currentClickedRowShiftPlan);
-                            currentClickedRowShiftPlan = -1;
-                        }
 
                         Workshift workshift1 = shiftPlanRowToWorkshift[row];
                         Workshift workshift2 = shiftPlanRowToWorkshift[draggedRow];
@@ -635,7 +598,6 @@ namespace Schichtplan
                     shiftPlanControl.editWorkshiftInWorkshiftEdit(modelControl.currentWorkmonth.persons[shiftPlanPersonComboBox.SelectedIndex], workshiftInfo);
 
                     resetShiftPlanView();
-                    setTableControlColor(shiftPlanTable, currentClickedRowShiftPlan, hoverColor);
                     setShiftEditPersonsComboBoxItems(shiftPlanControl.currentWorkshiftInShiftPlanEdit);
                 }
                 else
@@ -659,9 +621,6 @@ namespace Schichtplan
             }
             else
             {
-                resetTableControlColor(shiftPlanTable, shiftplanControlColors, currentClickedRowShiftPlan);
-                currentClickedRowShiftPlan = -1;
-
                 shiftPlanControl.deleteCurrentWorkshiftInShiftEdit();
                 shiftPlanPersonComboBox.Items.Clear();
                 shiftPlanPersonComboBox.Text = "";
@@ -691,9 +650,6 @@ namespace Schichtplan
             }
             else
             {
-                resetTableControlColor(shiftPlanTable, shiftplanControlColors, currentClickedRowShiftPlan);
-                currentClickedRowShiftPlan = -1;
-
                 string[] workshiftInfo = getWorkshiftInfoFromTextBoxes();
                 shiftPlanControl.addWorkshift(modelControl.currentWorkmonth.persons[shiftPlanPersonComboBox.SelectedIndex], workshiftInfo);
 

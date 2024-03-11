@@ -12,22 +12,6 @@ namespace Schichtplan
 {
     public partial class window : Form
     {
-        /// <summary>
-        /// save backgroundcolors for the Controls in the monthViewTable
-        /// </summary>
-        private Dictionary<Control, Color> monthViewControlColors = new Dictionary<Control, Color>();
-
-        /// <summary>
-        /// save backgroundcolors for the Controls in the monthViewTable
-        /// </summary>
-        private Dictionary<Control, Color> weekTemplateControlColors = new Dictionary<Control, Color>();
-
-        /// <summary>
-        /// save the currently clicked row
-        /// </summary>
-        private int currentClickedRowWeekTemplate = -1;
-        private int currentClickedRowMonthView = -1;
-
         #region my functions
 
         /// <summary>
@@ -68,8 +52,6 @@ namespace Schichtplan
         /// </summary>
         private void setMonthViewTable()
         {
-            monthViewControlColors.Clear();
-
             monthViewTable.Visible = false;
             monthViewTable.SuspendLayout();
             monthViewTable.Controls.Clear();
@@ -88,6 +70,8 @@ namespace Schichtplan
 
                 row++;
             }
+
+            monthViewTable.RowCount = row;
 
             monthViewTable.ResumeLayout();
             monthViewTable.Visible = true;
@@ -137,9 +121,8 @@ namespace Schichtplan
         /// <returns>Label for the monthViewTable</returns>
         private Label createMonthViewLabel(string Text, Color backColor)
         {
-            Label label = createTableLabel(monthViewControlColors, monthViewTable.Width, tableLabelHeight, Text, backColor);
+            Label label = createTableLabel(monthViewTable.Width, tableLabelHeight, Text, backColor);
             label.MouseEnter += new EventHandler(monthViewTableLabel_MouseEnter);
-            label.MouseLeave += new EventHandler(monthViewTableLabel_MouseLeave);
             label.Click += new EventHandler(monthViewTableLabel_Click);
             return label;
         }
@@ -156,22 +139,7 @@ namespace Schichtplan
         private void weekTemplateTabelLabel_MouseEnter(object sender, EventArgs e)
         {
             int row = weekTemplateTable.GetRow((Control)sender);
-            setTableControlColor(weekTemplateTable, row, hoverColor);
-        }
-
-        /// <summary>
-        /// handels the mouseLeave Event for the weekTemplate labels
-        /// </summary>
-        /// <param name="sender">the label, where the mouse left</param>
-        /// <param name="e">event details</param>
-        private void weekTemplateTabelLabel_MouseLeave(object sender, EventArgs e)
-        {
-            Control control = sender as Control;
-            int row = weekTemplateTable.GetRow(control);
-            if(row != currentClickedRowWeekTemplate)
-            {
-                resetTableControlColor(weekTemplateTable, weekTemplateControlColors, row);
-            }
+            setHoveredControlsColors(getControlsInTableRow(weekTemplateTable, row), hoverColor, hoverFontColor);
         }
 
         /// <summary>
@@ -182,22 +150,7 @@ namespace Schichtplan
         private void monthViewTableLabel_MouseEnter(object sender, EventArgs e)
         {
             int row = monthViewTable.GetRow((Control)sender);
-            setTableControlColor(monthViewTable, row, hoverColor);
-        }
-
-        /// <summary>
-        /// handels the mouseLeave Event for the monthView labels
-        /// </summary>
-        /// <param name="sender">the label, where the mouse left</param>
-        /// <param name="e">event details</param>
-        private void monthViewTableLabel_MouseLeave(object sender, EventArgs e)
-        {
-            Control control = sender as Control;
-            int row = monthViewTable.GetRow(control);
-            if(row != currentClickedRowMonthView)
-            {
-                resetTableControlColor(monthViewTable, monthViewControlColors, row);
-            }
+            setHoveredControlsColors(getControlsInTableRow(monthViewTable, row), hoverColor, hoverFontColor);
         }
 
         /// <summary>
@@ -219,17 +172,7 @@ namespace Schichtplan
             setShiftEdit();
 
             //reset the currently clicked rows in weektemplate and monthview
-            if (currentClickedRowWeekTemplate != -1)
-            {
-                resetTableControlColor(weekTemplateTable, weekTemplateControlColors, currentClickedRowWeekTemplate);
-            }
-            if(currentClickedRowMonthView != -1)
-            {
-                resetTableControlColor(monthViewTable, monthViewControlColors, currentClickedRowMonthView);
-                currentClickedRowMonthView = -1;
-            }
-            //set currently clicked row in weektemplate as the one mark
-            currentClickedRowWeekTemplate = row;
+            setClickedControlsColors(getControlsInTableRow(weekTemplateTable, row), clickColor, clickFontColor);
         }
 
         /// <summary>
@@ -253,17 +196,7 @@ namespace Schichtplan
             setShiftEdit();
 
             //reset the currently clicked rows in weektemplate and monthview
-            if (currentClickedRowWeekTemplate != -1)
-            {
-                resetTableControlColor(weekTemplateTable, weekTemplateControlColors, currentClickedRowWeekTemplate);
-                currentClickedRowWeekTemplate = -1;
-            }
-            if (currentClickedRowMonthView != -1)
-            {
-                resetTableControlColor(monthViewTable, monthViewControlColors, currentClickedRowMonthView);
-            }
-            //set the clicked row as the one to mark
-            currentClickedRowMonthView = row;
+            setClickedControlsColors(getControlsInTableRow(monthViewTable, row), clickColor, clickFontColor);
         }
 
         /// <summary>

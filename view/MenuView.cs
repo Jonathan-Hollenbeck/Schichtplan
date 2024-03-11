@@ -72,6 +72,11 @@ namespace Schichtplan
             menuControl.exportHTMLFiles();
         }
 
+        private void googleTabelleExportierenToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            menuControl.uploadToGoogleTable();
+        }
+
         #region persons sort menu items
 
         /// <summary>

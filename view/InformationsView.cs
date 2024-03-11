@@ -48,11 +48,11 @@ namespace Schichtplan
 
             int row = 0;
 
-            infoPersonTable.Controls.Add(createTableLabel(null, infoPersonTable.Width, tableLabelHeight, "Gehalt pro Stunde", dayColor), 1, row);
-            infoPersonTable.Controls.Add(createTableLabel(null, infoPersonTable.Width, tableLabelHeight, "Stunden gearbeitet", dayColor), 2, row);
-            infoPersonTable.Controls.Add(createTableLabel(null, infoPersonTable.Width, tableLabelHeight, "Monatsgehalt (davon vom letzten Monat)", dayColor), 3, row);
-            infoPersonTable.Controls.Add(createTableLabel(null, infoPersonTable.Width, tableLabelHeight, "Tage nicht im gearbeitet", dayColor), 4, row);
-            infoPersonTable.Controls.Add(createTableLabel(null, infoPersonTable.Width, tableLabelHeight, "Anzahl Schichten", dayColor), 5, row);
+            infoPersonTable.Controls.Add(createTableLabel(infoPersonTable.Width, tableLabelHeight, "Gehalt pro Stunde", dayColor), 1, row);
+            infoPersonTable.Controls.Add(createTableLabel(infoPersonTable.Width, tableLabelHeight, "Stunden gearbeitet", dayColor), 2, row);
+            infoPersonTable.Controls.Add(createTableLabel(infoPersonTable.Width, tableLabelHeight, "Monatsgehalt (davon vom letzten Monat)", dayColor), 3, row);
+            infoPersonTable.Controls.Add(createTableLabel(infoPersonTable.Width, tableLabelHeight, "Tage nicht im gearbeitet", dayColor), 4, row);
+            infoPersonTable.Controls.Add(createTableLabel(infoPersonTable.Width, tableLabelHeight, "Anzahl Schichten", dayColor), 5, row);
 
             row++;
 
@@ -64,7 +64,7 @@ namespace Schichtplan
                     backColor = modelControl.currentWorkmonth.settings.personColors[person];
                 }
 
-                infoPersonTable.Controls.Add(createTableLabel(null, infoPersonTable.Width, tableLabelHeight, person.name, dayColor), 0, row);
+                infoPersonTable.Controls.Add(createTableLabel(infoPersonTable.Width, tableLabelHeight, person.name, dayColor), 0, row);
 
                 //set infos
                 float worktimeInMonth = modelControl.getWorktimeForPersonInWorkdays(person, modelControl.currentWorkmonth.workdays, modelControl.currentWorkmonth.shiftplan);
@@ -78,10 +78,10 @@ namespace Schichtplan
                     workedHoursBackColor = Color.Red;
                 }
 
-                infoPersonTable.Controls.Add(createTableLabel(null, infoPersonTable.Width, tableLabelHeight, person.saleryPerHour + "€", backColor), 1, row);
-                infoPersonTable.Controls.Add(createTableLabel(null, infoPersonTable.Width, tableLabelHeight, worktimeInMonth + "h (+" + carryOver + "h) [" + person.minWorkHours + "h, " + person.maxWorkHours + "h]", workedHoursBackColor), 2, row);
-                infoPersonTable.Controls.Add(createTableLabel(null, infoPersonTable.Width, tableLabelHeight, effictiveWorktime * person.saleryPerHour + "€ (" + (carryOver * person.saleryPerHour + "€)"), backColor), 3, row);
-                infoPersonTable.Controls.Add(createTableLabel(null, infoPersonTable.Width, tableLabelHeight,
+                infoPersonTable.Controls.Add(createTableLabel(infoPersonTable.Width, tableLabelHeight, person.saleryPerHour + "€", backColor), 1, row);
+                infoPersonTable.Controls.Add(createTableLabel(infoPersonTable.Width, tableLabelHeight, worktimeInMonth + "h (+" + carryOver + "h) [" + person.minWorkHours + "h, " + person.maxWorkHours + "h]", workedHoursBackColor), 2, row);
+                infoPersonTable.Controls.Add(createTableLabel(infoPersonTable.Width, tableLabelHeight, effictiveWorktime * person.saleryPerHour + "€ (" + (carryOver * person.saleryPerHour + "€)"), backColor), 3, row);
+                infoPersonTable.Controls.Add(createTableLabel(infoPersonTable.Width, tableLabelHeight,
                     modelControl.getDaysNotWorkingForPersonInWorkdaysCount(person, modelControl.currentWorkmonth.workdays, modelControl.currentWorkmonth.shiftplan)
                     + "/" + modelControl.getWorkingDaysCounter(modelControl.currentWorkmonth.workdays)
                     , backColor), 4, row);
@@ -97,7 +97,7 @@ namespace Schichtplan
 
                 if(workshiftAmountsString.Length > 0)
                 {
-                    infoPersonTable.Controls.Add(createTableLabel(null, infoPersonTable.Width, tableLabelHeight, workshiftAmountsString.Substring(0, workshiftAmountsString.Length - 2), backColor), 5, row);
+                    infoPersonTable.Controls.Add(createTableLabel(infoPersonTable.Width, tableLabelHeight, workshiftAmountsString.Substring(0, workshiftAmountsString.Length - 2), backColor), 5, row);
                 }
 
                 row++;

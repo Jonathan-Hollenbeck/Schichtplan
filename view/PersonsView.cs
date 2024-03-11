@@ -13,16 +13,6 @@ namespace Schichtplan
 {
     public partial class window : Form
     {
-        /// <summary>
-        /// save backgroundcolors for the Controls in the personTable
-        /// </summary>
-        private Dictionary<Control, Color> personsControlColors = new Dictionary<Control, Color>();
-
-        /// <summary>
-        /// save the currently clicked row
-        /// </summary>
-        private int currentClickedRowPerson = -1;
-
         #region my functions
 
         /// <summary>
@@ -30,8 +20,6 @@ namespace Schichtplan
         /// </summary>
         private void setPersonTable()
         {
-            personsControlColors.Clear();
-
             personTable.Visible = false;
             personTable.SuspendLayout();
             personTable.Controls.Clear();
@@ -75,6 +63,8 @@ namespace Schichtplan
 
                 row++;
             }
+
+            personTable.RowCount = row;
 
             personTable.ResumeLayout();
             personTable.Visible = true;
@@ -332,9 +322,8 @@ namespace Schichtplan
         /// <returns>Label for the personTable</returns>
         private Label createPersonLabel(string Text, Color backColor)
         {
-            Label label = createTableLabel(personsControlColors, personTable.Width, tableLabelHeight, Text, backColor);
+            Label label = createTableLabel(personTable.Width, tableLabelHeight, Text, backColor);
             label.MouseEnter += new EventHandler(personTableLabel_MouseEnter);
-            label.MouseLeave += new EventHandler(personTableLabel_MouseLeave);
             label.Click += new EventHandler(personTableLabel_Click);
             return label;
         }
@@ -426,12 +415,6 @@ namespace Schichtplan
 
             //load shiftUnavaialbeSelector
             setPersonUnavailableShiftSelector();
-
-            if (currentClickedRowPerson != -1)
-            {
-                resetTableControlColor(personTable, personsControlColors, currentClickedRowPerson);
-            }
-            currentClickedRowPerson = row;
         }
 
         #endregion
@@ -484,10 +467,9 @@ namespace Schichtplan
             if (data.Length > 0)
             {
                 personsControl.addPerson(getPersonInfoFromTextBoxes(), personColorButton.BackColor);
-                resetTableControlColor(personTable, personsControlColors, currentClickedRowPerson);
+                setSelectedPerson(modelControl.currentWorkmonth.persons.Count - 1);
                 resetPersonView();
-                currentClickedRowPerson = modelControl.currentWorkmonth.persons.Count - 1;
-                setTableControlColor(personTable, currentClickedRowPerson, hoverColor);
+                setClickedControlsColors(getControlsInTableRow(personTable, modelControl.currentWorkmonth.persons.Count - 1), clickColor, clickFontColor);
             }
         }
 
@@ -502,8 +484,6 @@ namespace Schichtplan
             if(personsControl.currentPersonInEdit != null)
             {
                 personsControl.deleteCurrentPerson();
-                resetTableControlColor(personTable, personsControlColors, currentClickedRowPerson);
-                currentClickedRowPerson = -1;
                 resetPersonView();
             }
         }
@@ -526,7 +506,6 @@ namespace Schichtplan
             {
                 personsControl.editCurrentPerson(personData, getPersonUnavailabilityCheckBoxValue(1), getPersonUnavailabilityCheckBoxValue(2), personColorButton.BackColor);
                 resetPersonView();
-                setTableControlColor(personTable, currentClickedRowPerson, hoverColor);
                 resetShiftPlanView();
             }
         }
@@ -564,22 +543,7 @@ namespace Schichtplan
         private void personTableLabel_MouseEnter(object sender, EventArgs e)
         {
             int row = personTable.GetRow((Control)sender);
-            setTableControlColor(personTable, row, hoverColor);
-        }
-
-        /// <summary>
-        /// handels the mouseLeave Event for the personTable labels
-        /// </summary>
-        /// <param name="sender">the label, where the mouse left</param>
-        /// <param name="e">event details</param>
-        private void personTableLabel_MouseLeave(object sender, EventArgs e)
-        {
-            Control control = sender as Control;
-            int row = personTable.GetRow(control);
-            if (row != currentClickedRowPerson)
-            {
-                resetTableControlColor(personTable, personsControlColors, row);
-            }
+            setHoveredControlsColors(getControlsInTableRow(personTable, row), hoverColor, hoverFontColor);
         }
 
         /// <summary>
@@ -592,6 +556,7 @@ namespace Schichtplan
         {
             int row = personTable.GetRow((Control)sender);
             setSelectedPerson(row);
+            setClickedControlsColors(getControlsInTableRow(personTable, row), clickColor, clickFontColor);
         }
 
         /// <summary>
@@ -613,8 +578,6 @@ namespace Schichtplan
                     Workmonth workMonth = (Workmonth)Serializer.Instance().loadObject(openFileDialog.FileName);
 
                     personsControl.setPersonsFromOtherMonth(workMonth);
-
-                    currentClickedRowPerson = -1;
 
                     resetPersonView();
                     resetShiftPlanView();
