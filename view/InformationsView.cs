@@ -48,11 +48,11 @@ namespace Schichtplan
 
             int row = 0;
 
-            infoPersonTable.Controls.Add(createTableLabel(infoPersonTable.Width, tableLabelHeight, "Gehalt pro Stunde", dayColor), 1, row);
-            infoPersonTable.Controls.Add(createTableLabel(infoPersonTable.Width, tableLabelHeight, "Stunden gearbeitet", dayColor), 2, row);
-            infoPersonTable.Controls.Add(createTableLabel(infoPersonTable.Width, tableLabelHeight, "Monatsgehalt (davon vom letzten Monat)", dayColor), 3, row);
-            infoPersonTable.Controls.Add(createTableLabel(infoPersonTable.Width, tableLabelHeight, "Tage nicht im gearbeitet", dayColor), 4, row);
-            infoPersonTable.Controls.Add(createTableLabel(infoPersonTable.Width, tableLabelHeight, "Anzahl Schichten", dayColor), 5, row);
+            infoPersonTable.Controls.Add(createTableLabel(infoPersonTable.Width, tableLabelHeight, "Gehalt pro Stunde", infoPersonHeaderColor), 1, row);
+            infoPersonTable.Controls.Add(createTableLabel(infoPersonTable.Width, tableLabelHeight, "Stunden gearbeitet", infoPersonHeaderColor), 2, row);
+            infoPersonTable.Controls.Add(createTableLabel(infoPersonTable.Width, tableLabelHeight, "Monatsgehalt (davon vom letzten Monat)", infoPersonHeaderColor), 3, row);
+            infoPersonTable.Controls.Add(createTableLabel(infoPersonTable.Width, tableLabelHeight, "Tage nicht im gearbeitet", infoPersonHeaderColor), 4, row);
+            infoPersonTable.Controls.Add(createTableLabel(infoPersonTable.Width, tableLabelHeight, "Anzahl Schichten", infoPersonHeaderColor), 5, row);
 
             row++;
 
@@ -64,7 +64,7 @@ namespace Schichtplan
                     backColor = modelControl.currentWorkmonth.settings.personColors[person];
                 }
 
-                infoPersonTable.Controls.Add(createTableLabel(infoPersonTable.Width, tableLabelHeight, person.name, dayColor), 0, row);
+                infoPersonTable.Controls.Add(createTableLabel(infoPersonTable.Width, tableLabelHeight, person.name, infoPersonHeaderColor), 0, row);
 
                 //set infos
                 float worktimeInMonth = modelControl.getWorktimeForPersonInWorkdays(person, modelControl.currentWorkmonth.workdays, modelControl.currentWorkmonth.shiftplan);

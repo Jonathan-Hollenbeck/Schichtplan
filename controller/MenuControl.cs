@@ -51,25 +51,15 @@ namespace Schichtplan.controller
             {
                 string fileContentPerson = "";
 
-                //string füllen
-                foreach (Workday workday in workmonth.workdays)
+                List<ExportShiftPlanCell[]> exportShiftPlanPerson = modelControl.getExportShiftPlanForPerson(person);
+
+                foreach (ExportShiftPlanCell[] cells in exportShiftPlanPerson)
                 {
-                    if (modelControl.isPersonWorkingAtDay(person, workday, workmonth.shiftplan))
+                    for (int i = 0; i < cells.Length; i++)
                     {
-                        fileContentPerson += workday.weekday + ", " + workday.day + " " + workmonth.monthName + ";;\n\n";
-
-                        foreach (Workshift workshift in workday.shifts)
-                        {
-                            string personName = "KEINE PERSON GEFUNDEN";
-                            if (workmonth.shiftplan.ContainsKey(workshift))
-                            {
-                                personName = workmonth.shiftplan[workshift].name;
-                            }
-                            fileContentPerson += personName + ";" + workshift.ToString() + ";" + workshift.description + "\n";
-                        }
-
-                        fileContentPerson += "\n\n";
+                        fileContentPerson += cells[i].text + ";";
                     }
+                    fileContentPerson += "\n";
                 }
 
                 Serializer.Instance().writeToFile(Serializer.Instance().BASE_DICT + "" + Serializer.CSV_DIRECTORY + modelControl.getYearMonthString() + "/" + person.name + ".csv", fileContentPerson);
@@ -78,92 +68,49 @@ namespace Schichtplan.controller
             //File for all Shifts
 
             string fileContentShifts = "";
-            foreach (Workday workday in workmonth.workdays)
+
+            List<ExportShiftPlanCell[]> exportShiftPlan = modelControl.getExportShiftPlan();
+
+            foreach (ExportShiftPlanCell[] cells in exportShiftPlan)
             {
-                if (workday.shifts.Count > 0)
+                for (int i = 0; i < cells.Length; i++)
                 {
-                    fileContentShifts += workday.weekday + ", " + workday.day + " " + workmonth.monthName + ";;\n\n";
-
-                    foreach (Workshift workshift in workday.shifts)
-                    {
-                        string personName = "KEINE PERSON GEFUNDEN";
-                        if (workmonth.shiftplan.ContainsKey(workshift))
-                        {
-                            personName = workmonth.shiftplan[workshift].name;
-                        }
-                        fileContentShifts += personName + ";" + workshift.ToString() + ";" + workshift.description + "\n";
-                    }
-
-                    fileContentShifts += "\n\n";
+                    fileContentShifts += cells[i].text + ";";
                 }
+                fileContentShifts += "\n";
             }
 
             Serializer.Instance().writeToFile(Serializer.Instance().BASE_DICT + "" + Serializer.CSV_DIRECTORY + modelControl.getYearMonthString() + "/Schichten.csv", fileContentShifts);
 
             //File with general info
-            //Info for every Person
-            string fileContentGeneral = "Name;" +
-                "Gehalt pro Stunde;" +
-                "Stunden gearbeitet diesen Monat;" +
-                "Monatsgehalt (davon vom letzten Monat);" +
-                "Tage nicht gearbeitet;" +
-                "Anzahl Schichten" +
-                "\n";
-            int workingDays = modelControl.getWorkingDaysCounter(workmonth.workdays);
 
-            foreach (Person person in modelControl.getPersonsSortedBy("name", workmonth.persons))
+            //persons
+            string fileContentGeneral = "";
+
+            List<ExportShiftPlanCell[]> exportGeneralInfoPersons = modelControl.getExportGenerallInfoPersons();
+
+            foreach (ExportShiftPlanCell[] cells in exportGeneralInfoPersons)
             {
-                float worktime = modelControl.getWorktimeForPersonInWorkdays(person, workmonth.workdays, workmonth.shiftplan);
-                int daysNotWorking = modelControl.getDaysNotWorkingForPersonInWorkdaysCount(person, workmonth.workdays, workmonth.shiftplan);
-                float carryOver = modelControl.getPersonCarryOver(person, workmonth.hourCarryOverLastMonth);
-
-                Dictionary<string, int> workshiftAmounts = modelControl.getWorkedShiftsForPersonInWorkdaysByShiftTypeCount(person, workmonth.workdays, workmonth.shiftplan);
-                string workshiftAmountsString = "";
-                foreach (KeyValuePair<string, int> kvp in workshiftAmounts)
+                for(int i = 0; i < cells.Length; i++)
                 {
-                    workshiftAmountsString += kvp.Key + ": " + kvp.Value + ", ";
+                    fileContentGeneral += cells[i].text + ";";
                 }
-                if (workshiftAmountsString.Length > 1)
+                fileContentGeneral += "\n";
+            }
+
+            fileContentGeneral += "\n";
+
+            //other
+            List<ExportShiftPlanCell[]> exportGeneralInfoOther = modelControl.getExportGenerallInfo();
+
+            foreach (ExportShiftPlanCell[] cells in exportGeneralInfoOther)
+            {
+                for (int i = 0; i < cells.Length; i++)
                 {
-                    workshiftAmountsString = workshiftAmountsString.Substring(0, workshiftAmountsString.Length - 2);
+                    fileContentGeneral += cells[i].text + ";";
                 }
-
-                fileContentGeneral += person.name
-                    + ";" + person.saleryPerHour
-                    + ";" + worktime + "h (" + person.minWorkHours + "h, " + person.maxWorkHours + "h)"
-                    + ";" + Util.clampToDecimalpoints(((carryOver + worktime) * person.saleryPerHour) + 0.5f, 2) + " (" + (carryOver * person.saleryPerHour) + ")"
-                    + ";" + daysNotWorking + "/" + workingDays
-                    + ";" + workshiftAmountsString
-                    + "\n";
+                fileContentGeneral += "\n";
             }
-
-            fileContentGeneral += "\n\n";
-
-            //Other info
-            float carryOverSalerySum = 0.0f;
-            float salarySum = 0.0f;
-            foreach (Person person in workmonth.persons)
-            {
-                carryOverSalerySum += modelControl.getPersonCarryOver(person, workmonth.hourCarryOverLastMonth) * person.saleryPerHour;
-                salarySum += modelControl.getWorktimeForPersonInWorkdays(person, workmonth.workdays, workmonth.shiftplan) * person.saleryPerHour;
-                salarySum += carryOverSalerySum;
-            }
-            fileContentGeneral += "Gehaelter Sum:;" + Util.clampToDecimalpoints(salarySum, 2) + " (" + carryOverSalerySum + ")\n";
-
-            Dictionary<string, int> workshiftsByShiftType = modelControl.getShiftCountInWorkdaysByShiftType(workmonth.workdays);
-            int workshiftSum = 0;
-            string workshiftsByShiftTypeString = "";
-            foreach (KeyValuePair<string, int> kvp in workshiftsByShiftType)
-            {
-                workshiftsByShiftTypeString += kvp.Key + ": " + kvp.Value + ", ";
-                workshiftSum += kvp.Value;
-            }
-            fileContentGeneral += "Summe Schichten:;";
-            fileContentGeneral += workshiftsByShiftTypeString.Length > 1 ?
-                workshiftSum + " (" + workshiftsByShiftTypeString.Substring(0, workshiftsByShiftTypeString.Length - 2) + ")\n"
-                : "";
-
-            fileContentGeneral += "Summe Stunden:;" + modelControl.getWorktimeInWorkdays(workmonth.workdays) + "h";
 
             Serializer.Instance().writeToFile(Serializer.Instance().BASE_DICT + "" + Serializer.CSV_DIRECTORY + modelControl.getYearMonthString() + "/Generelle_Infos.csv", fileContentGeneral);
         }
@@ -175,144 +122,125 @@ namespace Schichtplan.controller
         {
             Workmonth workmonth = modelControl.currentWorkmonth;
 
-            List<List<Workday>> weeks = modelControl.getWeeksInWorkdays(workmonth.workdays);
-
             Serializer.Instance().createDir(Serializer.Instance().BASE_DICT + "" + Serializer.HTML_DIRECTORY + "" + modelControl.getYearMonthString() + "/");
 
             // Files for the persons
             foreach (Person person in workmonth.persons)
             {
-                string fileContentPerson = "<html>\n";
-                //string füllen
-                for (int weekCounter = 0; weekCounter < weeks.Count; weekCounter++)
-                {
-                    List<Workday> week = weeks[weekCounter];
-
-                    fileContentPerson += "<h1 style=\"" +
-                        "background-color:black;" +
-                        "color:" + window.getHTMLColor(window.weekFontColor) + ";" +
-                        "width:100%;" +
-                        "padding: 10px;" +
-                        "text-align: center;" +
-                        "\">Woche " + weekCounter + ", " + modelControl.getFirstAndLastDayInWorkdaysAsString(week) + "</h1>";
-
-                    foreach (Workday workday in week)
-                    {
-                        if (modelControl.isPersonWorkingAtDay(person, workday, workmonth.shiftplan))
-                        {
-                            fileContentPerson += "<table style=\"" +
+                string fileContentPerson = "<html><table style=\"" +
                                 "border:1px solid;" +
                                 "text-align:left;" +
                                 "border-collapse:collapse;" +
                                 "width:100%" +
                                 "\">\n";
 
-                            fileContentPerson += "<tr style=\"background-color:" + window.getHTMLColor(window.dayColor) + ";\">" +
-                                "<th style=\"width:33%\">" + workday.weekday + ", " + workday.day + " " + workmonth.monthName + "</th>" +
-                                "<th style=\"width:33%\"></th>" +
-                                "<th style=\"width:33%\"></th>" +
-                                "</tr>\n";
+                List<ExportShiftPlanCell[]> exportShiftPlanPerson = modelControl.getExportShiftPlanForPerson(person);
 
-                            foreach (Workshift workshift in workday.shifts)
-                            {
-                                string personName = "KEINE PERSON GEFUNDEN";
-                                string backColor = window.getHTMLColor(window.transparent);
-                                if (workmonth.settings.shiftTypeColors.ContainsKey(workshift.shiftType))
-                                {
-                                    backColor = window.getHTMLColor(workmonth.settings.shiftTypeColors[workshift.shiftType]);
-                                }
-                                if (workmonth.shiftplan.ContainsKey(workshift))
-                                {
-                                    personName = workmonth.shiftplan[workshift].name;
-                                    if (person == workmonth.shiftplan[workshift])
-                                    {
-                                        backColor = window.getHTMLColor(window.saturdayColor);
-                                    }
-                                }
-
-                                fileContentPerson += "<tr style=\"background-color:" + backColor + ";\">" +
-                                    "<td style=\"width:33%\">" + personName + "</td>" +
-                                    "<td style=\"width:33%\">" + workshift.ToString() + "</td>" +
-                                    "<td style=\"width:33%\">" + workshift.description + "</td>" +
-                                    "</tr>\n";
-                            }
-
-                            fileContentPerson += "</table>\n</br>";
-                        }
+                foreach (ExportShiftPlanCell[] cells in exportShiftPlanPerson)
+                {
+                    fileContentPerson += "<tr>";
+                    for (int i = 0; i < cells.Length; i++)
+                    {
+                        fileContentPerson += "<td style=\"width:33%;" +
+                            "height:20px;" + 
+                            "background-color:" + window.getHTMLColor(cells[i].backColor) + ";" +
+                            "color:" + window.getHTMLColor(cells[i].foreColor) + ";\"" +
+                            ">" + cells[i].text + "</td>\n"; 
                     }
+                    fileContentPerson += "</tr>\n";
                 }
-                fileContentPerson += "</html>";
+
+                fileContentPerson += "</table></html>";
 
                 Serializer.Instance().writeToFile(Serializer.Instance().BASE_DICT + "" + Serializer.HTML_DIRECTORY + modelControl.getYearMonthString() + "/" + person.name + ".html", fileContentPerson);
             }
 
-            string fileContentShift = "<html>\n";
-
             //File for all Shifts
-            for (int weekCounter = 0; weekCounter < weeks.Count; weekCounter++)
+            string fileContentShift = "<html><table style=\"" +
+                "border:1px solid;" +
+                "text-align:left;" +
+                "border-collapse:collapse;" +
+                "width:100%" +
+                "\">\n";
+
+            List<ExportShiftPlanCell[]> exportShiftPlan = modelControl.getExportShiftPlan();
+
+            foreach (ExportShiftPlanCell[] cells in exportShiftPlan)
             {
-                List<Workday> week = weeks[weekCounter];
-
-                fileContentShift += "<h1 style=\"" +
-                    "background-color:black;" +
-                    "color:" + window.getHTMLColor(window.weekFontColor) + ";" +
-                    "width:100%;" +
-                    "padding: 10px;" +
-                    "text-align: center;" +
-                    "\">Woche " + weekCounter + ", " + modelControl.getFirstAndLastDayInWorkdaysAsString(week) + "</h1>";
-
-                foreach (Workday workday in week)
+                fileContentShift += "<tr>";
+                for (int i = 0; i < cells.Length; i++)
                 {
-                    if (workday.shifts.Count > 0)
-                    {
-                        fileContentShift += "<table style=\"" +
-                                "border:1px solid;" +
-                                "text-align:left;" +
-                                "border-collapse:collapse;" +
-                                "width:100%" +
-                                "\">\n";
-
-                        fileContentShift += "<tr style=\"background-color:" + window.getHTMLColor(window.dayColor) + ";\">" +
-                            "<th style=\"width:33%\">" + workday.weekday + ", " + workday.day + " " + workmonth.monthName + "</th>" +
-                            "<th style=\"width:33%\"></th>" +
-                            "<th style=\"width:33%\"></th>" +
-                            "</tr>\n";
-
-                        foreach (Workshift workshift in workday.shifts)
-                        {
-                            string backColorShift = window.getHTMLColor(window.transparent);
-                            if (workmonth.settings.shiftTypeColors.ContainsKey(workshift.shiftType))
-                            {
-                                backColorShift = window.getHTMLColor(workmonth.settings.shiftTypeColors[workshift.shiftType]);
-                            }
-                            string backColorPerson = window.getHTMLColor(window.transparent);
-
-                            string personName = "KEINE PERSON GEFUNDEN";
-                            if (workmonth.shiftplan.ContainsKey(workshift))
-                            {
-                                Person person = workmonth.shiftplan[workshift];
-                                personName = person.name;
-
-                                if (workmonth.settings.personColors.ContainsKey(person))
-                                {
-                                    backColorPerson = window.getHTMLColor(workmonth.settings.personColors[person]);
-                                }
-                            }
-                            fileContentShift += "<tr>" +
-                                "<td style=\"width:33%;background-color:" + backColorPerson + ";\">" + personName + "</td>" +
-                                "<td style=\"width:33%;background-color:" + backColorShift + ";\">" + workshift.ToString() + "</td>" +
-                                "<td style=\"width:33%;background-color:" + window.getHTMLColor(window.transparent) + ";\">" + workshift.description + "</td>" +
-                                "</tr>\n";
-                        }
-
-                        fileContentShift += "</table>\n</br>";
-                    }
+                    fileContentShift += "<td style=\"width:33%;" +
+                        "height:20px;" +
+                        "background-color:" + window.getHTMLColor(cells[i].backColor) + ";" +
+                        "color:" + window.getHTMLColor(cells[i].foreColor) + ";\"" +
+                        ">" + cells[i].text + "</td>\n";
                 }
+                fileContentShift += "</tr>\n";
             }
 
-            fileContentShift += "</html>";
+            fileContentShift += "</table></html>";
 
             Serializer.Instance().writeToFile(Serializer.Instance().BASE_DICT + "" + Serializer.HTML_DIRECTORY + modelControl.getYearMonthString() + "/Schichten.html", fileContentShift);
+
+            //File with general info
+
+            //persons
+            string fileContentGeneral = "<html><table style=\"" +
+                "border:1px solid;" +
+                "text-align:left;" +
+                "border-collapse:collapse;" +
+                "width:100%" +
+                "\">\n";
+
+            List<ExportShiftPlanCell[]> exportGeneralInfoPersons = modelControl.getExportGenerallInfoPersons();
+
+            foreach (ExportShiftPlanCell[] cells in exportGeneralInfoPersons)
+            {
+                fileContentGeneral += "<tr>";
+                for (int i = 0; i < cells.Length; i++)
+                {
+                    fileContentGeneral += "<td style=\"width:17%;" +
+                        "height:20px;" +
+                        "background-color:" + window.getHTMLColor(cells[i].backColor) + ";" +
+                        "color:" + window.getHTMLColor(cells[i].foreColor) + ";\"" +
+                        ">" + cells[i].text + "</td>\n";
+                }
+                fileContentGeneral += "</tr>\n";
+            }
+
+            fileContentGeneral += "<tr>\n";
+            for(int i = 0; i < 6; i++)
+            {
+                fileContentGeneral += "<td style=\"width:17%;" +
+                    "height:20px;" +
+                    "background-color:" + window.getHTMLColor(window.transparent) + ";" +
+                    "color:" + window.getHTMLColor(window.transparent) + ";\"" +
+                    "></td>\n";
+            }
+            fileContentGeneral += "</tr>\n";
+
+            //other
+            List<ExportShiftPlanCell[]> exportGeneralInfoOther = modelControl.getExportGenerallInfo();
+
+            foreach (ExportShiftPlanCell[] cells in exportGeneralInfoOther)
+            {
+                fileContentGeneral += "<tr>";
+                for (int i = 0; i < cells.Length; i++)
+                {
+                    fileContentGeneral += "<td style=\"width:17%;" +
+                        "height:20px;" +
+                        "background-color:" + window.getHTMLColor(cells[i].backColor) + ";" +
+                        "color:" + window.getHTMLColor(cells[i].foreColor) + ";\"" +
+                        ">" + cells[i].text + "</td>\n";
+                }
+                fileContentGeneral += "</tr>\n";
+            }
+
+            fileContentGeneral += "</table></html>";
+
+            Serializer.Instance().writeToFile(Serializer.Instance().BASE_DICT + "" + Serializer.HTML_DIRECTORY + modelControl.getYearMonthString() + "/Generelle_Infos.html", fileContentGeneral);
+
         }
 
         /// <summary>

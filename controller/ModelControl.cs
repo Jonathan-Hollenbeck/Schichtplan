@@ -566,6 +566,134 @@ namespace Schichtplan
             return list;
         }
 
+        /// <summary>
+        /// creates a list with with an array with all generell info about all persons
+        /// </summary>
+        /// <returns>a list with with an array with all generell info about all persons</returns>
+        public List<ExportShiftPlanCell[]> getExportGenerallInfoPersons()
+        {
+            List<ExportShiftPlanCell[]> list = new List<ExportShiftPlanCell[]>();
+
+            Workmonth workmonth = currentWorkmonth;
+
+            //Info for every Person
+            ExportShiftPlanCell[] header =
+            {
+                new ExportShiftPlanCell(window.infoPersonHeaderColor, Color.Black, "Name"),
+                new ExportShiftPlanCell(window.infoPersonHeaderColor, Color.Black, "Gehalt pro Stunde"),
+                new ExportShiftPlanCell(window.infoPersonHeaderColor, Color.Black, "Stunden gearbeitet diesen Monat"),
+                new ExportShiftPlanCell(window.infoPersonHeaderColor, Color.Black, "Monatsgehalt (davon vom letzten Monat)"),
+                new ExportShiftPlanCell(window.infoPersonHeaderColor, Color.Black, "Tage nicht gearbeitet"),
+                new ExportShiftPlanCell(window.infoPersonHeaderColor, Color.Black, "Anzahl Schichten")
+            };
+
+            list.Add(header);
+
+            int workingDays = getWorkingDaysCounter(workmonth.workdays);
+
+            foreach (Person person in getPersonsSortedBy("name", workmonth.persons))
+            {
+                Color backColor = window.transparent;
+                if (workmonth.settings.personColors.ContainsKey(person))
+                {
+                    backColor = workmonth.settings.personColors[person];
+                }
+
+                float worktime = getWorktimeForPersonInWorkdays(person, workmonth.workdays, workmonth.shiftplan);
+                int daysNotWorking = getDaysNotWorkingForPersonInWorkdaysCount(person, workmonth.workdays, workmonth.shiftplan);
+                float carryOver = getPersonCarryOver(person, workmonth.hourCarryOverLastMonth);
+                float effictiveWorktime = worktime + carryOver;
+
+                Dictionary<string, int> workshiftAmounts = getWorkedShiftsForPersonInWorkdaysByShiftTypeCount(person, workmonth.workdays, workmonth.shiftplan);
+                string workshiftAmountsString = "";
+                foreach (KeyValuePair<string, int> kvp in workshiftAmounts)
+                {
+                    workshiftAmountsString += kvp.Key + ": " + kvp.Value + ", ";
+                }
+                if (workshiftAmountsString.Length > 1)
+                {
+                    workshiftAmountsString = workshiftAmountsString.Substring(0, workshiftAmountsString.Length - 2);
+                }
+
+                //backcolor for worktime, if min workhour not reached or maxworkhour exceeded red. green otherwise
+                Color workedHoursBackColor = backColor;
+                if (person.minWorkHours > effictiveWorktime || effictiveWorktime > person.maxWorkHours)
+                {
+                    workedHoursBackColor = Color.Red;
+                }
+
+                ExportShiftPlanCell[] personInfo =
+                {
+                    new ExportShiftPlanCell(window.infoPersonHeaderColor, Color.Black, person.name),
+                    new ExportShiftPlanCell(backColor, Color.Black, person.saleryPerHour + "€"),
+                    new ExportShiftPlanCell(workedHoursBackColor, Color.Black, worktime + "h (" + person.minWorkHours + "h, " + person.maxWorkHours + "h)"),
+                    new ExportShiftPlanCell(backColor, Color.Black, Util.clampToDecimalpoints(((carryOver + worktime) * person.saleryPerHour), 2) + "€ (" + Util.clampToDecimalpoints((carryOver * person.saleryPerHour), 2) + "€)"),
+                    new ExportShiftPlanCell(backColor, Color.Black, daysNotWorking + "/" + workingDays),
+                    new ExportShiftPlanCell(backColor, Color.Black, workshiftAmountsString)
+                };
+                list.Add(personInfo);
+            }
+
+            return list;
+        }
+
+        /// <summary>
+        /// creates a list with with an array with all generell info
+        /// </summary>
+        /// <returns>a list with with an array with all generell info</returns>
+        public List<ExportShiftPlanCell[]> getExportGenerallInfo()
+        {
+            List<ExportShiftPlanCell[]> list = new List<ExportShiftPlanCell[]>();
+
+            Workmonth workmonth = currentWorkmonth;
+
+            //calculate other info
+            float carryOverSalerySum = 0.0f;
+            float salarySum = 0.0f;
+            foreach (Person person in workmonth.persons)
+            {
+                carryOverSalerySum += getPersonCarryOver(person, workmonth.hourCarryOverLastMonth) * person.saleryPerHour;
+                salarySum += getWorktimeForPersonInWorkdays(person, workmonth.workdays, workmonth.shiftplan) * person.saleryPerHour;
+                salarySum += carryOverSalerySum;
+            }
+
+            Dictionary<string, int> workshiftsByShiftType = getShiftCountInWorkdaysByShiftType(workmonth.workdays);
+            int workshiftSum = 0;
+            string workshiftsByShiftTypeString = "";
+            foreach (KeyValuePair<string, int> kvp in workshiftsByShiftType)
+            {
+                workshiftsByShiftTypeString += kvp.Key + ": " + kvp.Value + ", ";
+                workshiftSum += kvp.Value;
+            }
+            string shiftsSum = workshiftsByShiftTypeString.Length > 1 ?
+                workshiftSum + " (" + workshiftsByShiftTypeString.Substring(0, workshiftsByShiftTypeString.Length - 2) + ")"
+                : "";
+
+            //add to list
+            ExportShiftPlanCell[] salerySumInfo =
+            {
+                new ExportShiftPlanCell(window.transparent, Color.Black, "Summe Gehaelter:"),
+                new ExportShiftPlanCell(window.transparent, Color.Black, Util.clampToDecimalpoints(salarySum, 2) + "€ (" + Util.clampToDecimalpoints(carryOverSalerySum, 2) + "€)")
+            };
+            list.Add(salerySumInfo);
+
+            ExportShiftPlanCell[] shiftsSumInfo =
+            {
+                new ExportShiftPlanCell(window.transparent, Color.Black, "Summe Schichten:"),
+                new ExportShiftPlanCell(window.transparent, Color.Black, shiftsSum)
+            };
+            list.Add(shiftsSumInfo);
+
+            ExportShiftPlanCell[] workhoursSumInfo =
+            {
+                new ExportShiftPlanCell(window.transparent, Color.Black, "Summe Stunden:"),
+                new ExportShiftPlanCell(window.transparent, Color.Black, getWorktimeInWorkdays(workmonth.workdays) + "h")
+            };
+            list.Add(workhoursSumInfo);
+
+            return list;
+        }
+
         #endregion
 
         #endregion
