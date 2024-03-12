@@ -106,6 +106,7 @@
     <Compile Include="controller\ShiftPlanControl.cs" />
     <Compile Include="controller\ViewControl.cs" />
     <Compile Include="model\ControlColorSave.cs" />
+    <Compile Include="model\ExportShiftPlanCell.cs" />
     <Compile Include="view\CostsView.cs">
       <SubType>Form</SubType>
     </Compile>

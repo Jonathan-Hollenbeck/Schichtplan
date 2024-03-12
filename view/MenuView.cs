@@ -74,7 +74,7 @@ namespace Schichtplan
 
         private void googleTabelleExportierenToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            menuControl.uploadToGoogleTable();
+            menuControl.uploadToGoogleTableAsync();
         }
 
         #region persons sort menu items

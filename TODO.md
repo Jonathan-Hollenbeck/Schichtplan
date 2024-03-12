@@ -9,5 +9,3 @@
 # Kosten Tab
 
 # general
-
-	- upload in Google table?

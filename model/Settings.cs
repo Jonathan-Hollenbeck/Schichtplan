@@ -14,10 +14,13 @@ namespace Schichtplan.model
 
         public Dictionary<string, Color> shiftTypeColors { get; set; }
 
+        public string googleSheetsId { get; set; }
+
         public Settings()
         {
             personColors = new Dictionary<Person, Color>();
             shiftTypeColors = new Dictionary<string, Color>();
+            googleSheetsId = "";
         }
     }
 }

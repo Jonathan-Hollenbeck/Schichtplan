@@ -78,7 +78,8 @@ namespace Schichtplan
             thursdayColor = Color.FromArgb(255, 193, 252, 231),
             fridayColor = Color.FromArgb(255, 193, 232, 252),
             saturdayColor = Color.FromArgb(255, 200, 192, 255),
-            sundayColor = Color.FromArgb(255, 254, 226, 255);
+            sundayColor = Color.FromArgb(255, 254, 226, 255),
+            shiftOfPersonColor = Color.FromArgb(255, 200, 192, 255);
 
         public static float
             dayFontSize = 11.0f,

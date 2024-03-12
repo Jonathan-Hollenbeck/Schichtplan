@@ -7,6 +7,8 @@ using Google.Apis.Sheets.v4;
 using Google.Apis.Sheets.v4.Data;
 using System.IO;
 using Google.Apis.Services;
+using Schichtplan.model;
+using Google.Apis.Auth.OAuth2;
 
 namespace Schichtplan.controller
 {
@@ -173,7 +175,7 @@ namespace Schichtplan.controller
         {
             Workmonth workmonth = modelControl.currentWorkmonth;
 
-            List <List<Workday>> weeks = modelControl.getWeeksInWorkdays(workmonth.workdays);
+            List<List<Workday>> weeks = modelControl.getWeeksInWorkdays(workmonth.workdays);
 
             Serializer.Instance().createDir(Serializer.Instance().BASE_DICT + "" + Serializer.HTML_FOLDER + "" + modelControl.getYearMonthString() + "/");
 
@@ -404,43 +406,166 @@ namespace Schichtplan.controller
         /// <summary>
         /// uploads the shiftplan to google table
         /// </summary>
-        public void uploadToGoogleTable()
+        public async Task uploadToGoogleTableAsync()
         {
-            // Replace with the path to your credentials file
-            string credentialsFilePath = @"path/to/your/credentials.json";
+            //variable for workmonth
+            Workmonth workmonth = modelControl.currentWorkmonth;
 
-            // Create the Sheets service object
-            var sheetsService = new SheetsService(new BaseClientService.Initializer()
+            // spreadsheetId and worksheetName and resulting targetRange
+            string spreadsheetId = "1Vzc52Sxsqe0Ee8YPZI5Q51j-EePgLYTl_jJtMb69_iI";
+            string worksheetName = modelControl.getYearMonthString();
+            string targetRange = worksheetName + "!A1:C";
+            int sheetId = 0;
+
+            // create the sheets service object
+            SheetsService sheetsService = new SheetsService(new BaseClientService.Initializer()
             {
-                HttpClientInitializer = GoogleAuthenticationCredentials.FromFile(credentialsFilePath),
-                ApplicationName = "Your Application Name"
+                HttpClientInitializer = GoogleCredential.FromFile("../../google_cloud_key/key.json"),
+                ApplicationName = "Schichtplan"
             });
 
-            // Prepare your data in a ValueRange object
-            // This example creates a simple list of lists representing rows and columns
-            var values = new List<List<object>>()
+            // create new worksheet
+            // get existing worksheets
+            SpreadsheetsResource.GetRequest getSpreadsheetRequest = sheetsService.Spreadsheets.Get(spreadsheetId);
+            Spreadsheet spreadsheet = await getSpreadsheetRequest.ExecuteAsync();
+
+            bool alreadyCreated = false;
+            foreach(Sheet worksheet in spreadsheet.Sheets)
+            {
+                if(worksheet.Properties.Title == worksheetName)
                 {
-                    new List<object>() { "Column 1", "Column 2" },
-                    new List<object>() { "Data 1.1", "Data 1.2" },
-                    // ... add more rows as needed
-                };
-            var body = new ValueRange { Values = values };
+                    alreadyCreated = true;
+                    //set sheetId
+                    sheetId = (int)worksheet.Properties.SheetId;
+                }
+            }
 
-            // Specify the spreadsheet ID and the sheet name where you want to add data
-            string spreadsheetId = "YOUR_SPREADSHEET_ID"; // Replace with your actual spreadsheet ID
-            string sheetName = "Sheet1"; // Replace with the sheet name where you want to add data
+            //create new worksheet if not already created
+            if (!alreadyCreated)
+            {
+                BatchUpdateSpreadsheetRequest batchUpdateRequestNewWorksheet = new BatchUpdateSpreadsheetRequest();
+                List<Request> requestsNewWorksheet = new List<Request>();
 
-            // Choose how you want to append the data:
-            // - ValueInputOption.USER_ENTERED: Treat the values as text and numbers as you entered them.
-            // - ValueInputOption.RAW: Interpret values as raw numbers without any conversion.
-            var valueInputOption = ValueInputOption.USER_ENTERED;
+                AddSheetRequest addSheetRequest = new AddSheetRequest();
+                addSheetRequest.Properties = new SheetProperties { Title = worksheetName };
+                requestsNewWorksheet.Add(new Request { AddSheet = addSheetRequest });
 
-            // Append the data to the specified range (A1 in this case)
-            var appendRequest = sheetsService.Spreadsheets.Values().Append(body, spreadsheetId + "!A1:B");
-            appendRequest.ValueInputOption = valueInputOption;
-            var appendResponse = await appendRequest.ExecuteAsync();
+                batchUpdateRequestNewWorksheet.Requests = requestsNewWorksheet.ToArray();
 
-            Console.WriteLine("Data appended successfully.");
+                SpreadsheetsResource.BatchUpdateRequest batchUpdateNewWorksheet = sheetsService.Spreadsheets.BatchUpdate(batchUpdateRequestNewWorksheet, spreadsheetId);
+                try
+                {
+                    await batchUpdateNewWorksheet.ExecuteAsync();
+
+                    //get the spreadsheet again to optain the sheetId for the new worksheet
+                    SpreadsheetsResource.GetRequest getSpreadsheetRequestRepeat = sheetsService.Spreadsheets.Get(spreadsheetId);
+                    Spreadsheet spreadsheetRepeat = await getSpreadsheetRequestRepeat.ExecuteAsync();
+
+                    foreach (Sheet worksheet in spreadsheetRepeat.Sheets)
+                    {
+                        if (worksheet.Properties.Title == worksheetName)
+                        {
+                            //set sheet id from new worksheet
+                            sheetId = (int)worksheet.Properties.SheetId;
+                        }
+                    }
+                }
+                catch (Exception ex)
+                {
+                    Console.WriteLine("Error creating new worksheet: " + ex.Message);
+                    return;
+                }
+            }
+
+            //create request to clear and then fill the google sheet with the shiftplan
+            //collect shiftplan data and put it in the google sheets list format
+            // batchudaterequest for data
+            BatchUpdateSpreadsheetRequest batchUpdateRequestData = new BatchUpdateSpreadsheetRequest();
+            List<Request> requestsData = new List<Request>();
+
+            //get shiftplan for export
+            List<ExportShiftPlanCell[]> exportShiftPlan = modelControl.getExportShiftPlan();
+
+            List<RowData> values = new List<RowData>();
+
+            for (int rowIndex = 0; rowIndex < exportShiftPlan.Count; rowIndex++)
+            {
+                List<CellData> cellDatas = new List<CellData>();
+                foreach(ExportShiftPlanCell cell in exportShiftPlan[rowIndex])
+                {
+                    var cellData = new CellData();
+                    cellData.UserEnteredValue = new ExtendedValue { StringValue = cell.text };
+
+                    var format = new CellFormat();
+                    format.BackgroundColorStyle = new ColorStyle
+                    {
+                        RgbColor = new Color
+                        {
+                            Red = cell.backColor.R / 255f,
+                            Green = cell.backColor.G / 255f,
+                            Blue = cell.backColor.B / 255f
+                        }
+                    };
+                    format.TextFormat = new TextFormat
+                    {
+                        ForegroundColorStyle = new ColorStyle
+                        {
+                            RgbColor = new Color
+                            {
+                                Red = cell.foreColor.R / 255f,
+                                Green = cell.foreColor.G / 255f,
+                                Blue = cell.foreColor.B / 255f
+                            }
+                        },
+                        FontSize = 12
+                    };
+
+                    cellData.UserEnteredFormat = format;
+
+                    cellDatas.Add(cellData);
+                }
+                values.Add(new RowData() { Values = cellDatas });
+            }
+
+            //create data request
+            var updateCellsRequest = new UpdateCellsRequest();
+            updateCellsRequest.Start = new GridCoordinate
+            {
+                ColumnIndex = 0,
+                RowIndex = 0,
+                SheetId = sheetId
+            };
+            updateCellsRequest.Rows = values;
+            updateCellsRequest.Fields = "*";
+
+            //create column width request
+            var updateDimensionRequest = new UpdateDimensionPropertiesRequest();
+            updateDimensionRequest.Range = new DimensionRange { SheetId = sheetId, Dimension = "COLUMNS", StartIndex = 0, EndIndex = 3 };
+            updateDimensionRequest.Fields = "*";
+            updateDimensionRequest.Properties = new DimensionProperties { PixelSize = 200 }; // Set desired width in pixels
+            
+            //add requsts
+            requestsData.Add(new Request { UpdateDimensionProperties = updateDimensionRequest });
+            requestsData.Add(new Request { UpdateCells = updateCellsRequest });
+
+            //clear current sheet
+            ClearValuesRequest clearValuesRequest = new ClearValuesRequest();
+            SpreadsheetsResource.ValuesResource.ClearRequest clearRequest = sheetsService.Spreadsheets.Values.Clear(clearValuesRequest, spreadsheetId, targetRange);
+
+            //color request
+            batchUpdateRequestData.Requests = requestsData.ToArray();
+            SpreadsheetsResource.BatchUpdateRequest batchUpdateData = sheetsService.Spreadsheets.BatchUpdate(batchUpdateRequestData, spreadsheetId);
+
+            //asynchronously execute the append request and handle potential errors
+            try
+            {
+                ClearValuesResponse clearResponse = await clearRequest.ExecuteAsync();
+                BatchUpdateSpreadsheetResponse changeDataResponse =  await batchUpdateData.ExecuteAsync();
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine("Error appending data: " + ex.Message);
+            }
         }
 
     }

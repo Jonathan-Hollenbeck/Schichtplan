@@ -407,6 +407,167 @@ namespace Schichtplan
 
         #endregion
 
+        #region ExportShiftPlanCell List
+
+        /// <summary>
+        /// creates a list with with an array with all information of the shiftplan for the export functions
+        /// </summary>
+        /// <returns>a list with with an array with all information of the shiftplan for the export functions</returns>
+        public List<ExportShiftPlanCell[]> getExportShiftPlan()
+        {
+            List<ExportShiftPlanCell[]> list = new List<ExportShiftPlanCell[]>();
+
+            Workmonth workmonth = currentWorkmonth;
+            List<List<Workday>> weeks = getWeeksInWorkdays(workmonth.workdays);
+
+            for (int weekCounter = 0; weekCounter < weeks.Count; weekCounter++)
+            {
+                List<Workday> week = weeks[weekCounter];
+
+                ExportShiftPlanCell[] weekInfo =
+                {
+                    new ExportShiftPlanCell(window.weekColor, window.weekFontColor, "Woche " + weekCounter + ", " + getFirstAndLastDayInWorkdaysAsString(week)),
+                    new ExportShiftPlanCell(window.weekColor, window.weekFontColor, ""),
+                    new ExportShiftPlanCell(window.weekColor, window.weekFontColor, "")
+                };
+
+                list.Add(weekInfo);
+
+                foreach (Workday workday in week)
+                {
+                    if (workday.shifts.Count > 0)
+                    {
+                        ExportShiftPlanCell[] dayInfo =
+                        {
+                            new ExportShiftPlanCell(window.dayColor, window.dayFontColor, workday.weekday + ", " + workday.day + " " + workmonth.monthName),
+                            new ExportShiftPlanCell(window.dayColor, window.dayFontColor, ""),
+                            new ExportShiftPlanCell(window.dayColor, window.dayFontColor, "")
+                        };
+
+                        list.Add(dayInfo);
+
+                        foreach (Workshift workshift in workday.shifts)
+                        {
+                            Color backColorShift = window.transparent;
+                            if (workmonth.settings.shiftTypeColors.ContainsKey(workshift.shiftType))
+                            {
+                                backColorShift = workmonth.settings.shiftTypeColors[workshift.shiftType];
+                            }
+                            Color backColorPerson = window.transparent;
+
+                            string personName = "KEINE PERSON GEFUNDEN";
+                            if (workmonth.shiftplan.ContainsKey(workshift))
+                            {
+                                Person person = workmonth.shiftplan[workshift];
+                                personName = person.name;
+
+                                if (workmonth.settings.personColors.ContainsKey(person))
+                                {
+                                    backColorPerson = workmonth.settings.personColors[person];
+                                }
+                            }
+
+                            ExportShiftPlanCell[] shiftInfo =
+                            {
+                                new ExportShiftPlanCell(backColorPerson, Color.Black, personName),
+                                new ExportShiftPlanCell(backColorShift, Color.Black, workshift.ToString()),
+                                new ExportShiftPlanCell(window.transparent, Color.Black, workshift.description)
+                            };
+
+                            list.Add(shiftInfo);
+                        }
+
+                        ExportShiftPlanCell[] empty =
+                        {
+                            new ExportShiftPlanCell(window.transparent, window.transparent, ""),
+                            new ExportShiftPlanCell(window.transparent, window.transparent, ""),
+                            new ExportShiftPlanCell(window.transparent, window.transparent, "")
+                        };
+
+                        list.Add(empty);
+                    }
+                }
+            }
+
+            return list;
+        }
+
+        /// <summary>
+        /// creates a list with with an array with all information of the shiftplan for the export functions for a specific person
+        /// </summary>
+        /// <returns>a list with with an array with all information of the shiftplan for the export functions for a specific person</returns>
+        public List<ExportShiftPlanCell[]> getExportShiftPlanForPerson(Person person)
+        {
+            List<ExportShiftPlanCell[]> list = new List<ExportShiftPlanCell[]>();
+
+            Workmonth workmonth = currentWorkmonth;
+            List<List<Workday>> weeks = getWeeksInWorkdays(workmonth.workdays);
+
+            for (int weekCounter = 0; weekCounter < weeks.Count; weekCounter++)
+            {
+                List<Workday> week = weeks[weekCounter];
+
+                ExportShiftPlanCell[] weekInfo =
+                {
+                    new ExportShiftPlanCell(window.weekColor, window.weekFontColor, "Woche " + weekCounter + ", " + getFirstAndLastDayInWorkdaysAsString(week)),
+                    new ExportShiftPlanCell(window.weekColor, window.weekFontColor, ""),
+                    new ExportShiftPlanCell(window.weekColor, window.weekFontColor, "")
+                };
+
+                list.Add(weekInfo);
+
+                foreach (Workday workday in week)
+                {
+                    if (isPersonWorkingAtDay(person, workday, workmonth.shiftplan))
+                    {
+                        ExportShiftPlanCell[] dayInfo =
+                        {
+                            new ExportShiftPlanCell(window.dayColor, window.dayFontColor, workday.weekday + ", " + workday.day + " " + workmonth.monthName),
+                            new ExportShiftPlanCell(window.dayColor, window.dayFontColor, ""),
+                            new ExportShiftPlanCell(window.dayColor, window.dayFontColor, "")
+                        };
+
+                        list.Add(dayInfo);
+
+                        foreach (Workshift workshift in workday.shifts)
+                        {
+                            Color backColor = window.transparent;
+                            string personName = "KEINE PERSON GEFUNDEN";
+                            if (workmonth.shiftplan.ContainsKey(workshift))
+                            {
+                                personName = workmonth.shiftplan[workshift].name;
+                                if (person == workmonth.shiftplan[workshift])
+                                {
+                                    backColor = window.shiftOfPersonColor;
+                                }
+                            }
+
+                            ExportShiftPlanCell[] shiftInfo =
+                            {
+                                new ExportShiftPlanCell(backColor, Color.Black, personName),
+                                new ExportShiftPlanCell(backColor, Color.Black, workshift.ToString()),
+                                new ExportShiftPlanCell(backColor, Color.Black, workshift.description)
+                            };
+
+                            list.Add(shiftInfo);
+                        }
+
+                        ExportShiftPlanCell[] empty =
+                        {
+                            new ExportShiftPlanCell(window.transparent, window.transparent, ""),
+                            new ExportShiftPlanCell(window.transparent, window.transparent, ""),
+                            new ExportShiftPlanCell(window.transparent, window.transparent, "")
+                        };
+
+                        list.Add(empty);
+                    }
+                }
+            }
+            return list;
+        }
+
+        #endregion
+
         #endregion
 
         #region return Dicts
