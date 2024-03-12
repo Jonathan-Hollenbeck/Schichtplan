@@ -30,7 +30,7 @@ namespace Schichtplan
         /// <param name="e">event details</param>
         private void openToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            OpenFileDialog openFileDialog = createOpenFileDialog(Serializer.Instance().BASE_DICT + "" + Serializer.SAVE_FOLDER);
+            OpenFileDialog openFileDialog = createOpenFileDialog(Serializer.Instance().BASE_DICT + "" + Serializer.SAVE_DIRECTORY);
 
             if (openFileDialog.ShowDialog() == DialogResult.OK)
             {
@@ -74,7 +74,54 @@ namespace Schichtplan
 
         private void googleTabelleExportierenToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            menuControl.uploadToGoogleTableAsync();
+            Form googleSettingsForm = new Form();
+            googleSettingsForm.Size = new Size(300, 200);
+            googleSettingsForm.Text = "Google API Settings";
+
+            TextBox spreadSheetIdTextBox = new TextBox();
+            spreadSheetIdTextBox.Location = new Point(10, 10);
+            spreadSheetIdTextBox.Size = new Size(270, 30);
+            spreadSheetIdTextBox.Text = modelControl.currentWorkmonth.settings.googleSheetsId;
+
+            TextBox keyPathTextBox = new TextBox();
+            keyPathTextBox.Location = new Point(10, 50);
+            keyPathTextBox.Size = new Size(270, 30);
+            keyPathTextBox.Text = modelControl.currentWorkmonth.settings.googleKeyPath;
+
+            Button selectKeyPathButton = new Button();
+            selectKeyPathButton.Location = new Point(10, 70);
+            selectKeyPathButton.Size = new Size(270, 30);
+            selectKeyPathButton.Text = "Google API Schlüssel wählen";
+            selectKeyPathButton.Click += (s, ev) =>
+            {
+                OpenFileDialog openFileDialog = createOpenFileDialog(Serializer.Instance().BASE_DICT);
+
+                if (openFileDialog.ShowDialog() == DialogResult.OK)
+                {
+                    modelControl.currentWorkmonth.settings.googleKeyPath = openFileDialog.FileName;
+                    keyPathTextBox.Text = modelControl.currentWorkmonth.settings.googleKeyPath;
+                }
+            };
+
+            Button uploadToGoogleSheetsButton = new Button();
+            uploadToGoogleSheetsButton.Location = new Point(10, 120);
+            uploadToGoogleSheetsButton.Size = new Size(270, 30);
+            uploadToGoogleSheetsButton.Text = "hochladen";
+            uploadToGoogleSheetsButton.Click += (s, ev) =>
+            {
+                modelControl.currentWorkmonth.settings.googleSheetsId = spreadSheetIdTextBox.Text;
+
+                menuControl.uploadToGoogleTableAsync(
+                    modelControl.currentWorkmonth.settings.googleSheetsId,
+                    modelControl.currentWorkmonth.settings.googleKeyPath
+                    );
+            };
+
+            googleSettingsForm.Controls.Add(spreadSheetIdTextBox);
+            googleSettingsForm.Controls.Add(keyPathTextBox);
+            googleSettingsForm.Controls.Add(selectKeyPathButton);
+            googleSettingsForm.Controls.Add(uploadToGoogleSheetsButton);
+            googleSettingsForm.ShowDialog();
         }
 
         #region persons sort menu items

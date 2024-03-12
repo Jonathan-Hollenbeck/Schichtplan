@@ -8,24 +8,24 @@ namespace Schichtplan
     public class Serializer
     {
         /// <summary>
-        /// variable to declare the save folder for the save files
+        /// variable to declare the save directory for the save files
         /// </summary>
-        public const string SAVE_FOLDER = "/saves/";
+        public const string SAVE_DIRECTORY = "/saves/";
 
         /// <summary>
-        /// variable to declare the save folder for the csv files
+        /// variable to declare the save directory for the csv files
         /// </summary>
-        public const string CSV_FOLDER = "/csv/";
+        public const string CSV_DIRECTORY = "/csv/";
 
         /// <summary>
-        /// variable to declare the save folder for the ics calender files
+        /// variable to declare the save directory for the ics calender files
         /// </summary>
-        public const string ICS_FOLDER = "/calender/";
+        public const string ICS_DIRECTORY = "/calender/";
 
         /// <summary>
-        /// variable to declare the save folder for the html files
+        /// variable to declare the save directory for the html files
         /// </summary>
-        public const string HTML_FOLDER = "/html/";
+        public const string HTML_DIRECTORY = "/html/";
 
         /// <summary>
         /// variable to declare the base directory

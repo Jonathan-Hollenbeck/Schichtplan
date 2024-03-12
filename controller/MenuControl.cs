@@ -25,7 +25,7 @@ namespace Schichtplan.controller
         {
             Workmonth workmonth = modelControl.currentWorkmonth;
             workmonth.hourCarryOverThisMonth = modelControl.getCarryOverHoursForWorkdaysForPersonsInShiftplan(workmonth.persons, workmonth.workdays, workmonth.shiftplan, workmonth.hourCarryOverLastMonth);
-            Serializer.Instance().saveObject(Serializer.Instance().BASE_DICT + "" + Serializer.SAVE_FOLDER + "" + modelControl.getYearMonthString() + ".save", workmonth);
+            Serializer.Instance().saveObject(Serializer.Instance().BASE_DICT + "" + Serializer.SAVE_DIRECTORY + "" + modelControl.getYearMonthString() + ".save", workmonth);
         }
 
         /// <summary>
@@ -44,7 +44,7 @@ namespace Schichtplan.controller
         {
             Workmonth workmonth = modelControl.currentWorkmonth;
 
-            Serializer.Instance().createDir(Serializer.Instance().BASE_DICT + "" + Serializer.CSV_FOLDER + "" + modelControl.getYearMonthString() + "/");
+            Serializer.Instance().createDir(Serializer.Instance().BASE_DICT + "" + Serializer.CSV_DIRECTORY + "" + modelControl.getYearMonthString() + "/");
 
             // Files for the persons
             foreach (Person person in workmonth.persons)
@@ -72,7 +72,7 @@ namespace Schichtplan.controller
                     }
                 }
 
-                Serializer.Instance().writeToFile(Serializer.Instance().BASE_DICT + "" + Serializer.CSV_FOLDER + modelControl.getYearMonthString() + "/" + person.name + ".csv", fileContentPerson);
+                Serializer.Instance().writeToFile(Serializer.Instance().BASE_DICT + "" + Serializer.CSV_DIRECTORY + modelControl.getYearMonthString() + "/" + person.name + ".csv", fileContentPerson);
             }
 
             //File for all Shifts
@@ -98,7 +98,7 @@ namespace Schichtplan.controller
                 }
             }
 
-            Serializer.Instance().writeToFile(Serializer.Instance().BASE_DICT + "" + Serializer.CSV_FOLDER + modelControl.getYearMonthString() + "/Schichten.csv", fileContentShifts);
+            Serializer.Instance().writeToFile(Serializer.Instance().BASE_DICT + "" + Serializer.CSV_DIRECTORY + modelControl.getYearMonthString() + "/Schichten.csv", fileContentShifts);
 
             //File with general info
             //Info for every Person
@@ -165,7 +165,7 @@ namespace Schichtplan.controller
 
             fileContentGeneral += "Summe Stunden:;" + modelControl.getWorktimeInWorkdays(workmonth.workdays) + "h";
 
-            Serializer.Instance().writeToFile(Serializer.Instance().BASE_DICT + "" + Serializer.CSV_FOLDER + modelControl.getYearMonthString() + "/Generelle_Infos.csv", fileContentGeneral);
+            Serializer.Instance().writeToFile(Serializer.Instance().BASE_DICT + "" + Serializer.CSV_DIRECTORY + modelControl.getYearMonthString() + "/Generelle_Infos.csv", fileContentGeneral);
         }
 
         /// <summary>
@@ -177,7 +177,7 @@ namespace Schichtplan.controller
 
             List<List<Workday>> weeks = modelControl.getWeeksInWorkdays(workmonth.workdays);
 
-            Serializer.Instance().createDir(Serializer.Instance().BASE_DICT + "" + Serializer.HTML_FOLDER + "" + modelControl.getYearMonthString() + "/");
+            Serializer.Instance().createDir(Serializer.Instance().BASE_DICT + "" + Serializer.HTML_DIRECTORY + "" + modelControl.getYearMonthString() + "/");
 
             // Files for the persons
             foreach (Person person in workmonth.persons)
@@ -243,7 +243,7 @@ namespace Schichtplan.controller
                 }
                 fileContentPerson += "</html>";
 
-                Serializer.Instance().writeToFile(Serializer.Instance().BASE_DICT + "" + Serializer.HTML_FOLDER + modelControl.getYearMonthString() + "/" + person.name + ".html", fileContentPerson);
+                Serializer.Instance().writeToFile(Serializer.Instance().BASE_DICT + "" + Serializer.HTML_DIRECTORY + modelControl.getYearMonthString() + "/" + person.name + ".html", fileContentPerson);
             }
 
             string fileContentShift = "<html>\n";
@@ -312,7 +312,7 @@ namespace Schichtplan.controller
 
             fileContentShift += "</html>";
 
-            Serializer.Instance().writeToFile(Serializer.Instance().BASE_DICT + "" + Serializer.HTML_FOLDER + modelControl.getYearMonthString() + "/Schichten.html", fileContentShift);
+            Serializer.Instance().writeToFile(Serializer.Instance().BASE_DICT + "" + Serializer.HTML_DIRECTORY + modelControl.getYearMonthString() + "/Schichten.html", fileContentShift);
         }
 
         /// <summary>
@@ -322,7 +322,7 @@ namespace Schichtplan.controller
         {
             Workmonth workmonth = modelControl.currentWorkmonth;
 
-            Serializer.Instance().createDir(Serializer.Instance().BASE_DICT + "" + Serializer.ICS_FOLDER + "" + modelControl.getYearMonthString() + "/");
+            Serializer.Instance().createDir(Serializer.Instance().BASE_DICT + "" + Serializer.ICS_DIRECTORY + "" + modelControl.getYearMonthString() + "/");
 
             // Files for the persons
             foreach (Person person in workmonth.persons)
@@ -356,7 +356,7 @@ namespace Schichtplan.controller
 
                 fileContentPerson += "END:VCALENDAR";
 
-                Serializer.Instance().writeToFile(Serializer.Instance().BASE_DICT + "" + Serializer.ICS_FOLDER + modelControl.getYearMonthString() + "/" + person.name + ".ics", fileContentPerson);
+                Serializer.Instance().writeToFile(Serializer.Instance().BASE_DICT + "" + Serializer.ICS_DIRECTORY + modelControl.getYearMonthString() + "/" + person.name + ".ics", fileContentPerson);
             }
 
             // Files for all shifts of the day
@@ -400,19 +400,18 @@ namespace Schichtplan.controller
 
             fileContentShifts += "END:VCALENDAR";
 
-            Serializer.Instance().writeToFile(Serializer.Instance().BASE_DICT + "" + Serializer.ICS_FOLDER + modelControl.getYearMonthString() + "/Schichten.ics", fileContentShifts);
+            Serializer.Instance().writeToFile(Serializer.Instance().BASE_DICT + "" + Serializer.ICS_DIRECTORY + modelControl.getYearMonthString() + "/Schichten.ics", fileContentShifts);
         }
 
         /// <summary>
         /// uploads the shiftplan to google table
         /// </summary>
-        public async Task uploadToGoogleTableAsync()
+        public async Task uploadToGoogleTableAsync(string spreadsheetId, string key_path)
         {
             //variable for workmonth
             Workmonth workmonth = modelControl.currentWorkmonth;
 
-            // spreadsheetId and worksheetName and resulting targetRange
-            string spreadsheetId = "1Vzc52Sxsqe0Ee8YPZI5Q51j-EePgLYTl_jJtMb69_iI";
+            //worksheetName and resulting targetRange
             string worksheetName = modelControl.getYearMonthString();
             string targetRange = worksheetName + "!A1:C";
             int sheetId = 0;
@@ -420,7 +419,7 @@ namespace Schichtplan.controller
             // create the sheets service object
             SheetsService sheetsService = new SheetsService(new BaseClientService.Initializer()
             {
-                HttpClientInitializer = GoogleCredential.FromFile("../../google_cloud_key/key.json"),
+                HttpClientInitializer = GoogleCredential.FromFile(key_path),
                 ApplicationName = "Schichtplan"
             });
 

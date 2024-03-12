@@ -571,7 +571,7 @@ namespace Schichtplan
                 "Willst du fortfahren?", "", MessageBoxButtons.YesNo);
             if (dialogResult == DialogResult.Yes)
             {
-                OpenFileDialog openFileDialog = createOpenFileDialog(Serializer.Instance().BASE_DICT + "" + Serializer.SAVE_FOLDER);
+                OpenFileDialog openFileDialog = createOpenFileDialog(Serializer.Instance().BASE_DICT + "" + Serializer.SAVE_DIRECTORY);
 
                 if (openFileDialog.ShowDialog() == DialogResult.OK)
                 {

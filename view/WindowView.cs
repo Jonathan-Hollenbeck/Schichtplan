@@ -110,19 +110,18 @@ namespace Schichtplan
             currentClickedControls = new List<ControlColorSave>();
 
             //create Folders for save files
-            Serializer.Instance().createDir(Serializer.Instance().BASE_DICT + "" + Serializer.SAVE_FOLDER);
-            Serializer.Instance().createDir(Serializer.Instance().BASE_DICT + "" + Serializer.CSV_FOLDER);
-            Serializer.Instance().createDir(Serializer.Instance().BASE_DICT + "" + Serializer.ICS_FOLDER);
-            Serializer.Instance().createDir(Serializer.Instance().BASE_DICT + "" + Serializer.HTML_FOLDER);
+            Serializer.Instance().createDir(Serializer.Instance().BASE_DICT + "" + Serializer.SAVE_DIRECTORY);
+            Serializer.Instance().createDir(Serializer.Instance().BASE_DICT + "" + Serializer.CSV_DIRECTORY);
+            Serializer.Instance().createDir(Serializer.Instance().BASE_DICT + "" + Serializer.ICS_DIRECTORY);
+            Serializer.Instance().createDir(Serializer.Instance().BASE_DICT + "" + Serializer.HTML_DIRECTORY);
 
             InitializeComponent();
-
 
             //enter current year and month into textbox
             yearTextBox.Text = currentDate.Year.ToString();
             monthTextBox.Text = currentDate.Month.ToString();
 
-            string filePath = Serializer.Instance().BASE_DICT + "" + Serializer.SAVE_FOLDER + "" + currentDate.Year + "_" + currentDate.Month + "-" + modelControl.getMonthNameFromMonthNumber(currentDate.Month) + ".save";
+            string filePath = Serializer.Instance().BASE_DICT + "" + Serializer.SAVE_DIRECTORY + "" + currentDate.Year + "_" + currentDate.Month + "-" + modelControl.getMonthNameFromMonthNumber(currentDate.Month) + ".save";
 
             //check if there is a file for the current month and year
             if (Serializer.Instance().fileExists(filePath))

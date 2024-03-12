@@ -251,7 +251,7 @@ namespace Schichtplan
         private void loadFromOtherMonthButton_Click(object sender, EventArgs e)
         {
             //create openfiledialog with the save folder open
-            OpenFileDialog openFileDialog = createOpenFileDialog(Serializer.Instance().BASE_DICT + "" + Serializer.SAVE_FOLDER);
+            OpenFileDialog openFileDialog = createOpenFileDialog(Serializer.Instance().BASE_DICT + "" + Serializer.SAVE_DIRECTORY);
 
             if (openFileDialog.ShowDialog() == DialogResult.OK)
             {

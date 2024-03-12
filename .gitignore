@@ -398,4 +398,6 @@ FodyWeavers.xsd
 *.sln.iml
 
 # google cloud schluessel
-google_cloud_key/
+google_key/
+bin/Debug/google_key/
+bin/Release/google_key/
