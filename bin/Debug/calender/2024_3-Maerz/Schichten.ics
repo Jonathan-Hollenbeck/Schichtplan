@@ -12,7 +12,7 @@ SEQUENCE:0
 END:VEVENT
 BEGIN:VEVENT
 SUMMARY:Los Amigos heute: 4 Schichten.
-DESCRIPTION:Helen: 11:0-17:0, Service\nJules: 17:0-22:30, Service\nAlejandro: 13:0-17:0, Kueche\nAlejandro: 17:0-22:0, Kueche\n
+DESCRIPTION:Helen: 13:0-17:0, Service\nJules: 17:0-22:30, Service\nAlejandro: 11:0-17:0, Kueche\nAlejandro: 17:0-22:0, Kueche\n
 DTSTART:20240302T070000
 DTEND:20240302T071500
 LOCATION:Wolbecker Straße 128, 48155 Münster
@@ -21,7 +21,7 @@ SEQUENCE:0
 END:VEVENT
 BEGIN:VEVENT
 SUMMARY:Los Amigos heute: 4 Schichten.
-DESCRIPTION:Helen: 11:0-17:0, Service\nJules: 17:0-21:30, Service\nAlejandro: 13:0-15:0, Kueche\nDaniela: 15:0-21:0, Kueche\n
+DESCRIPTION:Sophie: 12:30-18:30, Service\nJules: 17:0-21:30, Service\nKerstin: 11:0-14:0, Service\nDaniela: 14:15-21:0, Kueche\n
 DTSTART:20240303T070000
 DTEND:20240303T071500
 LOCATION:Wolbecker Straße 128, 48155 Münster
@@ -48,7 +48,7 @@ SEQUENCE:0
 END:VEVENT
 BEGIN:VEVENT
 SUMMARY:Los Amigos heute: 3 Schichten.
-DESCRIPTION:Jules: 11:0-17:0, Service\nSophie: 17:0-22:30, Service\nAlejandro: 17:0-22:0, Kueche\n
+DESCRIPTION:Jules: 11:0-17:0, Service\nSophie: 17:0-23:0, Service\nAlejandro: 17:0-22:30, Kueche\n
 DTSTART:20240308T070000
 DTEND:20240308T071500
 LOCATION:Wolbecker Straße 128, 48155 Münster

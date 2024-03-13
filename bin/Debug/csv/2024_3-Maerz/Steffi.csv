@@ -1,38 +1,28 @@
-Mittwoch, 6 Maerz;;
-
-Alejandro;11:0-17:0, Service;-
-Steffi;17:0-22:30, Service;-
-Daniela;17:0-22:0, Kueche;-
-
-
-Samstag, 16 Maerz;;
-
-Helen;11:0-17:0, Service;-
-Steffi;17:0-22:30, Service;-
-Alejandro;13:0-17:0, Kueche;-
-Sophie;17:0-22:0, Kueche;-
-
-
-Freitag, 22 Maerz;;
-
-Steffi;11:0-17:0, Service;-
-Alejandro;17:0-22:30, Service;-
-Sophie;17:0-22:0, Kueche;-
-
-
-Samstag, 30 Maerz;;
-
-Steffi;11:0-17:0, Service;-
-Amelie;17:0-22:30, Service;-
-Alejandro;13:0-17:0, Kueche;-
-Alejandro;17:0-22:0, Kueche;-
-
-
-Sonntag, 31 Maerz;;
-
-Jules;11:0-17:0, Service;-
-Steffi;17:0-21:30, Service;-
-Alejandro;13:0-15:0, Kueche;-
-Sophie;15:0-21:0, Kueche;-
-
-
+Woche 0, 1 Maerz - 3 Maerz;;;
+Woche 1, 4 Maerz - 10 Maerz;;;
+Mittwoch, 6 Maerz;;;
+Alejandro;11:0-17:0, Service;-;
+Steffi;17:0-22:30, Service;-;
+Daniela;17:0-22:0, Kueche;-;
+;;;
+Woche 2, 11 Maerz - 17 Maerz;;;
+Samstag, 16 Maerz;;;
+Helen;11:0-17:0, Service;-;
+Amelie;17:0-24:0, Service;Live Musik Event;
+Sophie;13:0-17:0, Kueche;-;
+Steffi;17:0-24:0, Kueche;Live Musik Event, wenig Kueche;
+;;;
+Woche 3, 18 Maerz - 24 Maerz;;;
+Woche 4, 25 Maerz - 31 Maerz;;;
+Samstag, 30 Maerz;;;
+Kerstin;11:0-17:0, Service;-;
+Steffi;17:0-22:30, Service;-;
+Alejandro;13:0-17:0, Kueche;-;
+Alejandro;17:0-22:0, Kueche;-;
+;;;
+Sonntag, 31 Maerz;;;
+Sophie;11:0-17:0, Service;-;
+Steffi;17:0-21:30, Service;-;
+Sophie;13:0-15:0, Kueche;-;
+Alejandro;15:0-21:0, Kueche;-;
+;;;

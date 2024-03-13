@@ -426,9 +426,9 @@ namespace Schichtplan
 
                 ExportShiftPlanCell[] weekInfo =
                 {
-                    new ExportShiftPlanCell(window.weekColor, window.weekFontColor, "Woche " + weekCounter + ", " + getFirstAndLastDayInWorkdaysAsString(week)),
-                    new ExportShiftPlanCell(window.weekColor, window.weekFontColor, ""),
-                    new ExportShiftPlanCell(window.weekColor, window.weekFontColor, "")
+                    new ExportShiftPlanCell(window.weekColor, window.weekFontColor, "Woche " + weekCounter + ", " + getFirstAndLastDayInWorkdaysAsString(week), window.weekFontSize, true),
+                    new ExportShiftPlanCell(window.weekColor, window.weekFontColor, "", window.weekFontSize, true),
+                    new ExportShiftPlanCell(window.weekColor, window.weekFontColor, "", window.weekFontSize, true)
                 };
 
                 list.Add(weekInfo);
@@ -439,9 +439,9 @@ namespace Schichtplan
                     {
                         ExportShiftPlanCell[] dayInfo =
                         {
-                            new ExportShiftPlanCell(window.dayColor, window.dayFontColor, workday.weekday + ", " + workday.day + " " + workmonth.monthName),
-                            new ExportShiftPlanCell(window.dayColor, window.dayFontColor, ""),
-                            new ExportShiftPlanCell(window.dayColor, window.dayFontColor, "")
+                            new ExportShiftPlanCell(window.dayColor, window.dayFontColor, workday.weekday + ", " + workday.day + " " + workmonth.monthName, window.dayFontSize, true),
+                            new ExportShiftPlanCell(window.dayColor, window.dayFontColor, "", window.dayFontSize, true),
+                            new ExportShiftPlanCell(window.dayColor, window.dayFontColor, "", window.dayFontSize, true)
                         };
 
                         list.Add(dayInfo);
@@ -469,9 +469,9 @@ namespace Schichtplan
 
                             ExportShiftPlanCell[] shiftInfo =
                             {
-                                new ExportShiftPlanCell(backColorPerson, Color.Black, personName),
-                                new ExportShiftPlanCell(backColorShift, Color.Black, workshift.ToString()),
-                                new ExportShiftPlanCell(window.transparent, Color.Black, workshift.description)
+                                new ExportShiftPlanCell(backColorPerson, Color.Black, personName, window.normalFontSize, false),
+                                new ExportShiftPlanCell(backColorShift, Color.Black, workshift.ToString(), window.normalFontSize, false),
+                                new ExportShiftPlanCell(window.transparent, Color.Black, workshift.description, window.normalFontSize, false)
                             };
 
                             list.Add(shiftInfo);
@@ -479,9 +479,9 @@ namespace Schichtplan
 
                         ExportShiftPlanCell[] empty =
                         {
-                            new ExportShiftPlanCell(window.transparent, window.transparent, ""),
-                            new ExportShiftPlanCell(window.transparent, window.transparent, ""),
-                            new ExportShiftPlanCell(window.transparent, window.transparent, "")
+                            new ExportShiftPlanCell(window.transparent, window.transparent, "", window.normalFontSize, false),
+                            new ExportShiftPlanCell(window.transparent, window.transparent, "", window.normalFontSize, false),
+                            new ExportShiftPlanCell(window.transparent, window.transparent, "", window.normalFontSize, false)
                         };
 
                         list.Add(empty);
@@ -509,9 +509,9 @@ namespace Schichtplan
 
                 ExportShiftPlanCell[] weekInfo =
                 {
-                    new ExportShiftPlanCell(window.weekColor, window.weekFontColor, "Woche " + weekCounter + ", " + getFirstAndLastDayInWorkdaysAsString(week)),
-                    new ExportShiftPlanCell(window.weekColor, window.weekFontColor, ""),
-                    new ExportShiftPlanCell(window.weekColor, window.weekFontColor, "")
+                    new ExportShiftPlanCell(window.weekColor, window.weekFontColor, "Woche " + weekCounter + ", " + getFirstAndLastDayInWorkdaysAsString(week), window.weekFontSize, true),
+                    new ExportShiftPlanCell(window.weekColor, window.weekFontColor, "", window.weekFontSize, true),
+                    new ExportShiftPlanCell(window.weekColor, window.weekFontColor, "", window.weekFontSize, true)
                 };
 
                 list.Add(weekInfo);
@@ -522,9 +522,9 @@ namespace Schichtplan
                     {
                         ExportShiftPlanCell[] dayInfo =
                         {
-                            new ExportShiftPlanCell(window.dayColor, window.dayFontColor, workday.weekday + ", " + workday.day + " " + workmonth.monthName),
-                            new ExportShiftPlanCell(window.dayColor, window.dayFontColor, ""),
-                            new ExportShiftPlanCell(window.dayColor, window.dayFontColor, "")
+                            new ExportShiftPlanCell(window.dayColor, window.dayFontColor, workday.weekday + ", " + workday.day + " " + workmonth.monthName, window.dayFontSize, true),
+                            new ExportShiftPlanCell(window.dayColor, window.dayFontColor, "", window.dayFontSize, true),
+                            new ExportShiftPlanCell(window.dayColor, window.dayFontColor, "", window.dayFontSize, true)
                         };
 
                         list.Add(dayInfo);
@@ -544,9 +544,9 @@ namespace Schichtplan
 
                             ExportShiftPlanCell[] shiftInfo =
                             {
-                                new ExportShiftPlanCell(backColor, Color.Black, personName),
-                                new ExportShiftPlanCell(backColor, Color.Black, workshift.ToString()),
-                                new ExportShiftPlanCell(backColor, Color.Black, workshift.description)
+                                new ExportShiftPlanCell(backColor, Color.Black, personName, window.normalFontSize, false),
+                                new ExportShiftPlanCell(backColor, Color.Black, workshift.ToString(), window.normalFontSize, false),
+                                new ExportShiftPlanCell(backColor, Color.Black, workshift.description, window.normalFontSize, false)
                             };
 
                             list.Add(shiftInfo);
@@ -554,9 +554,9 @@ namespace Schichtplan
 
                         ExportShiftPlanCell[] empty =
                         {
-                            new ExportShiftPlanCell(window.transparent, window.transparent, ""),
-                            new ExportShiftPlanCell(window.transparent, window.transparent, ""),
-                            new ExportShiftPlanCell(window.transparent, window.transparent, "")
+                            new ExportShiftPlanCell(window.transparent, window.transparent, "", window.normalFontSize, false),
+                            new ExportShiftPlanCell(window.transparent, window.transparent, "", window.normalFontSize, false),
+                            new ExportShiftPlanCell(window.transparent, window.transparent, "", window.normalFontSize, false)
                         };
 
                         list.Add(empty);
@@ -579,12 +579,12 @@ namespace Schichtplan
             //Info for every Person
             ExportShiftPlanCell[] header =
             {
-                new ExportShiftPlanCell(window.infoPersonHeaderColor, Color.Black, "Name"),
-                new ExportShiftPlanCell(window.infoPersonHeaderColor, Color.Black, "Gehalt pro Stunde"),
-                new ExportShiftPlanCell(window.infoPersonHeaderColor, Color.Black, "Stunden gearbeitet diesen Monat"),
-                new ExportShiftPlanCell(window.infoPersonHeaderColor, Color.Black, "Monatsgehalt (davon vom letzten Monat)"),
-                new ExportShiftPlanCell(window.infoPersonHeaderColor, Color.Black, "Tage nicht gearbeitet"),
-                new ExportShiftPlanCell(window.infoPersonHeaderColor, Color.Black, "Anzahl Schichten")
+                new ExportShiftPlanCell(window.infoPersonHeaderColor, Color.Black, "Name", window.weekFontSize, true),
+                new ExportShiftPlanCell(window.infoPersonHeaderColor, Color.Black, "Gehalt pro Stunde", window.weekFontSize, true),
+                new ExportShiftPlanCell(window.infoPersonHeaderColor, Color.Black, "Stunden gearbeitet diesen Monat", window.weekFontSize, true),
+                new ExportShiftPlanCell(window.infoPersonHeaderColor, Color.Black, "Monatsgehalt (davon vom letzten Monat)", window.weekFontSize, true),
+                new ExportShiftPlanCell(window.infoPersonHeaderColor, Color.Black, "Tage nicht gearbeitet", window.weekFontSize, true),
+                new ExportShiftPlanCell(window.infoPersonHeaderColor, Color.Black, "Anzahl Schichten", window.weekFontSize, true)
             };
 
             list.Add(header);
@@ -624,12 +624,12 @@ namespace Schichtplan
 
                 ExportShiftPlanCell[] personInfo =
                 {
-                    new ExportShiftPlanCell(window.infoPersonHeaderColor, Color.Black, person.name),
-                    new ExportShiftPlanCell(backColor, Color.Black, person.saleryPerHour + "€"),
-                    new ExportShiftPlanCell(workedHoursBackColor, Color.Black, worktime + "h (" + person.minWorkHours + "h, " + person.maxWorkHours + "h)"),
-                    new ExportShiftPlanCell(backColor, Color.Black, Util.clampToDecimalpoints(((carryOver + worktime) * person.saleryPerHour), 2) + "€ (" + Util.clampToDecimalpoints((carryOver * person.saleryPerHour), 2) + "€)"),
-                    new ExportShiftPlanCell(backColor, Color.Black, daysNotWorking + "/" + workingDays),
-                    new ExportShiftPlanCell(backColor, Color.Black, workshiftAmountsString)
+                    new ExportShiftPlanCell(window.infoPersonHeaderColor, Color.Black, person.name, window.weekFontSize, true),
+                    new ExportShiftPlanCell(backColor, Color.Black, person.saleryPerHour + "€", window.normalFontSize, false),
+                    new ExportShiftPlanCell(workedHoursBackColor, Color.Black, worktime + "h (" + person.minWorkHours + "h, " + person.maxWorkHours + "h)", window.normalFontSize, false),
+                    new ExportShiftPlanCell(backColor, Color.Black, Util.clampToDecimalpoints(((carryOver + worktime) * person.saleryPerHour), 2) + "€ (" + Util.clampToDecimalpoints((carryOver * person.saleryPerHour), 2) + "€)", window.normalFontSize, false),
+                    new ExportShiftPlanCell(backColor, Color.Black, daysNotWorking + "/" + workingDays, window.normalFontSize, false),
+                    new ExportShiftPlanCell(backColor, Color.Black, workshiftAmountsString, window.normalFontSize, false)
                 };
                 list.Add(personInfo);
             }
@@ -669,28 +669,90 @@ namespace Schichtplan
                 workshiftSum + " (" + workshiftsByShiftTypeString.Substring(0, workshiftsByShiftTypeString.Length - 2) + ")"
                 : "";
 
-            //add to list
-            ExportShiftPlanCell[] salerySumInfo =
-            {
-                new ExportShiftPlanCell(window.transparent, Color.Black, "Summe Gehaelter:"),
-                new ExportShiftPlanCell(window.transparent, Color.Black, Util.clampToDecimalpoints(salarySum, 2) + "€ (" + Util.clampToDecimalpoints(carryOverSalerySum, 2) + "€)")
-            };
-            list.Add(salerySumInfo);
+            //costs
+            float fixCostsAmountSum = getCostsAmountSum(workmonth.fixCosts);
+            float variableCostsAmountSum = getCostsAmountSum(workmonth.variableCosts);
 
+            //turnover
+            float turnover = workmonth.turnoverMonth;
+            float profit = turnover - salarySum - getCostsAmountSum(workmonth.fixCosts) - getCostsAmountSum(workmonth.variableCosts);
+
+            //add to list
+            //shift and workhoursum
             ExportShiftPlanCell[] shiftsSumInfo =
             {
-                new ExportShiftPlanCell(window.transparent, Color.Black, "Summe Schichten:"),
-                new ExportShiftPlanCell(window.transparent, Color.Black, shiftsSum)
+                new ExportShiftPlanCell(window.transparent, Color.Black, "Summe Schichten:", window.normalFontSize, false),
+                new ExportShiftPlanCell(window.transparent, Color.Black, shiftsSum, window.normalFontSize, false)
             };
             list.Add(shiftsSumInfo);
 
             ExportShiftPlanCell[] workhoursSumInfo =
             {
-                new ExportShiftPlanCell(window.transparent, Color.Black, "Summe Stunden:"),
-                new ExportShiftPlanCell(window.transparent, Color.Black, getWorktimeInWorkdays(workmonth.workdays) + "h")
+                new ExportShiftPlanCell(window.transparent, Color.Black, "Summe Stunden:", window.normalFontSize, false),
+                new ExportShiftPlanCell(window.transparent, Color.Black, getWorktimeInWorkdays(workmonth.workdays) + "h", window.normalFontSize, false)
             };
             list.Add(workhoursSumInfo);
 
+            //salery
+            ExportShiftPlanCell[] salerySumInfo =
+            {
+                new ExportShiftPlanCell(window.transparent, Color.Black, "Summe Gehaelter:", window.normalFontSize, false),
+                new ExportShiftPlanCell(window.transparent, Color.Black, Util.clampToDecimalpoints(salarySum, 2) + "€ (" + Util.clampToDecimalpoints(carryOverSalerySum, 2) + "€)", window.normalFontSize, false)
+            };
+            list.Add(salerySumInfo);
+
+            //costs
+            ExportShiftPlanCell[] fixCostsSumInfo =
+            {
+                new ExportShiftPlanCell(window.transparent, Color.Black, "Summe Fix Kosten:", window.normalFontSize, false),
+                new ExportShiftPlanCell(window.transparent, Color.Black, Util.clampToDecimalpoints(fixCostsAmountSum, 2) + "€", window.normalFontSize, false)
+            };
+            list.Add(fixCostsSumInfo);
+
+            ExportShiftPlanCell[] variableCostsSumInfo =
+            {
+                new ExportShiftPlanCell(window.transparent, Color.Black, "Summe Variable Kosten:", window.normalFontSize, false),
+                new ExportShiftPlanCell(window.transparent, Color.Black, Util.clampToDecimalpoints(variableCostsAmountSum, 2) + "€", window.normalFontSize, false)
+            };
+            list.Add(variableCostsSumInfo);
+
+            ExportShiftPlanCell[] costsSumInfo =
+            {
+                new ExportShiftPlanCell(window.transparent, Color.Black, "Summe Kosten:", window.normalFontSize, false),
+                new ExportShiftPlanCell(window.transparent, Color.Black, Util.clampToDecimalpoints((fixCostsAmountSum + variableCostsAmountSum), 2) + "€", window.normalFontSize, false)
+            };
+            list.Add(costsSumInfo);
+
+            //turnover info
+            ExportShiftPlanCell[] monthTurnoverInfo =
+            {
+                new ExportShiftPlanCell(window.transparent, Color.Black, "Monatsumsatz:", window.normalFontSize, false),
+                new ExportShiftPlanCell(window.transparent, Color.Black, Util.clampToDecimalpoints(turnover, 2) + "€", window.normalFontSize, false)
+            };
+            list.Add(monthTurnoverInfo);
+
+            ExportShiftPlanCell[] averageTurnoverDayInfo =
+            {
+                new ExportShiftPlanCell(window.transparent, Color.Black, "Durschn. Umsatz pro Tag:", window.normalFontSize, false),
+                new ExportShiftPlanCell(window.transparent, Color.Black, Util.clampToDecimalpoints(turnover / getWorktimeInWorkdays(workmonth.workdays), 2) + "€", window.normalFontSize, false)
+            };
+            list.Add(averageTurnoverDayInfo);
+
+            ExportShiftPlanCell[] averageTurnoverHourInfo =
+            {
+                new ExportShiftPlanCell(window.transparent, Color.Black, "Durschn. Umsatz pro Stunde:", window.normalFontSize, false),
+                new ExportShiftPlanCell(window.transparent, Color.Black, Util.clampToDecimalpoints(turnover / getWorkingDaysCounter(workmonth.workdays), 2) + "€", window.normalFontSize, false)
+            };
+            list.Add(averageTurnoverHourInfo);
+
+            Color profitBackColor = profit > 0 ? Color.Green : Color.Red;
+            Color profitForeColor = profit > 0 ? Color.Black : Color.White;
+            ExportShiftPlanCell[] profitInfo =
+            {
+                new ExportShiftPlanCell(window.transparent, Color.Black, "Profit:", window.normalFontSize, false),
+                new ExportShiftPlanCell(profitBackColor, profitForeColor, Util.clampToDecimalpoints(profit, 2) + "€", window.normalFontSize, false)
+            };
+            list.Add(profitInfo);
             return list;
         }
 

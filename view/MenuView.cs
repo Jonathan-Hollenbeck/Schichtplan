@@ -72,11 +72,19 @@ namespace Schichtplan
             menuControl.exportHTMLFiles();
         }
 
+        /// <summary>
+        /// handels the event when the google upload menu item is clicked
+        /// </summary>
+        /// <param name="sender">the menu item for the google api upload</param>
+        /// <param name="e">event details</param>
         private void googleTabelleExportierenToolStripMenuItem_Click(object sender, EventArgs e)
         {
             Form googleSettingsForm = new Form();
             googleSettingsForm.Size = new Size(300, 200);
             googleSettingsForm.Text = "Google API Settings";
+            googleSettingsForm.FormBorderStyle = FormBorderStyle.FixedSingle;
+            googleSettingsForm.Icon = Properties.Resources.schichenplaner;
+            googleSettingsForm.StartPosition = FormStartPosition.CenterParent;
 
             TextBox spreadSheetIdTextBox = new TextBox();
             spreadSheetIdTextBox.Location = new Point(10, 10);
@@ -91,7 +99,7 @@ namespace Schichtplan
             Button selectKeyPathButton = new Button();
             selectKeyPathButton.Location = new Point(10, 70);
             selectKeyPathButton.Size = new Size(270, 30);
-            selectKeyPathButton.Text = "Google API Schlüssel wählen";
+            selectKeyPathButton.Text = "Google Schlüssel wählen";
             selectKeyPathButton.Click += (s, ev) =>
             {
                 OpenFileDialog openFileDialog = createOpenFileDialog(Serializer.Instance().BASE_DICT);
@@ -106,7 +114,7 @@ namespace Schichtplan
             Button uploadToGoogleSheetsButton = new Button();
             uploadToGoogleSheetsButton.Location = new Point(10, 120);
             uploadToGoogleSheetsButton.Size = new Size(270, 30);
-            uploadToGoogleSheetsButton.Text = "hochladen";
+            uploadToGoogleSheetsButton.Text = "Hochladen";
             uploadToGoogleSheetsButton.Click += (s, ev) =>
             {
                 modelControl.currentWorkmonth.settings.googleSheetsId = spreadSheetIdTextBox.Text;
@@ -114,7 +122,9 @@ namespace Schichtplan
                 menuControl.uploadToGoogleTableAsync(
                     modelControl.currentWorkmonth.settings.googleSheetsId,
                     modelControl.currentWorkmonth.settings.googleKeyPath
-                    );
+                );
+
+                googleSettingsForm.Close();
             };
 
             googleSettingsForm.Controls.Add(spreadSheetIdTextBox);

@@ -25,12 +25,12 @@ namespace Schichtplan.controller
             for (int r = 0; r < data.GetLength(0); r++)
             {
                 int day = Util.parseInt(data[r, 0], "Bitte nur Zahlen in das Bezahl Tag Textfeld eintragen. \n Am besten den Tag an dem der Betrag gezahlt wird als Zahl.");
-                float amount = Util.parseFloat(data[r, 3], "Bitte nur Zahlen in das Betrag Textfeld eintragen.");
+                float amount = Util.parseFloat(data[r, 4], "Bitte nur Zahlen in das Betrag Textfeld eintragen.");
                 if (day == -1 || amount == -1)
                 {
                     return;
                 }
-                costs.Add(new Cost(day, data[r, 1], data[r, 2], amount));
+                costs.Add(new Cost(day, data[r, 1], data[r, 2], data[r, 3], amount));
             }
         }
 

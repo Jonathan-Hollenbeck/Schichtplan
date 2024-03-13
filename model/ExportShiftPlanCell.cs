@@ -14,11 +14,17 @@ namespace Schichtplan.model
 
         public string text { get; set; }
 
-        public ExportShiftPlanCell(Color backColor, Color foreColor, string text)
+        public int fontSize { get; set; }
+
+        public bool bold { get; set; }
+
+        public ExportShiftPlanCell(Color backColor, Color foreColor, string text, int fontSize, bool bold)
         {
             this.backColor = backColor;
             this.foreColor = foreColor;
             this.text = text;
+            this.fontSize = fontSize;
+            this.bold = bold;
         }
     }
 }

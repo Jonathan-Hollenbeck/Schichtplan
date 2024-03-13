@@ -82,14 +82,13 @@ namespace Schichtplan
             shiftOfPersonColor = Color.FromArgb(255, 200, 192, 255),
             infoPersonHeaderColor = Color.FromArgb(255, 200, 192, 255);
 
-        public static float
-            dayFontSize = 11.0f,
-            weekFontSize = 11.0f;
-
         public static int
             dayLabelHeight = 30,
             weekLabelHeight = 30,
-            tableLabelHeight = 28;
+            tableLabelHeight = 28,
+            normalFontSize = 15,
+            dayFontSize = 20,
+            weekFontSize = 20;
 
         /// <summary>
         /// constructor, which sets up the application

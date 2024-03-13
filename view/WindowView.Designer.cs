@@ -110,7 +110,7 @@ namespace Schichtplan
             this.shiftPlanPersonsWithOutOfBoudsWorkhoursLabel = new System.Windows.Forms.Label();
             this.shiftPlanShowShiftsNotSetButton = new System.Windows.Forms.Button();
             this.shiftPlanShiftsNotSetLabel = new System.Windows.Forms.Label();
-            this.label1 = new System.Windows.Forms.Label();
+            this.shiftPlanShiftTypeColorLabel = new System.Windows.Forms.Label();
             this.shiftPlanShiftTypeColorButton = new System.Windows.Forms.Button();
             this.shiftPlanShiftTypeColorComboBox = new System.Windows.Forms.ComboBox();
             this.shiftPlanAlgorithmComboBox = new System.Windows.Forms.ComboBox();
@@ -139,6 +139,7 @@ namespace Schichtplan
             this.variableCostsDataGridView = new System.Windows.Forms.DataGridView();
             this.variableCostsPaydayColumn = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.variableCostsTypeColumn = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this.variableCostsBillerColumn = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.variableCostsDescriptionColumn = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.variableCostsAmountColumn = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.fixCostsPanel = new System.Windows.Forms.Panel();
@@ -149,6 +150,7 @@ namespace Schichtplan
             this.fixCostsDataGridView = new System.Windows.Forms.DataGridView();
             this.fixCostsPaydayColumn = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.fixCostsTypeColumn = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this.fixCostsBillerColumn = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.fixCostsDescriptionColumn = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.fixCostsAmountColumn = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.infoPersonTabPage = new System.Windows.Forms.TabPage();
@@ -226,6 +228,7 @@ namespace Schichtplan
             this.maxArbeitsstundenToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.schichtTypenToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.anmerkungenToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.menuSeparator = new System.Windows.Forms.ToolStripSeparator();
             this.yearMonthSelectorPanel.SuspendLayout();
             this.infoSettingsTabPage.SuspendLayout();
             this.shiftTabPage.SuspendLayout();
@@ -1022,7 +1025,7 @@ namespace Schichtplan
             this.shiftPlanFilterPanel.Controls.Add(this.shiftPlanPersonsWithOutOfBoudsWorkhoursLabel);
             this.shiftPlanFilterPanel.Controls.Add(this.shiftPlanShowShiftsNotSetButton);
             this.shiftPlanFilterPanel.Controls.Add(this.shiftPlanShiftsNotSetLabel);
-            this.shiftPlanFilterPanel.Controls.Add(this.label1);
+            this.shiftPlanFilterPanel.Controls.Add(this.shiftPlanShiftTypeColorLabel);
             this.shiftPlanFilterPanel.Controls.Add(this.shiftPlanShiftTypeColorButton);
             this.shiftPlanFilterPanel.Controls.Add(this.shiftPlanShiftTypeColorComboBox);
             this.shiftPlanFilterPanel.Controls.Add(this.shiftPlanAlgorithmComboBox);
@@ -1089,14 +1092,14 @@ namespace Schichtplan
             this.shiftPlanShiftsNotSetLabel.TabIndex = 22;
             this.shiftPlanShiftsNotSetLabel.Text = "Nicht gesetzte Schichten:";
             // 
-            // label1
+            // shiftPlanShiftTypeColorLabel
             // 
-            this.label1.AutoSize = true;
-            this.label1.Location = new System.Drawing.Point(242, 6);
-            this.label1.Name = "label1";
-            this.label1.Size = new System.Drawing.Size(94, 13);
-            this.label1.TabIndex = 21;
-            this.label1.Text = "Schicht Typ Farbe";
+            this.shiftPlanShiftTypeColorLabel.AutoSize = true;
+            this.shiftPlanShiftTypeColorLabel.Location = new System.Drawing.Point(242, 6);
+            this.shiftPlanShiftTypeColorLabel.Name = "shiftPlanShiftTypeColorLabel";
+            this.shiftPlanShiftTypeColorLabel.Size = new System.Drawing.Size(94, 13);
+            this.shiftPlanShiftTypeColorLabel.TabIndex = 21;
+            this.shiftPlanShiftTypeColorLabel.Text = "Schicht Typ Farbe";
             // 
             // shiftPlanShiftTypeColorButton
             // 
@@ -1345,6 +1348,7 @@ namespace Schichtplan
             this.variableCostsDataGridView.Columns.AddRange(new System.Windows.Forms.DataGridViewColumn[] {
             this.variableCostsPaydayColumn,
             this.variableCostsTypeColumn,
+            this.variableCostsBillerColumn,
             this.variableCostsDescriptionColumn,
             this.variableCostsAmountColumn});
             this.variableCostsDataGridView.Dock = System.Windows.Forms.DockStyle.Bottom;
@@ -1364,6 +1368,12 @@ namespace Schichtplan
             this.variableCostsTypeColumn.AutoSizeMode = System.Windows.Forms.DataGridViewAutoSizeColumnMode.Fill;
             this.variableCostsTypeColumn.HeaderText = "Typ";
             this.variableCostsTypeColumn.Name = "variableCostsTypeColumn";
+            // 
+            // variableCostsBillerColumn
+            // 
+            this.variableCostsBillerColumn.AutoSizeMode = System.Windows.Forms.DataGridViewAutoSizeColumnMode.Fill;
+            this.variableCostsBillerColumn.HeaderText = "Rechnungsstelle";
+            this.variableCostsBillerColumn.Name = "variableCostsBillerColumn";
             // 
             // variableCostsDescriptionColumn
             // 
@@ -1435,6 +1445,7 @@ namespace Schichtplan
             this.fixCostsDataGridView.Columns.AddRange(new System.Windows.Forms.DataGridViewColumn[] {
             this.fixCostsPaydayColumn,
             this.fixCostsTypeColumn,
+            this.fixCostsBillerColumn,
             this.fixCostsDescriptionColumn,
             this.fixCostsAmountColumn});
             this.fixCostsDataGridView.Dock = System.Windows.Forms.DockStyle.Bottom;
@@ -1454,6 +1465,12 @@ namespace Schichtplan
             this.fixCostsTypeColumn.AutoSizeMode = System.Windows.Forms.DataGridViewAutoSizeColumnMode.Fill;
             this.fixCostsTypeColumn.HeaderText = "Typ";
             this.fixCostsTypeColumn.Name = "fixCostsTypeColumn";
+            // 
+            // fixCostsBillerColumn
+            // 
+            this.fixCostsBillerColumn.AutoSizeMode = System.Windows.Forms.DataGridViewAutoSizeColumnMode.Fill;
+            this.fixCostsBillerColumn.HeaderText = "Rechnungssteller";
+            this.fixCostsBillerColumn.Name = "fixCostsBillerColumn";
             // 
             // fixCostsDescriptionColumn
             // 
@@ -2096,6 +2113,7 @@ namespace Schichtplan
             this.dateiToolStripMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this.saveToolStripMenuItem,
             this.openToolStripMenuItem,
+            this.menuSeparator,
             this.kalenderDateienExportierenToolStripMenuItem,
             this.exportAsCSVToolStripMenuItem,
             this.hTMLDateienExportierenToolStripMenuItem,
@@ -2201,6 +2219,11 @@ namespace Schichtplan
             this.anmerkungenToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
             this.anmerkungenToolStripMenuItem.Text = "Anmerkungen";
             this.anmerkungenToolStripMenuItem.Click += new System.EventHandler(this.anmerkungenToolStripMenuItem_Click);
+            // 
+            // menuSeparator
+            // 
+            this.menuSeparator.Name = "menuSeparator";
+            this.menuSeparator.Size = new System.Drawing.Size(223, 6);
             // 
             // window
             // 
@@ -2428,7 +2451,7 @@ namespace Schichtplan
         private System.Windows.Forms.ComboBox shiftPlanAlgorithmComboBox;
         private System.Windows.Forms.Button shiftPlanShiftTypeColorButton;
         private System.Windows.Forms.ComboBox shiftPlanShiftTypeColorComboBox;
-        private System.Windows.Forms.Label label1;
+        private System.Windows.Forms.Label shiftPlanShiftTypeColorLabel;
         private System.Windows.Forms.Button shiftPlanShowShiftsNotSetButton;
         private System.Windows.Forms.Label shiftPlanShiftsNotSetLabel;
         private System.Windows.Forms.TabPage costsTabPage;
@@ -2442,14 +2465,6 @@ namespace Schichtplan
         private System.Windows.Forms.Button fixCostsSaveButton;
         private System.Windows.Forms.Label fixCostsLabel;
         private System.Windows.Forms.DataGridView fixCostsDataGridView;
-        private System.Windows.Forms.DataGridViewTextBoxColumn variableCostsPaydayColumn;
-        private System.Windows.Forms.DataGridViewTextBoxColumn variableCostsTypeColumn;
-        private System.Windows.Forms.DataGridViewTextBoxColumn variableCostsDescriptionColumn;
-        private System.Windows.Forms.DataGridViewTextBoxColumn variableCostsAmountColumn;
-        private System.Windows.Forms.DataGridViewTextBoxColumn fixCostsPaydayColumn;
-        private System.Windows.Forms.DataGridViewTextBoxColumn fixCostsTypeColumn;
-        private System.Windows.Forms.DataGridViewTextBoxColumn fixCostsDescriptionColumn;
-        private System.Windows.Forms.DataGridViewTextBoxColumn fixCostsAmountColumn;
         private System.Windows.Forms.Label infoMonthFixCostsSumLabel;
         private System.Windows.Forms.Label infoMonthVariableCostsSumLabel;
         private System.Windows.Forms.Label infoMonthCostsSumContent;
@@ -2460,6 +2475,17 @@ namespace Schichtplan
         private System.Windows.Forms.Button shiftPlanPersonsWithOutOfBoudsWorkhoursButton;
         private System.Windows.Forms.Label shiftPlanPersonsWithOutOfBoudsWorkhoursLabel;
         private System.Windows.Forms.ToolStripMenuItem googleTabelleExportierenToolStripMenuItem;
+        private System.Windows.Forms.DataGridViewTextBoxColumn variableCostsPaydayColumn;
+        private System.Windows.Forms.DataGridViewTextBoxColumn variableCostsTypeColumn;
+        private System.Windows.Forms.DataGridViewTextBoxColumn variableCostsBillerColumn;
+        private System.Windows.Forms.DataGridViewTextBoxColumn variableCostsDescriptionColumn;
+        private System.Windows.Forms.DataGridViewTextBoxColumn variableCostsAmountColumn;
+        private System.Windows.Forms.DataGridViewTextBoxColumn fixCostsPaydayColumn;
+        private System.Windows.Forms.DataGridViewTextBoxColumn fixCostsTypeColumn;
+        private System.Windows.Forms.DataGridViewTextBoxColumn fixCostsBillerColumn;
+        private System.Windows.Forms.DataGridViewTextBoxColumn fixCostsDescriptionColumn;
+        private System.Windows.Forms.DataGridViewTextBoxColumn fixCostsAmountColumn;
+        private System.Windows.Forms.ToolStripSeparator menuSeparator;
     }
 }
 

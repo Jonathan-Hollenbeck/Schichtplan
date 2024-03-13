@@ -1,14 +1,20 @@
-Name;Gehalt pro Stunde;Stunden gearbeitet diesen Monat;Monatsgehalt (davon vom letzten Monat);Tage nicht gearbeitet;Anzahl Schichten
-Alejandro;12,41;85,5h (40h, 150h);1061,55 (0);6/23;Kueche: 17, Service: 3
-Amelie;12,41;55h (40h, 86h);683,05 (0);13/23;Service: 10
-Daniela;12,41;44h (20h, 40h);546,53 (0);15/23;Kueche: 8
-Helen;12,41;66h (40h, 86h);819,56 (0);12/23;Service: 11
-Jules;12,41;60h (40h, 86h);745,1 (0);12/23;Service: 11
-Kerstin;12,41;18h (40h, 86h);223,88 (0);20/23;Service: 3
-Sophie;12,41;53,5h (40h, 150h);664,43 (0);12/23;Kueche: 8, Service: 3
-Steffi;12,41;27,5h (20h, 40h);515,51 (173,74);18/23;Service: 5
+Name;Gehalt pro Stunde;Stunden gearbeitet diesen Monat;Monatsgehalt (davon vom letzten Monat);Tage nicht gearbeitet;Anzahl Schichten;
+Alejandro;12,41€;86,5h (40h, 150h);1073,46€ (0€);8/23;Kueche: 15, Service: 3;
+Amelie;12,41€;43,5h (40h, 86h);539,83€ (0€);15/23;Service: 8;
+Daniela;12,41€;44,25h (20h, 41h);549,14€ (0€);15/23;Kueche: 8;
+Helen;12,41€;46h (40h, 86h);570,86€ (0€);15/23;Service: 8;
+Jules;12,41€;67,5h (40h, 86h);837,67€ (0€);11/23;Service: 12;
+Kerstin;12,41€;44h (40h, 86h);546,03€ (0€);15/23;Service: 8;
+Sophie;12,41€;61h (40h, 150h);757,01€ (0€);11/23;Service: 5, Kueche: 8;
+Steffi;12,41€;22,5h (20h, 41h);452,96€ (173,74€);19/23;Service: 3;
 
-
-Gehaelter Sum:;5255,63 (173,74)
-Summe Schichten:;79 (Service: 46, Kueche: 33)
-Summe Stunden:;409,5h
+Summe Schichten:;79 (Service: 47, Kueche: 32);
+Summe Stunden:;415,25h;
+Summe Gehaelter:;5326,99€ (173,74€);
+Summe Fix Kosten:;0€;
+Summe Variable Kosten:;0€;
+Summe Kosten:;0€;
+Monatsumsatz:;10000€;
+Durschn. Umsatz pro Tag:;24,08€;
+Durschn. Umsatz pro Stunde:;434,78€;
+Profit:;4673€;

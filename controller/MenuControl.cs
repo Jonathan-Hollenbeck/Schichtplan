@@ -128,7 +128,6 @@ namespace Schichtplan.controller
             foreach (Person person in workmonth.persons)
             {
                 string fileContentPerson = "<html><table style=\"" +
-                                "border:1px solid;" +
                                 "text-align:left;" +
                                 "border-collapse:collapse;" +
                                 "width:100%" +
@@ -141,10 +140,13 @@ namespace Schichtplan.controller
                     fileContentPerson += "<tr>";
                     for (int i = 0; i < cells.Length; i++)
                     {
+                        string bold = cells[i].bold ? "bold" : "normal";
                         fileContentPerson += "<td style=\"width:33%;" +
-                            "height:20px;" + 
+                            "height:20px;" +
+                            "font-weight:" + bold + ";" +
+                            "font-size:" + cells[i].fontSize + ";" +
                             "background-color:" + window.getHTMLColor(cells[i].backColor) + ";" +
-                            "color:" + window.getHTMLColor(cells[i].foreColor) + ";\"" +
+                            "color:" + window.getHTMLColor(cells[i].foreColor) + "\";" +
                             ">" + cells[i].text + "</td>\n"; 
                     }
                     fileContentPerson += "</tr>\n";
@@ -157,7 +159,6 @@ namespace Schichtplan.controller
 
             //File for all Shifts
             string fileContentShift = "<html><table style=\"" +
-                "border:1px solid;" +
                 "text-align:left;" +
                 "border-collapse:collapse;" +
                 "width:100%" +
@@ -170,8 +171,11 @@ namespace Schichtplan.controller
                 fileContentShift += "<tr>";
                 for (int i = 0; i < cells.Length; i++)
                 {
+                    string bold = cells[i].bold ? "bold" : "normal";
                     fileContentShift += "<td style=\"width:33%;" +
                         "height:20px;" +
+                        "font-weight:" + bold + ";" +
+                        "font-size:" + cells[i].fontSize + ";" +
                         "background-color:" + window.getHTMLColor(cells[i].backColor) + ";" +
                         "color:" + window.getHTMLColor(cells[i].foreColor) + ";\"" +
                         ">" + cells[i].text + "</td>\n";
@@ -187,7 +191,6 @@ namespace Schichtplan.controller
 
             //persons
             string fileContentGeneral = "<html><table style=\"" +
-                "border:1px solid;" +
                 "text-align:left;" +
                 "border-collapse:collapse;" +
                 "width:100%" +
@@ -200,8 +203,11 @@ namespace Schichtplan.controller
                 fileContentGeneral += "<tr>";
                 for (int i = 0; i < cells.Length; i++)
                 {
+                    string bold = cells[i].bold ? "bold" : "normal";
                     fileContentGeneral += "<td style=\"width:17%;" +
                         "height:20px;" +
+                        "font-weight:" + bold + ";" +
+                        "font-size:" + cells[i].fontSize + ";" +
                         "background-color:" + window.getHTMLColor(cells[i].backColor) + ";" +
                         "color:" + window.getHTMLColor(cells[i].foreColor) + ";\"" +
                         ">" + cells[i].text + "</td>\n";
@@ -228,8 +234,11 @@ namespace Schichtplan.controller
                 fileContentGeneral += "<tr>";
                 for (int i = 0; i < cells.Length; i++)
                 {
+                    string bold = cells[i].bold ? "bold" : "normal";
                     fileContentGeneral += "<td style=\"width:17%;" +
                         "height:20px;" +
+                        "font-weight:" + bold + ";" +
+                        "font-size:" + cells[i].fontSize + ";" +
                         "background-color:" + window.getHTMLColor(cells[i].backColor) + ";" +
                         "color:" + window.getHTMLColor(cells[i].foreColor) + ";\"" +
                         ">" + cells[i].text + "</td>\n";
@@ -444,7 +453,8 @@ namespace Schichtplan.controller
                                 Blue = cell.foreColor.B / 255f
                             }
                         },
-                        FontSize = 12
+                        FontSize = (cell.fontSize - 3),
+                        Bold = cell.bold
                     };
 
                     cellData.UserEnteredFormat = format;
@@ -488,12 +498,14 @@ namespace Schichtplan.controller
             {
                 ClearValuesResponse clearResponse = await clearRequest.ExecuteAsync();
                 BatchUpdateSpreadsheetResponse changeDataResponse =  await batchUpdateData.ExecuteAsync();
+
+                System.Windows.Forms.MessageBox.Show("Hochladen erfolgreich!");
             }
             catch (Exception ex)
             {
                 Console.WriteLine("Error appending data: " + ex.Message);
+                System.Windows.Forms.MessageBox.Show("Hochladen fehlgeschlagen mit folgendem error:\n" + ex.Message);
             }
         }
-
     }
 }
